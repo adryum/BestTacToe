@@ -9,17 +9,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import besttactoe.composeapp.generated.resources.Res
-import besttactoe.composeapp.generated.resources.compose_multiplatform
-import besttactoe.composeapp.generated.resources.ic_checkmark
 import besttactoe.composeapp.generated.resources.ic_human
 import besttactoe.composeapp.generated.resources.ic_robot
 import besttactoe.composeapp.generated.resources.ic_settings
 import com.testdevlab.besttactoe.ui.components.IconTextButton
-import com.testdevlab.besttactoe.ui.components.ToggleButton
-import com.testdevlab.besttactoe.ui.components.ViewTitle
 import com.testdevlab.besttactoe.ui.theme.ldp
 import com.testdevlab.besttactoe.ui.theme.lightGreen
-import com.testdevlab.besttactoe.ui.viewmodels.MenuViewModel
 import com.testdevlab.besttactoe.ui.viewmodels.NavigationObject
 import com.testdevlab.besttactoe.ui.viewmodels.Views
 import de.drick.compose.hotpreview.HotPreview
@@ -28,7 +23,6 @@ import de.drick.compose.hotpreview.HotPreview
 @Composable
 fun MainView(
     navigationObject: NavigationObject = NavigationObject,
-    menuViewModel: MenuViewModel = MenuViewModel
 ) {
     MainViewContent(
         goTo = navigationObject::goTo

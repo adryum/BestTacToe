@@ -1,9 +1,9 @@
 package com.testdevlab.besttactoe.ui.theme
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import com.testdevlab.besttactoe.ui.PiecesUIModel
 import com.testdevlab.besttactoe.ui.viewmodels.Views
 
 val Int.ldp @Composable get() = with (LocalDensity.current) {
@@ -45,3 +45,5 @@ fun Views.getViewTitle(): String = when (this) {
     Views.MultiplayerView -> "Multiplayer"
     Views.SettingsView -> "Settings"
 }
+
+fun List<PiecesUIModel>.toPieceStateList() = this.map { it.state }

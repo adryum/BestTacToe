@@ -81,6 +81,7 @@ dependencies {
     implementation(libs.androidx.ui.text.android)
     implementation(libs.androidx.foundation.layout.android)
     implementation(libs.androidx.compose.testing)
+    implementation(libs.androidx.room.ktx)
     debugImplementation(compose.uiTooling)
     implementation(libs.coil.compose)
 

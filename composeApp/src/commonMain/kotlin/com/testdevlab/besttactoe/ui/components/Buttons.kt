@@ -17,11 +17,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import de.drick.compose.hotpreview.HotPreview
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.Dp
@@ -39,9 +38,8 @@ import com.testdevlab.besttactoe.ui.theme.lightBlue
 import com.testdevlab.besttactoe.ui.theme.lightRed
 import com.testdevlab.besttactoe.ui.theme.textIconButton
 import com.testdevlab.besttactoe.ui.theme.textMedium
-import com.testdevlab.besttactoe.ui.theme.textNormal
-import com.testdevlab.besttactoe.ui.theme.transparent
 import com.testdevlab.besttactoe.ui.theme.white_60
+import de.drick.compose.hotpreview.HotPreview
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.vectorResource
 

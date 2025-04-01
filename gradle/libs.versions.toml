@@ -25,6 +25,7 @@ foundationAndroid = "1.7.8"
 uiTextAndroid = "1.7.8"
 foundationLayoutAndroid = "1.7.8"
 composeTesting = "1.0.0-alpha03"
+roomKtx = "2.6.1"
 
 [libraries]
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
@@ -52,6 +53,7 @@ timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 androidx-ui-text-android = { group = "androidx.compose.ui", name = "ui-text-android", version.ref = "uiTextAndroid" }
 androidx-foundation-layout-android = { group = "androidx.compose.foundation", name = "foundation-layout-android", version.ref = "foundationLayoutAndroid" }
 androidx-compose-testing = { group = "androidx.xr.compose", name = "compose-testing", version.ref = "composeTesting" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomKtx" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

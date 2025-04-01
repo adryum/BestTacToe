@@ -1,19 +1,17 @@
 package com.testdevlab.besttactoe
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import com.testdevlab.besttactoe.ui.components.ViewTitle
 import com.testdevlab.besttactoe.ui.components.TopBar
-
-import com.testdevlab.besttactoe.ui.views.MainView
+import com.testdevlab.besttactoe.ui.components.ViewTitle
 import com.testdevlab.besttactoe.ui.theme.BestTacToeTheme
 import com.testdevlab.besttactoe.ui.theme.getViewTitle
 import com.testdevlab.besttactoe.ui.theme.ldp
@@ -24,6 +22,7 @@ import com.testdevlab.besttactoe.ui.viewmodels.Views
 import com.testdevlab.besttactoe.ui.views.CreateLobbyView
 import com.testdevlab.besttactoe.ui.views.GameView
 import com.testdevlab.besttactoe.ui.views.JoinRoomView
+import com.testdevlab.besttactoe.ui.views.MainView
 import com.testdevlab.besttactoe.ui.views.MultiplayerView
 import com.testdevlab.besttactoe.ui.views.SettingsView
 import de.drick.compose.hotpreview.HotPreview
