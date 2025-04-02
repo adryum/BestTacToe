@@ -34,10 +34,10 @@ import com.testdevlab.besttactoe.ui.PiecesUIModel
 import com.testdevlab.besttactoe.ui.SegmentUIModel
 import com.testdevlab.besttactoe.ui.SetPieceValueModel
 import com.testdevlab.besttactoe.ui.theme.Black
+import com.testdevlab.besttactoe.ui.theme.TransparentDark
 import com.testdevlab.besttactoe.ui.theme.lightGray
 import com.testdevlab.besttactoe.ui.theme.lightGreen
 import com.testdevlab.besttactoe.ui.theme.pxToDp
-import com.testdevlab.besttactoe.ui.theme.transparent
 import com.testdevlab.besttactoe.ui.theme.white_60
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
@@ -65,7 +65,7 @@ fun TicTacToeSegment(
     modifier: Modifier = Modifier,
     piecePadding: Dp,
     tileColor: Color = lightGray,
-    segmentColor: Color = transparent,
+    segmentColor: Color = TransparentDark,
     selectedSegmentColor: Color = lightGreen,
     isActive: Boolean = false,
     segmentState: PieceStates,

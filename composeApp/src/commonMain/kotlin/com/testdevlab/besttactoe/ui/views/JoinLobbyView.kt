@@ -1,18 +1,17 @@
 package com.testdevlab.besttactoe.ui.views
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
+import CodeInputField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
-import com.testdevlab.besttactoe.ui.components.CodeInputField
-import com.testdevlab.besttactoe.ui.components.TextButton
+import com.testdevlab.besttactoe.ui.components.DarkBackgroundWithDarkTop
+import com.testdevlab.besttactoe.ui.theme.DarkOrange
+import com.testdevlab.besttactoe.ui.theme.Orange
+import com.testdevlab.besttactoe.ui.theme.Yellow
 import com.testdevlab.besttactoe.ui.theme.ldp
 import de.drick.compose.hotpreview.HotPreview
 
@@ -26,21 +25,21 @@ fun JoinRoomViewContent(
     onCodeEnter: (String) -> Unit
 ) {
     var codeInputValue by remember { mutableStateOf(TextFieldValue("")) }
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(10.ldp)
+    DarkBackgroundWithDarkTop(
+        verticalColumnAlignment = Alignment.Top,
+        horizontalColumnAlignment = Alignment.CenterHorizontally
     ) {
         CodeInputField(
-            textValue = codeInputValue,
-            onValueChanged = { newValue ->
-                codeInputValue = newValue
-            }
-        )
-
-        TextButton(
-            text = "Enter",
-            onClick = { onCodeEnter(codeInputValue.text) }
+            value = codeInputValue,
+            height = 80.ldp,
+            leftGradientColor = DarkOrange,
+            rightGradientColor = Orange,
+            inputLeftGradientColor = Orange,
+            inputRightGradientColor = Yellow,
+            onValueChanged = { textFieldValue ->
+                codeInputValue = textFieldValue
+            },
+            onSend = { onCodeEnter(codeInputValue.text) }
         )
     }
 }

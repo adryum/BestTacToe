@@ -1,18 +1,14 @@
 package com.testdevlab.besttactoe.ui.views
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import besttactoe.composeapp.generated.resources.Res
-import besttactoe.composeapp.generated.resources.ic_human
-import com.testdevlab.besttactoe.ui.components.CubeButton
-import com.testdevlab.besttactoe.ui.theme.ldp
+import com.testdevlab.besttactoe.ui.components.LeftSideButton
+import com.testdevlab.besttactoe.ui.components.MultipleStepDecorationsWithDarkContentAndColumn
+import com.testdevlab.besttactoe.ui.theme.Blue
+import com.testdevlab.besttactoe.ui.theme.DarkBlue
+import com.testdevlab.besttactoe.ui.theme.DarkOrange
+import com.testdevlab.besttactoe.ui.theme.Orange
+import com.testdevlab.besttactoe.ui.theme.Yellow
 import com.testdevlab.besttactoe.ui.viewmodels.NavigationObject
 import com.testdevlab.besttactoe.ui.viewmodels.Views
 import de.drick.compose.hotpreview.HotPreview
@@ -29,22 +25,29 @@ fun MultiplayerView(
 fun MultiplayerViewContent(
     goTo: (Views) -> Unit
 ) {
-    Row (
-        modifier = Modifier.padding(top = 60.ldp).fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-    ) {
-        CubeButton(
+    MultipleStepDecorationsWithDarkContentAndColumn(2) {
+        LeftSideButton(
+            modifier = Modifier,
             text = "Join",
-            icon = Res.drawable.ic_human,
-            onClick = { goTo(Views.JoinLobbyView) }
+            leftGradientColor = Orange,
+            rightGradient = Yellow,
+            onClick = {
+                goTo(Views.JoinLobbyView)
+            }
         )
-        Spacer(Modifier.width(18.ldp))
-
-        CubeButton(
+        LeftSideButton(
+            modifier = Modifier,
             text = "Create",
-            icon = Res.drawable.ic_human,
+            leftGradientColor = DarkOrange,
+            rightGradient = Orange,
             onClick = { goTo(Views.CreateLobbyView) }
+        )
+        LeftSideButton(
+            modifier = Modifier,
+            text = "Hot-seat",
+            leftGradientColor = DarkBlue,
+            rightGradient = Blue,
+            onClick = { goTo(Views.MultiplayerView) }
         )
     }
 }

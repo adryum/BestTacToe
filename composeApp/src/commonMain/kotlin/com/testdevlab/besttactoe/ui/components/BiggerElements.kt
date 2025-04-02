@@ -1,65 +1,38 @@
 package com.testdevlab.besttactoe.ui.components
 
-import TextInputWithIcon
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
-import besttactoe.composeapp.generated.resources.Res
-import besttactoe.composeapp.generated.resources.ic_back
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.testdevlab.besttactoe.ui.ScoreModel
+import com.testdevlab.besttactoe.ui.theme.Black35
+import com.testdevlab.besttactoe.ui.theme.TransparentDark
+import com.testdevlab.besttactoe.ui.theme.buttonStyle
+import com.testdevlab.besttactoe.ui.theme.gradientBackground
 import com.testdevlab.besttactoe.ui.theme.ldp
-import com.testdevlab.besttactoe.ui.theme.lightBlue
-import com.testdevlab.besttactoe.ui.theme.textLarge
-import com.testdevlab.besttactoe.ui.theme.textMedium
 import com.testdevlab.besttactoe.ui.theme.textNormal
 import com.testdevlab.besttactoe.ui.theme.textSmall
+import com.testdevlab.besttactoe.ui.theme.textTitle
 import com.testdevlab.besttactoe.ui.theme.white_60
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
-
-
-@Composable
-fun TopBar(
-    modifier: Modifier = Modifier.fillMaxWidth(),
-    backgroundColor: Color = white_60,
-    height: Dp = 80.ldp,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = modifier.height(height).padding(top = 20.ldp).background(backgroundColor),
-        contentAlignment = Alignment.CenterStart
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(
-                icon = Res.drawable.ic_back,
-                onClick = onClick
-            )
-            Text(
-                text = "Back",
-                style = textMedium
-            )
-        }
-    }
-}
 
 @Composable
 fun MoveShower(
@@ -167,79 +140,185 @@ fun ViewTitle(
     modifier: Modifier = Modifier,
     text: String
 ) {
-    Box(
-        modifier = modifier.height(200.ldp).fillMaxWidth().background(white_60),
+    Box(modifier = modifier
+            .height(200.ldp)
+            .fillMaxWidth(),
         contentAlignment = Alignment.Center
-    ) {
-        Text(text= text, style = textLarge, textAlign = TextAlign.Center)
-    }
-}
-
-@Composable
-fun CodeInputField(
-    columnModifier: Modifier = Modifier,
-    textInputModifier: Modifier = Modifier,
-    textModifier: Modifier = Modifier,
-    textValue: TextFieldValue,
-    onValueChanged: (TextFieldValue) -> Unit
-) {
-    Column(
-        modifier = columnModifier
-            .clip(RoundedCornerShape(8.ldp))
-            .border(4.ldp, white_60, RoundedCornerShape(8.ldp))
-            .background(lightBlue),
-        verticalArrangement = Arrangement.spacedBy(4.ldp),
-        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            modifier = textModifier,
-            text = "Lobby code:",
-            textAlign = TextAlign.Center,
-            style = textNormal
-        )
-        TextInputWithIcon(
-            hint = "code here",
-            modifier = textInputModifier.padding(12.ldp),
-            text = textValue,
-            onValueChanged = onValueChanged,
-            borderWidth = 0
+            text= text,
+            style = textTitle,
+            textAlign = TextAlign.Center
         )
     }
 }
 
+@Composable
+fun StepDecoration(
+    modifier: Modifier = Modifier,
+    height: Dp = 40.ldp,
+    angle: Float = -90f,
+    startColor: Color = Black35,
+    endColor: Color = TransparentDark,
+) {
+    Box(modifier = modifier
+        .height(height)
+        .fillMaxWidth()
+        .gradientBackground(listOf(startColor, endColor), angle)
+    )
+}
 
 @Composable
-fun LobbyCodeShower(
+fun MultipleStepDecorations(
+    count: Int,
+    height: Dp = 40.ldp,
+    angle: Float = -90f,
+    startColor: Color = Black35,
+    endColor: Color = TransparentDark,
+) {
+    Box {
+        for (i in 0 ..< count) {
+            Box(modifier = Modifier
+                .zIndex(i.toFloat())
+                .padding(top = height / 2 * i) // each box is placed lower
+                .height(height)
+                .fillMaxWidth()
+                .gradientBackground(listOf(startColor, endColor), angle)
+            )
+        }
+    }
+}
+
+@Composable
+fun MultipleStepDecorationsWithDarkContentAndColumn(
+    count: Int,
+    height: Dp = 40.ldp,
+    angle: Float = -90f,
+    startColor: Color = Black35,
+    endColor: Color = TransparentDark,
+    columnSpaceBy: Dp = 20.ldp,
+    columnAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    content: @Composable () -> Unit
+) {
+    var highestTopPadding = 0.dp
+    Box {
+        for (i in 1 .. count) {
+            Box(modifier = Modifier
+                .zIndex(i.toFloat())
+                .padding(top = highestTopPadding) // each box is placed lower
+                .height(height)
+                .fillMaxWidth()
+                .gradientBackground(listOf(startColor, endColor), angle)
+            )
+            highestTopPadding = height / 2 * i
+        }
+        DarkBackground(
+            modifier = Modifier.padding(top = highestTopPadding)
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(columnSpaceBy, columnAlignment),
+            ) {
+                content()
+            }
+        }
+    }
+}
+
+@Composable
+fun DarkBackground(
     modifier: Modifier = Modifier,
-    codeString: String
+    innerBottomPadding: Dp = 0.dp,
+    content: @Composable () -> Unit
 ) {
     Box(
-        modifier = modifier.height(200.ldp).fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .background(Black35)
+            .padding(bottom = innerBottomPadding)
+        ,
+    ) {
+        content()
+    }
+}
+
+@Composable
+fun TopBar(
+    height: Dp,
+    content: @Composable () -> Unit
+) {
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .height(height)
+    ) {
+        DarkBackground(innerBottomPadding = 20.ldp) {
+            Row {
+                content()
+            }
+        }
+        StepDecoration(modifier = Modifier.padding(top = height - 20.ldp))
+    }
+}
+
+@Composable
+fun DarkBackgroundWithDarkTop(
+    modifier: Modifier = Modifier,
+    columnSpaceBy: Dp = 20.ldp,
+    verticalColumnAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    horizontalColumnAlignment: Alignment.Horizontal = Alignment.Start,
+    content: @Composable () -> Unit
+) {
+    Box(modifier = modifier
+        .fillMaxWidth()
+    ) {
+        StepDecoration(modifier = Modifier, angle = 90f)
+        DarkBackground() {
+            Column(
+                modifier = Modifier.padding(top = 30.ldp).fillMaxSize(),
+                horizontalAlignment = horizontalColumnAlignment,
+                verticalArrangement = Arrangement.spacedBy(columnSpaceBy, verticalColumnAlignment)
+            ) {
+                content()
+            }
+        }
+    }
+}
+
+@Composable
+fun CodeShower(
+    code: String,
+    height: Dp,
+    leftGradientColor: Color,
+    rightGradientColor: Color,
+    inputLeftGradientColor: Color,
+    inputRightGradientColor: Color,
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(height)
+            .gradientBackground(listOf(leftGradientColor, rightGradientColor), 0f)
+            .padding(horizontal = 16.ldp, vertical = 12.ldp),
         contentAlignment = Alignment.Center
     ) {
-        Column(
-            modifier= Modifier
-                .clip(RoundedCornerShape(8.ldp))
-                .border(4.ldp, white_60, RoundedCornerShape(8.ldp))
-                .background(lightBlue)
-                .padding(12.ldp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.ldp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.ldp, Alignment.CenterHorizontally)
         ) {
             Text(
-                text = "Lobby code:",
-                textAlign = TextAlign.Center,
-                style = textMedium
+                text = "Code:",
+                style = buttonStyle,
+                textAlign = TextAlign.Center
             )
-
             Box(
-                modifier = modifier.clip(RoundedCornerShape(8.ldp)).background(white_60),
+                modifier = Modifier
+                    .gradientBackground(listOf(inputLeftGradientColor, inputRightGradientColor), 0f),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    modifier = modifier.padding(8.ldp),
-                    text = codeString,
-                    style = textLarge,
+                    text = code,
+                    style = buttonStyle,
                     textAlign = TextAlign.Center
                 )
             }

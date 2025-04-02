@@ -1,21 +1,16 @@
 package com.testdevlab.besttactoe.ui.views
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import besttactoe.composeapp.generated.resources.Res
-import besttactoe.composeapp.generated.resources.ic_human
-import besttactoe.composeapp.generated.resources.ic_robot
-import besttactoe.composeapp.generated.resources.ic_settings
 import com.testdevlab.besttactoe.core.repositories.GameHandler
-import com.testdevlab.besttactoe.ui.components.IconTextButton
-import com.testdevlab.besttactoe.ui.theme.ldp
-import com.testdevlab.besttactoe.ui.theme.lightGreen
+import com.testdevlab.besttactoe.ui.components.LeftSideButton
+import com.testdevlab.besttactoe.ui.components.MultipleStepDecorationsWithDarkContentAndColumn
+import com.testdevlab.besttactoe.ui.theme.Blue
+import com.testdevlab.besttactoe.ui.theme.DarkBlue
+import com.testdevlab.besttactoe.ui.theme.DarkGreen
+import com.testdevlab.besttactoe.ui.theme.Green
+import com.testdevlab.besttactoe.ui.theme.Orange
+import com.testdevlab.besttactoe.ui.theme.Yellow
 import com.testdevlab.besttactoe.ui.viewmodels.NavigationObject
 import com.testdevlab.besttactoe.ui.viewmodels.Views
 import de.drick.compose.hotpreview.HotPreview
@@ -37,40 +32,32 @@ fun MainViewContent(
     onGameStart: (Boolean) -> Unit,
     goTo: (Views) -> Unit
 ) {
-    Column(
-        modifier = Modifier.fillMaxSize().background(lightGreen).padding(top = 60.ldp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(180.ldp)
-    ) {
-        Column(
-            modifier = Modifier.weight(.7f),
-            verticalArrangement = Arrangement.spacedBy(30.ldp)
-        ) {
-            IconTextButton(
-                modifier = Modifier,
-                text = "VS AI",
-                icon = Res.drawable.ic_robot,
-                onClick = {
-                    onGameStart(true) // vs AI mode true
-                    goTo(Views.GameView)
-                }
-            )
-            IconTextButton(
-                modifier = Modifier,
-                text = "Multiplayer",
-                icon = Res.drawable.ic_human,
-                onClick = { goTo(Views.MultiplayerView) }
-            )
-            IconTextButton(
-                modifier = Modifier,
-                text = "Settings",
-                isBad = true,
-                icon = Res.drawable.ic_settings,
-                onClick = { goTo(Views.SettingsView) }
-            )
-        }
+    MultipleStepDecorationsWithDarkContentAndColumn(2) {
+        LeftSideButton(
+            modifier = Modifier,
+            text = "VS AI",
+            leftGradientColor = Orange,
+            rightGradient = Yellow,
+            onClick = {
+                onGameStart(true) // vs AI mode true
+                goTo(Views.GameView)
+            }
+        )
+        LeftSideButton(
+            modifier = Modifier,
+            text = "Multiplayer",
+            leftGradientColor = DarkGreen,
+            rightGradient = Green,
+            onClick = { goTo(Views.MultiplayerView) }
+        )
+        LeftSideButton(
+            modifier = Modifier,
+            text = "Settings",
+            leftGradientColor = DarkBlue,
+            rightGradient = Blue,
+            onClick = { goTo(Views.SettingsView) }
+        )
     }
-
 }
 
 @HotPreview(name = "Menu",  widthDp = 540, heightDp = 1020)

@@ -8,7 +8,7 @@ val textLarge = TextStyle(
     fontSize = 48.sp,
     fontWeight = FontWeight(500),
     letterSpacing = 15.sp,
-    color = darkGray
+    color = GrayDark
 )
 
 val textNormal = textLarge.copy(fontSize = 36.sp, letterSpacing = 0.sp)
@@ -18,8 +18,22 @@ val textSmall = textLarge.copy(fontSize = 16.sp, fontWeight = FontWeight(100), l
 val textIconButton = TextStyle(
     fontSize = 14.sp,
     fontWeight = FontWeight(500),
-    lineHeight = 20.sp,
     letterSpacing = .1.sp
+)
+
+val textTitle = textLarge.copy(
+    fontSize = 96.sp,
+    letterSpacing = .1.sp,
+    fontWeight = FontWeight(500),
+    color = White,
+    lineHeight = 80.sp
+)
+
+val buttonStyle = textLarge.copy(
+    fontSize = 36.sp,
+    letterSpacing = 0.1.sp,
+    fontWeight = FontWeight(400),
+    color = White
 )
 
 const val avgButtonWidth = 200

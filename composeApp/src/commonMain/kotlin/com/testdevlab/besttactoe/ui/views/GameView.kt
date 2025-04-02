@@ -1,12 +1,10 @@
 package com.testdevlab.besttactoe.ui.views
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -18,10 +16,11 @@ import com.testdevlab.besttactoe.core.repositories.GameHandler
 import com.testdevlab.besttactoe.ui.ScoreModel
 import com.testdevlab.besttactoe.ui.SegmentUIModel
 import com.testdevlab.besttactoe.ui.SetPieceValueModel
+import com.testdevlab.besttactoe.ui.components.DarkBackgroundWithDarkTop
 import com.testdevlab.besttactoe.ui.components.GamesTopBar
+import com.testdevlab.besttactoe.ui.components.MultipleStepDecorations
 import com.testdevlab.besttactoe.ui.components.TicTacToeTable
 import com.testdevlab.besttactoe.ui.theme.ldp
-import com.testdevlab.besttactoe.ui.theme.lightRed
 import de.drick.compose.hotpreview.HotPreview
 
 @Composable
@@ -42,7 +41,7 @@ fun GameViewContent(
     onPieceClick: (SetPieceValueModel) -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxSize().background(lightRed).padding(top = 30.ldp),
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -51,13 +50,14 @@ fun GameViewContent(
             score = ScoreModel(123, 1453),
             time = "12:52"
         )
-
+        MultipleStepDecorations(2)
         TicTacToeTable(
             modifier = Modifier.aspectRatio(1f).fillMaxHeight(),
             segments = boardData,
             boardPadding = 5.ldp,
             onPieceClick = onPieceClick,
         )
+        DarkBackgroundWithDarkTop {  }
     }
 }
 
