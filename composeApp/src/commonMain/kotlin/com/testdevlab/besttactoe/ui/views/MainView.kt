@@ -12,6 +12,7 @@ import besttactoe.composeapp.generated.resources.Res
 import besttactoe.composeapp.generated.resources.ic_human
 import besttactoe.composeapp.generated.resources.ic_robot
 import besttactoe.composeapp.generated.resources.ic_settings
+import com.testdevlab.besttactoe.core.repositories.GameHandler
 import com.testdevlab.besttactoe.ui.components.IconTextButton
 import com.testdevlab.besttactoe.ui.theme.ldp
 import com.testdevlab.besttactoe.ui.theme.lightGreen
@@ -23,14 +24,17 @@ import de.drick.compose.hotpreview.HotPreview
 @Composable
 fun MainView(
     navigationObject: NavigationObject = NavigationObject,
+    gameHandler: GameHandler = GameHandler
 ) {
     MainViewContent(
+        onGameStart = gameHandler::startGame,
         goTo = navigationObject::goTo
     )
 }
 
 @Composable
 fun MainViewContent(
+    onGameStart: (Boolean) -> Unit,
     goTo: (Views) -> Unit
 ) {
     Column(
@@ -46,7 +50,10 @@ fun MainViewContent(
                 modifier = Modifier,
                 text = "VS AI",
                 icon = Res.drawable.ic_robot,
-                onClick = { goTo(Views.GameView) }
+                onClick = {
+                    onGameStart(true) // vs AI mode true
+                    goTo(Views.GameView)
+                }
             )
             IconTextButton(
                 modifier = Modifier,
@@ -69,5 +76,8 @@ fun MainViewContent(
 @HotPreview(name = "Menu",  widthDp = 540, heightDp = 1020)
 @Composable
 private fun MainViewPreview() {
-    MainViewContent(goTo = {})
+    MainViewContent(
+        goTo = {},
+        onGameStart = {}
+    )
 }

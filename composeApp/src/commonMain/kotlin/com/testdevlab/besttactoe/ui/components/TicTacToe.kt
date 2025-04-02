@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -119,24 +120,26 @@ fun TicTacToeSegment(
                 Row {
                     pieces.forEach { piece ->
                         if (piece.index in (0 + i * 3)..(2 + i * 3)) {
-                            TTTPiece(
-                                isClickable = isActive,
-                                modifier = Modifier
-                                    .padding(piecePadding)
-                                    .size(getPieceWidth(), getPieceHeight())
-                                    .background(tileColor),
-                                icon = when (piece.state) {
-                                    PieceStates.None -> null
-                                    PieceStates.Player -> player.icon
-                                    PieceStates.Enemy -> enemy.icon
-                                    PieceStates.Draw -> null
-                                },
-                                onClick = {
-                                    if (piece.state == PieceStates.None) {
-                                        onPieceClick(piece.index, PieceStates.Player)
+                            key(piece) {
+                                TTTPiece(
+                                    isClickable = isActive,
+                                    modifier = Modifier
+                                        .padding(piecePadding)
+                                        .size(getPieceWidth(), getPieceHeight())
+                                        .background(tileColor),
+                                    icon = when (piece.state) {
+                                        PieceStates.None -> null
+                                        PieceStates.Player -> player.icon
+                                        PieceStates.Enemy -> enemy.icon
+                                        PieceStates.Draw -> null
+                                    },
+                                    onClick = {
+                                        if (piece.state == PieceStates.None) {
+                                            onPieceClick(piece.index, PieceStates.Player)
+                                        }
                                     }
-                                }
-                            )
+                                )
+                            }
                         }
                     }
                 }
@@ -146,7 +149,7 @@ fun TicTacToeSegment(
 }
 
 @Composable
-fun TicTacToeBoard(
+fun TicTacToeTable(
     modifier: Modifier = Modifier,
     player: IconTeamModel =  IconTeamModel(Res.drawable.ic_cross, PieceStates.Player),
     enemy: IconTeamModel = IconTeamModel(Res.drawable.ic_checkmark, PieceStates.Enemy),
@@ -170,8 +173,8 @@ fun TicTacToeBoard(
         modifier = modifier
             .background(white_60)
             .padding(boardPadding)
-            .onSizeChanged { containerSize ->
-                size = containerSize
+            .onSizeChanged { tableSizePx ->
+                size = tableSizePx
             }
         ,
     ) {

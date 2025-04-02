@@ -1,411 +1,61 @@
 package com.testdevlab.besttactoe.core.repositories
 
 import com.testdevlab.besttactoe.ui.SetPieceValueModel
-import com.testdevlab.besttactoe.ui.PiecesUIModel
 import com.testdevlab.besttactoe.ui.SegmentUIModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import com.testdevlab.besttactoe.ui.PlayerUIModel
+import com.testdevlab.besttactoe.ui.UserUIModel
 import com.testdevlab.besttactoe.AppLogger
 
 object GameHandler {
-    private val _boardData = MutableStateFlow<List<SegmentUIModel>>(
-                listOf(
-                SegmentUIModel(
-                    index = 0,
-                    isActive = true,
-                    state = PieceStates.None,
-                    pieces = listOf(
-                        PiecesUIModel(
-                            index = 0,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 1,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 2,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 3,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 4,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 5,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 6,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 7,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 8,
-                            state = PieceStates.None
-                        )
-                    )
-                ),
-                SegmentUIModel(
-                    index = 1,
-                    isActive = false,
-                    state = PieceStates.None,
-                    pieces = listOf(
-                        PiecesUIModel(
-                            index = 0,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 1,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 2,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 3,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 4,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 5,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 6,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 7,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 8,
-                            state = PieceStates.None
-                        )
-                    )
-                ),
-                SegmentUIModel(
-                    index = 2,
-                    isActive = false,
-                    state = PieceStates.None,
-                    pieces = listOf(
-                        PiecesUIModel(
-                            index = 0,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 1,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 2,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 3,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 4,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 5,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 6,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 7,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 8,
-                            state = PieceStates.None
-                        )
-                    )
-                ),
-                SegmentUIModel(
-                    index = 3,
-                    isActive = false,
-                    state = PieceStates.None,
-                    pieces = listOf(
-                        PiecesUIModel(
-                            index = 0,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 1,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 2,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 3,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 4,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 5,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 6,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 7,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 8,
-                            state = PieceStates.None
-                        )
-                    )
-                ),
-                SegmentUIModel(
-                    index = 4,
-                    isActive = false,
-                    state = PieceStates.None,
-                    pieces = listOf(
-                        PiecesUIModel(
-                            index = 0,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 1,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 2,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 3,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 4,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 5,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 6,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 7,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 8,
-                            state = PieceStates.None
-                        )
-                    )
-                ),
-                SegmentUIModel(
-                    index = 5,
-                    isActive = false,
-                    state = PieceStates.None,
-                    pieces = listOf(
-                        PiecesUIModel(
-                            index = 0,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 1,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 2,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 3,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 4,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 5,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 6,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 7,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 8,
-                            state = PieceStates.None
-                        )
-                    )
-                ),
-                SegmentUIModel(
-                    index = 6,
-                    isActive = false,
-                    state = PieceStates.None,
-                    pieces = listOf(
-                        PiecesUIModel(
-                            index = 0,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 1,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 2,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 3,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 4,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 5,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 6,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 7,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 8,
-                            state = PieceStates.None
-                        )
-                    )
-                ),
-                SegmentUIModel(
-                    index = 7,
-                    isActive = false,
-                    state = PieceStates.None,
-                    pieces = listOf(
-                        PiecesUIModel(
-                            index = 0,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 1,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 2,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 3,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 4,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 5,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 6,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 7,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 8,
-                            state = PieceStates.None
-                        )
-                    )
-                ),
-                SegmentUIModel(
-                    index = 8,
-                    isActive = false,
-                    state = PieceStates.None,
-                    pieces = listOf(
-                        PiecesUIModel(
-                            index = 0,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 1,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 2,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 3,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 4,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 5,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 6,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 7,
-                            state = PieceStates.None
-                        ),
-                        PiecesUIModel(
-                            index = 8,
-                            state = PieceStates.None
-                        )
-                    )
-                )
+    private val _tableData = MutableStateFlow<List<SegmentUIModel>>(emptyList())
+    private val _playerData = MutableStateFlow(
+        listOf(
+            PlayerUIModel(
+                name = "Arbuz",
+                pieceType = PieceStates.Player,
+                hasTurn = false
+            ),
+            PlayerUIModel(
+                name = "Abhdul",
+                pieceType = PieceStates.Enemy,
+                hasTurn = true
             )
+        )
     )
-    val boardData = _boardData.asStateFlow()
+    private val _userData = MutableStateFlow(UserUIModel(name = "Abhdul"))
+    private val isSinglePlayer = MutableStateFlow(false)
+    val userData = _userData.asStateFlow()
+    val playerData = _playerData.asStateFlow()
+    val tableData = _tableData.asStateFlow()
+
+    fun startGame(vsAI: Boolean) {
+        if (vsAI) {
+            isSinglePlayer.update { true }
+            makeTableData()
+        } else {
+            isSinglePlayer.update { false }
+
+        }
+    }
+
+    private fun makeTableData() {
+        _tableData.update {
+            AppLogger.i("in update", "")
+            TicTacToeManager.createTable(true)
+        }
+    }
 
     fun makeAMove(pieceData: SetPieceValueModel) {
-        _boardData.update {
-            TicTacToeManager.processMove(pieceData, _boardData.value.map { it.copy() })
+        _tableData.update {
+            TicTacToeManager.processMove(pieceData, _tableData.value.map { it.copy() })
         }
+    }
+
+    fun startMultiplayerGame() {
+
     }
 
 }

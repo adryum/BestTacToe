@@ -13,6 +13,16 @@ data class SegmentUIModel(
     val pieces: List<PiecesUIModel>
 )
 
+data class PlayerUIModel(
+    val name: String,
+    val pieceType: PieceStates,
+    val hasTurn: Boolean
+)
+
+data class UserUIModel(
+    val name: String
+)
+
 data class PiecesUIModel(
     val index: Int,
     val state: PieceStates

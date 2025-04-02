@@ -19,7 +19,7 @@ import com.testdevlab.besttactoe.ui.ScoreModel
 import com.testdevlab.besttactoe.ui.SegmentUIModel
 import com.testdevlab.besttactoe.ui.SetPieceValueModel
 import com.testdevlab.besttactoe.ui.components.GamesTopBar
-import com.testdevlab.besttactoe.ui.components.TicTacToeBoard
+import com.testdevlab.besttactoe.ui.components.TicTacToeTable
 import com.testdevlab.besttactoe.ui.theme.ldp
 import com.testdevlab.besttactoe.ui.theme.lightRed
 import de.drick.compose.hotpreview.HotPreview
@@ -28,7 +28,7 @@ import de.drick.compose.hotpreview.HotPreview
 fun GameView(
     gameHandler: GameHandler = GameHandler
 ) {
-    val boardData by gameHandler.boardData.collectAsState(initial = emptyList())
+    val boardData by gameHandler.tableData.collectAsState(initial = emptyList())
 
     GameViewContent(
         boardData = boardData,
@@ -52,7 +52,7 @@ fun GameViewContent(
             time = "12:52"
         )
 
-        TicTacToeBoard(
+        TicTacToeTable(
             modifier = Modifier.aspectRatio(1f).fillMaxHeight(),
             segments = boardData,
             boardPadding = 5.ldp,

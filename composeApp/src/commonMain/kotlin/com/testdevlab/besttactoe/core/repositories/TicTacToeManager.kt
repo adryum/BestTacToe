@@ -4,6 +4,7 @@ import com.testdevlab.besttactoe.ui.SegmentUIModel
 import com.testdevlab.besttactoe.ui.SetPieceValueModel
 import com.testdevlab.besttactoe.ui.theme.toPieceStateList
 import com.testdevlab.besttactoe.AppLogger
+import com.testdevlab.besttactoe.ui.PiecesUIModel
 
 enum class PieceStates {
     Enemy,
@@ -13,10 +14,46 @@ enum class PieceStates {
 }
 
 object TicTacToeManager {
+    private var isItPlayerTurn = false
+
+    fun getIsItPlayerTurn() = isItPlayerTurn
+
+    fun createTable(enableAllSegments: Boolean = false): List<SegmentUIModel> {
+        val list = mutableListOf<SegmentUIModel>()
+        val pieceList = mutableListOf<PiecesUIModel>()
+
+        // create piece list
+        for (i in 0 ..< 9) {
+            pieceList.add(
+                i,
+                PiecesUIModel(
+                    index = i,
+                    state = PieceStates.None,
+                )
+            )
+        }
+
+        // create segment list aka table
+        for (i in 0 ..< 9) {
+            list.add(
+                i,
+                SegmentUIModel(
+                    index = i,
+                    isActive = enableAllSegments,
+                    state = PieceStates.None,
+                    pieces = pieceList.map { it.copy() }
+                )
+            )
+        }
+
+        return list.map { it.copy() }
+    }
+
     fun processMove(
         pieceValueModel: SetPieceValueModel,
         table: List<SegmentUIModel>
     ): List<SegmentUIModel> {
+        isItPlayerTurn = !isItPlayerTurn
         return table
             .setPieceValueAt(pieceValueModel)
             .setSegmentWinner(
