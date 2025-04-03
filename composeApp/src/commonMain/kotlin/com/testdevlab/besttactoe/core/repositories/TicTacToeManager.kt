@@ -1,23 +1,19 @@
 package com.testdevlab.besttactoe.core.repositories
 
-import com.testdevlab.besttactoe.ui.SegmentUIModel
-import com.testdevlab.besttactoe.ui.SetPieceValueModel
-import com.testdevlab.besttactoe.ui.theme.toPieceStateList
 import com.testdevlab.besttactoe.AppLogger
+import com.testdevlab.besttactoe.ui.MoveModel
 import com.testdevlab.besttactoe.ui.PiecesUIModel
+import com.testdevlab.besttactoe.ui.SegmentUIModel
+import com.testdevlab.besttactoe.ui.Tile
 
-enum class PieceStates {
-    Enemy,
+enum class PieceType {
+    Opponent,
     Player,
     Draw,
-    None
+    Empty
 }
 
 object TicTacToeManager {
-    private var isItPlayerTurn = false
-
-    fun getIsItPlayerTurn() = isItPlayerTurn
-
     fun createTable(enableAllSegments: Boolean = false): List<SegmentUIModel> {
         val list = mutableListOf<SegmentUIModel>()
         val pieceList = mutableListOf<PiecesUIModel>()
@@ -28,7 +24,7 @@ object TicTacToeManager {
                 i,
                 PiecesUIModel(
                     index = i,
-                    state = PieceStates.None,
+                    state = PieceType.Empty,
                 )
             )
         }
@@ -40,7 +36,7 @@ object TicTacToeManager {
                 SegmentUIModel(
                     index = i,
                     isActive = enableAllSegments,
-                    state = PieceStates.None,
+                    state = PieceType.Empty,
                     pieces = pieceList.map { it.copy() }
                 )
             )
@@ -50,35 +46,45 @@ object TicTacToeManager {
     }
 
     fun processMove(
-        pieceValueModel: SetPieceValueModel,
+        moveModel: MoveModel,
         table: List<SegmentUIModel>
     ): List<SegmentUIModel> {
-        isItPlayerTurn = !isItPlayerTurn
         return table
-            .setPieceValueAt(pieceValueModel)
+            .setPieceValueAt(moveModel)
             .setSegmentWinner(
-                victor = pieceValueModel.newValue,
-                segmentIndex = pieceValueModel.segmentIndex,
+                victor = GameHandler.turnPieceType,
+                segmentIndex = moveModel.segmentIndex,
             )
+            .checkSegmentVictoryLines()
             .activateDeactivateSegments(
-                currentSegmentIndex = pieceValueModel.segmentIndex,
-                pieceIndex = pieceValueModel.pieceIndex
+                currentSegmentIndex = moveModel.segmentIndex,
+                pieceIndex = moveModel.pieceIndex
             )
     }
 
+    private fun List<SegmentUIModel>.checkSegmentVictoryLines(): List<SegmentUIModel> {
+        if (hasVictoryLine(this)) {
+            // victory code
+            GameHandler.triggerVictory()
+            AppLogger.i("asd", "viCTORTYYYYY")
+        }
+
+        return this
+    }
+
     private fun List<SegmentUIModel>.setPieceValueAt(
-        pieceValueModel: SetPieceValueModel,
+        moveModel: MoveModel,
     ): List<SegmentUIModel> {
         // tile ownership check was made in UI
         return this.map { segment ->
-            if (segment.index == pieceValueModel.segmentIndex) {
+            if (segment.index == moveModel.segmentIndex) {
                 segment.copy(
                     pieces = segment.pieces.map { piece ->
-                                if (piece.index == pieceValueModel.pieceIndex) {
-                                    piece.copy(state = pieceValueModel.newValue)
-                                } else {
-                                    piece.copy()
-                                }
+                        if (piece.index == moveModel.pieceIndex) {
+                            piece.copy(state = GameHandler.turnPieceType)
+                        } else {
+                            piece.copy()
+                        }
                     }
                 )
             } else {
@@ -92,7 +98,7 @@ object TicTacToeManager {
         pieceIndex: Int,
     ): List<SegmentUIModel> {
         // check if next segment is already completed
-        return if (this[pieceIndex].state != PieceStates.None) {
+        return if (this[pieceIndex].isAnythingButEmpty) {
             activateAllUnfinishedSegments(this)
         } else {
             moveToNextSegment(currentSegmentIndex, pieceIndex, this)
@@ -117,7 +123,7 @@ object TicTacToeManager {
 
     private fun activateAllUnfinishedSegments(table: List<SegmentUIModel>): List<SegmentUIModel> {
         return table.map { segment ->
-            if (segment.state == PieceStates.None) {
+            if (segment.isEmpty) {
                 segment.copy(isActive = true)
             } else {
                 segment.copy()
@@ -127,10 +133,10 @@ object TicTacToeManager {
     //endregion
 
     private fun List<SegmentUIModel>.setSegmentWinner(
-        victor: PieceStates,
+        victor: PieceType,
         segmentIndex: Int,
     ): List<SegmentUIModel> {
-        if (!checkForVictoryLine(this[segmentIndex].pieces.toPieceStateList())) return this
+        if (!hasVictoryLine(this[segmentIndex].pieces)) return this
 
         return this.map { segment ->
             if (segment.index == segmentIndex) {
@@ -145,27 +151,22 @@ object TicTacToeManager {
     }
 
     //region victory checks
-    private fun checkForVictoryLine(segmentPieces: List<PieceStates>): Boolean {
-        return  isDiagonalVictory(segmentPieces) ||
-                isHorizontalVictory(segmentPieces) ||
-                isVerticalVictory(segmentPieces)
-    }
+    private fun hasVictoryLine(segmentPieces: List<Tile>) =
+        isDiagonalVictory(segmentPieces) ||
+        isHorizontalVictory(segmentPieces) ||
+        isVerticalVictory(segmentPieces)
 
-    private fun isDiagonalVictory(segmentPieces: List<PieceStates>): Boolean {
+    private fun isDiagonalVictory(pieces: List<Tile>): Boolean {
         // 2 diagonal checks \ /
-        if (segmentPieces[4] == PieceStates.None) return false
-        AppLogger.i("diagonal vic","${(segmentPieces[0] == segmentPieces[4] &&
-                segmentPieces[0] == segmentPieces[8] )} or ${(
-                segmentPieces[2] == segmentPieces[4] &&
-                segmentPieces[2] == segmentPieces[6])}")
+        if (pieces[4].isEmpty) return false
 
-        return (segmentPieces[0] == segmentPieces[4] &&
-                segmentPieces[0] == segmentPieces[8] ||
-                segmentPieces[2] == segmentPieces[4] &&
-                segmentPieces[2] == segmentPieces[6])
+        return pieces[0].state == pieces[4].state &&
+                pieces[0].state == pieces[8].state ||
+                pieces[2].state == pieces[4].state &&
+                pieces[2].state == pieces[6].state
     }
 
-    private fun isHorizontalVictory(segmentPieces: List<PieceStates>): Boolean {
+    private fun isHorizontalVictory(pieces: List<Tile>): Boolean {
         // 3 horizontal checks =-
         var rowsFirstItemIndex: Int
 
@@ -175,11 +176,12 @@ object TicTacToeManager {
             // 6 7 8
             rowsFirstItemIndex = row * 3
             if (
-                segmentPieces[rowsFirstItemIndex] != PieceStates.None &&
-                segmentPieces[rowsFirstItemIndex] == segmentPieces[rowsFirstItemIndex + 1] &&
-                segmentPieces[rowsFirstItemIndex] == segmentPieces[rowsFirstItemIndex + 2]
+                pieces[rowsFirstItemIndex].isAnythingButEmpty &&
+                pieces[rowsFirstItemIndex].state == pieces[rowsFirstItemIndex + 1].state &&
+                pieces[rowsFirstItemIndex].state == pieces[rowsFirstItemIndex + 2].state
             ) {
-                AppLogger.i("horizontal vic","")
+                println("Horizontal victory")
+
                 return true
             }
         }
@@ -187,20 +189,19 @@ object TicTacToeManager {
         return false
     }
 
-    private fun isVerticalVictory(segmentPieces: List<PieceStates>): Boolean {
+    private fun isVerticalVictory(segmentPieces: List<Tile>): Boolean {
         // 3 vertical checks |||
-
         for (column in 0..2) {
             // 0 1 2
             // 3 4 5
             // 6 7 8
 
             if (
-                segmentPieces[column] != PieceStates.None &&
-                segmentPieces[column] == segmentPieces[column + 3] &&
-                segmentPieces[column] == segmentPieces[column + 6]
+                segmentPieces[column].isAnythingButEmpty &&
+                segmentPieces[column].state == segmentPieces[column + 3].state &&
+                segmentPieces[column].state == segmentPieces[column + 6].state
             ) {
-                AppLogger.i("vertical vic","")
+                println("Vertical victory")
                 return true
             }
         }

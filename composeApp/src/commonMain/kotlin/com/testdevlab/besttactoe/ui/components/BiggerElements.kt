@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,13 +22,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.testdevlab.besttactoe.ui.CornerRadius
 import com.testdevlab.besttactoe.ui.ScoreModel
 import com.testdevlab.besttactoe.ui.theme.Black35
 import com.testdevlab.besttactoe.ui.theme.TransparentDark
 import com.testdevlab.besttactoe.ui.theme.buttonStyle
 import com.testdevlab.besttactoe.ui.theme.gradientBackground
 import com.testdevlab.besttactoe.ui.theme.ldp
-import com.testdevlab.besttactoe.ui.theme.textNormal
 import com.testdevlab.besttactoe.ui.theme.textSmall
 import com.testdevlab.besttactoe.ui.theme.textTitle
 import com.testdevlab.besttactoe.ui.theme.white_60
@@ -35,30 +36,45 @@ import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
-fun MoveShower(
-    modifier: Modifier = Modifier.fillMaxWidth(),
-    backgroundColor: Color = white_60,
-    @DrawableRes playerIcon: DrawableResource
+fun TurnShower(
+    modifier: Modifier = Modifier,
+    leftGradientColor: Color,
+    rightGradientColor: Color,
+    playerIcon: DrawableResource,
+    playerIconColor: Color,
+    opponentIconColor: Color,
+    isPlayerTurn: Boolean,
+    opponentIcon: DrawableResource,
 ) {
     // IDEA: on player move, this text scrolls to left and other players text scrolls in from the left
-    Box(
-        modifier = modifier.height(30.ldp).background(backgroundColor),
-        contentAlignment = Alignment.Center
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.ldp)
     ) {
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                modifier = Modifier.aspectRatio(1f/1f),
-                painter = painterResource(playerIcon),
-                contentDescription = null
-            )
-            Text(
-                text = "'s Move",
-                style = textNormal
-            )
-        }
+        SideButtonWithImage(
+            modifier = if (isPlayerTurn)
+                Modifier.fillMaxWidth(.7f) else Modifier.width(100.ldp),
+            text = "Your turn",
+            cornerRadius = CornerRadius(0, 50, 50, 0),
+            leftGradientColor = leftGradientColor,
+            rightGradient = rightGradientColor,
+            isEnabled = false,
+            icon = playerIcon,
+            iconColor = playerIconColor,
+            onClick = {}
+        )
+        SideButtonWithImage(
+            modifier = if (isPlayerTurn)
+                 Modifier.width(100.ldp) else Modifier.fillMaxWidth(.7f),
+            text = "'s turn",
+            cornerRadius = CornerRadius(50, 0 ,0 ,50),
+            leftGradientColor = leftGradientColor,
+            rightGradient = rightGradientColor,
+            isEnabled = false,
+            icon = opponentIcon,
+            iconColor = opponentIconColor,
+            onClick = {}
+        )
     }
 }
 

@@ -29,13 +29,13 @@ val Float.ldp @Composable get() = with (LocalDensity.current) {
 fun Int.pxToDp() = with(LocalDensity.current) { this@pxToDp.toDp() }
 
 fun Views.showTopBar(): Boolean = when (this) {
-        Views.CreateLobbyView,
-        Views.JoinLobbyView,
-        Views.MultiplayerView,
-        Views.SettingsView,
-        Views.GameView -> true
+    Views.CreateLobbyView,
+    Views.JoinLobbyView,
+    Views.MultiplayerView,
+    Views.SettingsView,
+    Views.GameView -> true
 
-        Views.MainView, -> false
+    Views.MainView, -> false
 }
 
 fun Views.showGameBar(): Boolean = when (this) {

@@ -1,5 +1,6 @@
 package com.testdevlab.besttactoe.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -24,12 +25,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.testdevlab.besttactoe.ui.CornerRadius
+import com.testdevlab.besttactoe.ui.theme.Black
 import com.testdevlab.besttactoe.ui.theme.Black35
 import com.testdevlab.besttactoe.ui.theme.DarkGreen
 import com.testdevlab.besttactoe.ui.theme.DarkOrange
@@ -40,6 +45,8 @@ import com.testdevlab.besttactoe.ui.theme.buttonStyle
 import com.testdevlab.besttactoe.ui.theme.ldp
 import com.testdevlab.besttactoe.ui.theme.pxToDp
 import de.drick.compose.hotpreview.HotPreview
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
 
 //
 //@Composable
@@ -349,6 +356,74 @@ fun Button(
                 .height(height)
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(50))
+                .background(
+                    Brush.linearGradient(listOf(leftGradientColor, rightGradient)),
+                    alpha = shadowOpacity
+                )
+        )
+    }
+}
+
+@Composable
+fun SideButtonWithImage(
+    modifier: Modifier = Modifier,
+    text: String = "abc",
+    icon: DrawableResource,
+    cornerRadius: CornerRadius,
+    iconColor: Color = Black,
+    iconPadding: Dp = 0.dp,
+    isEnabled: Boolean,
+    leftGradientColor: Color,
+    rightGradient: Color,
+    enableShadow: Boolean = true,
+    shadowOpacity: Float = .65f,
+    shadowOffset: Dp = 8.ldp,
+    textStyle: TextStyle = buttonStyle,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = modifier
+    ) {
+        // button
+        Box(
+            modifier = Modifier
+                .zIndex(2f)
+                .height(75.ldp)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(
+                    cornerRadius.topLeft,
+                    cornerRadius.topRight,
+                    cornerRadius.bottomRight,
+                    cornerRadius.bottomLeft
+                ))
+                .background(Brush.linearGradient(listOf(leftGradientColor, rightGradient)))
+                .clickable(enabled = isEnabled) { onClick() },
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Image(
+                modifier = Modifier.padding(iconPadding),
+                painter = painterResource(icon),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(iconColor)
+            )
+            Text(
+                modifier = Modifier
+                    .padding(horizontal = 40.ldp, vertical = 12.ldp),
+                text = text,
+                style = textStyle,
+                textAlign = TextAlign.Left
+            )
+        }
+
+        if (!enableShadow) return
+        // shadow
+        Box(
+            modifier = Modifier
+                .zIndex(1f)
+                .padding(top = shadowOffset)
+                .height(75.ldp)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(0, 50, 50))
                 .background(
                     Brush.linearGradient(listOf(leftGradientColor, rightGradient)),
                     alpha = shadowOpacity

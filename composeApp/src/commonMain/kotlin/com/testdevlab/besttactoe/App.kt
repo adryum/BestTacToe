@@ -12,7 +12,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import besttactoe.composeapp.generated.resources.Res
-import besttactoe.composeapp.generated.resources.ic_back
+import besttactoe.composeapp.generated.resources.ic_back_rounded
+import com.testdevlab.besttactoe.core.repositories.GameHandler
 import com.testdevlab.besttactoe.ui.components.TTTPiece
 import com.testdevlab.besttactoe.ui.components.TopBar
 import com.testdevlab.besttactoe.ui.components.ViewTitle
@@ -86,8 +87,12 @@ fun AppContent(
                         TTTPiece(
                             modifier = Modifier.padding(12.ldp).aspectRatio(1f),
                             isClickable = true,
-                            icon = Res.drawable.ic_back,
-                            onClick = goBack
+                            icon = Res.drawable.ic_back_rounded,
+                            onClick = {
+                                goBack()
+                                if (currentView == Views.GameView)
+                                    GameHandler.clearGame()
+                            }
                         )
                 }
 

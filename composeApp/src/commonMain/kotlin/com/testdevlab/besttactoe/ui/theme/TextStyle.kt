@@ -4,16 +4,16 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-val textLarge = TextStyle(
+val text = TextStyle(
     fontSize = 48.sp,
     fontWeight = FontWeight(500),
     letterSpacing = 15.sp,
     color = GrayDark
 )
 
-val textNormal = textLarge.copy(fontSize = 36.sp, letterSpacing = 0.sp)
-val textMedium = textLarge.copy(fontSize = 24.sp, letterSpacing = 0.sp)
-val textSmall = textLarge.copy(fontSize = 16.sp, fontWeight = FontWeight(100), letterSpacing = .1.sp)
+val textNormal = text.copy(fontSize = 36.sp, letterSpacing = 0.sp)
+val textMedium = text.copy(fontSize = 24.sp, letterSpacing = 0.sp)
+val textSmall = text.copy(fontSize = 16.sp, fontWeight = FontWeight(100), letterSpacing = .1.sp)
 
 val textIconButton = TextStyle(
     fontSize = 14.sp,
@@ -21,7 +21,7 @@ val textIconButton = TextStyle(
     letterSpacing = .1.sp
 )
 
-val textTitle = textLarge.copy(
+val textTitle = text.copy(
     fontSize = 96.sp,
     letterSpacing = .1.sp,
     fontWeight = FontWeight(500),
@@ -29,7 +29,7 @@ val textTitle = textLarge.copy(
     lineHeight = 80.sp
 )
 
-val buttonStyle = textLarge.copy(
+val buttonStyle = text.copy(
     fontSize = 36.sp,
     letterSpacing = 0.1.sp,
     fontWeight = FontWeight(400),
