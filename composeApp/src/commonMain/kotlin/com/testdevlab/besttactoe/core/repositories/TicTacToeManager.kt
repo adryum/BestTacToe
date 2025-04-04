@@ -65,8 +65,11 @@ object TicTacToeManager {
     private fun List<SegmentUIModel>.checkSegmentVictoryLines(): List<SegmentUIModel> {
         if (hasVictoryLine(this)) {
             // victory code
-            GameHandler.triggerVictory()
-            AppLogger.i("asd", "viCTORTYYYYY")
+            GameHandler.endGame(isVictory = true)
+            AppLogger.i("TTTManager", "Victory")
+        } else if (isGridDraw(this)) {
+            GameHandler.endGame(isVictory = false)
+            AppLogger.i("TTTManager", "Draw")
         }
 
         return this
@@ -132,22 +135,48 @@ object TicTacToeManager {
     }
     //endregion
 
-    private fun List<SegmentUIModel>.setSegmentWinner(
-        victor: PieceType,
+    private fun List<SegmentUIModel>.setSegmentState(
+        deactivateProvidedSegment: Boolean = true,
         segmentIndex: Int,
+        state: PieceType
     ): List<SegmentUIModel> {
-        if (!hasVictoryLine(this[segmentIndex].pieces)) return this
-
         return this.map { segment ->
             if (segment.index == segmentIndex) {
                 segment.copy(
-                    state = victor,
-                    isActive = false
+                    state = state,
+                    isActive = !deactivateProvidedSegment
                 )
             } else {
                 segment.copy()
             }
         }
+    }
+
+    private fun List<SegmentUIModel>.setSegmentWinner(
+        victor: PieceType,
+        segmentIndex: Int,
+    ): List<SegmentUIModel> {
+        // check if segment has a draw
+        if (isGridDraw(this[segmentIndex].pieces))
+            return this.setSegmentState(
+                segmentIndex = segmentIndex,
+                state = PieceType.Draw
+            )
+        // check if it has a victory
+        if (hasVictoryLine(this[segmentIndex].pieces))
+            return this.setSegmentState(
+                segmentIndex = segmentIndex,
+                state = victor
+            )
+
+        return this
+    }
+
+    private fun isGridDraw(tiles: List<Tile>): Boolean {
+        for (tile in tiles) {
+            if (tile.isEmpty) return false
+        }
+        return true
     }
 
     //region victory checks

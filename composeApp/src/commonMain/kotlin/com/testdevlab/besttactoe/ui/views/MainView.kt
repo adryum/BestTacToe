@@ -1,8 +1,8 @@
 package com.testdevlab.besttactoe.ui.views
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import com.testdevlab.besttactoe.core.repositories.GameHandler
+import com.testdevlab.besttactoe.core.repositories.GameMode
 import com.testdevlab.besttactoe.ui.components.LeftSideButton
 import com.testdevlab.besttactoe.ui.components.MultipleStepDecorationsWithDarkContentAndColumn
 import com.testdevlab.besttactoe.ui.theme.Blue
@@ -29,29 +29,26 @@ fun MainView(
 
 @Composable
 fun MainViewContent(
-    onGameStart: (Boolean) -> Unit,
+    onGameStart: (GameMode, Boolean) -> Unit,
     goTo: (Views) -> Unit
 ) {
     MultipleStepDecorationsWithDarkContentAndColumn(2) {
         LeftSideButton(
-            modifier = Modifier,
             text = "VS AI",
             leftGradientColor = Orange,
             rightGradient = Yellow,
             onClick = {
-                onGameStart(true) // vs AI mode true
+                onGameStart(GameMode.VS_AI, true) // vs AI mode true
                 goTo(Views.GameView)
             }
         )
         LeftSideButton(
-            modifier = Modifier,
             text = "Multiplayer",
             leftGradientColor = DarkGreen,
             rightGradient = Green,
             onClick = { goTo(Views.MultiplayerView) }
         )
         LeftSideButton(
-            modifier = Modifier,
             text = "Settings",
             leftGradientColor = DarkBlue,
             rightGradient = Blue,
@@ -65,6 +62,6 @@ fun MainViewContent(
 private fun MainViewPreview() {
     MainViewContent(
         goTo = {},
-        onGameStart = {}
+        onGameStart = {_,_ -> }
     )
 }

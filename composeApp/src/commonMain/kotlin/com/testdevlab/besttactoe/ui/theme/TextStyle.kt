@@ -12,7 +12,7 @@ val text = TextStyle(
 )
 
 val textNormal = text.copy(fontSize = 36.sp, letterSpacing = 0.sp)
-val textMedium = text.copy(fontSize = 24.sp, letterSpacing = 0.sp)
+val textMedium = text.copy(fontSize = 24.sp, letterSpacing = .1.sp, color = White)
 val textSmall = text.copy(fontSize = 16.sp, fontWeight = FontWeight(100), letterSpacing = .1.sp)
 
 val textIconButton = TextStyle(

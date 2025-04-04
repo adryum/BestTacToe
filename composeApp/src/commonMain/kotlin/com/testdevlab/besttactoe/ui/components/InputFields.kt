@@ -156,7 +156,6 @@ fun CodeInputField(
             Button(
                 text = "Enter",
                 height = 50.ldp,
-                width = 120.ldp,
                 leftGradientColor = inputLeftGradientColor,
                 rightGradient = inputRightGradientColor,
                 onClick = { onSend() }

@@ -1,7 +1,8 @@
 package com.testdevlab.besttactoe.ui.views
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import com.testdevlab.besttactoe.core.repositories.GameHandler
+import com.testdevlab.besttactoe.core.repositories.GameMode
 import com.testdevlab.besttactoe.ui.components.LeftSideButton
 import com.testdevlab.besttactoe.ui.components.MultipleStepDecorationsWithDarkContentAndColumn
 import com.testdevlab.besttactoe.ui.theme.Blue
@@ -15,19 +16,23 @@ import de.drick.compose.hotpreview.HotPreview
 
 @Composable
 fun MultiplayerView(
-    navigationObject: NavigationObject = NavigationObject
+    navigationObject: NavigationObject = NavigationObject,
+    gameHandler: GameHandler = GameHandler
 ) {
 
-    MultiplayerViewContent(goTo = navigationObject::goTo)
+    MultiplayerViewContent(
+        startGame = gameHandler::startGame,
+        goTo = navigationObject::goTo
+    )
 }
 
 @Composable
 fun MultiplayerViewContent(
+    startGame: (GameMode, Boolean) -> Unit,
     goTo: (Views) -> Unit
 ) {
     MultipleStepDecorationsWithDarkContentAndColumn(2) {
         LeftSideButton(
-            modifier = Modifier,
             text = "Join",
             leftGradientColor = Orange,
             rightGradient = Yellow,
@@ -36,18 +41,19 @@ fun MultiplayerViewContent(
             }
         )
         LeftSideButton(
-            modifier = Modifier,
             text = "Create",
             leftGradientColor = DarkOrange,
             rightGradient = Orange,
             onClick = { goTo(Views.CreateLobbyView) }
         )
         LeftSideButton(
-            modifier = Modifier,
             text = "Hot-seat",
             leftGradientColor = DarkBlue,
             rightGradient = Blue,
-            onClick = { goTo(Views.MultiplayerView) }
+            onClick = {
+                startGame(GameMode.HotSeat, true)
+                goTo(Views.GameView)
+            }
         )
     }
 }
@@ -55,5 +61,8 @@ fun MultiplayerViewContent(
 @HotPreview(name = "Menu", widthDp = 540, heightDp = 1020)
 @Composable
 private fun MultiplayerViewPreview() {
-    MultiplayerViewContent(goTo={})
+    MultiplayerViewContent(
+        goTo={},
+        startGame = {_,_ -> }
+    )
 }

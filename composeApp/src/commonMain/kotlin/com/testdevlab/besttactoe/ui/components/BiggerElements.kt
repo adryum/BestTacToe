@@ -1,18 +1,14 @@
 package com.testdevlab.besttactoe.ui.components
 
-import androidx.annotation.DrawableRes
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,18 +18,70 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import com.testdevlab.besttactoe.ui.CornerRadius
+import com.testdevlab.besttactoe.ui.GameEndModel
 import com.testdevlab.besttactoe.ui.ScoreModel
 import com.testdevlab.besttactoe.ui.theme.Black35
+import com.testdevlab.besttactoe.ui.theme.DarkGreen
+import com.testdevlab.besttactoe.ui.theme.DarkOrange
+import com.testdevlab.besttactoe.ui.theme.Green
+import com.testdevlab.besttactoe.ui.theme.Orange
 import com.testdevlab.besttactoe.ui.theme.TransparentDark
+import com.testdevlab.besttactoe.ui.theme.Yellow
 import com.testdevlab.besttactoe.ui.theme.buttonStyle
 import com.testdevlab.besttactoe.ui.theme.gradientBackground
 import com.testdevlab.besttactoe.ui.theme.ldp
-import com.testdevlab.besttactoe.ui.theme.textSmall
+import com.testdevlab.besttactoe.ui.theme.textMedium
 import com.testdevlab.besttactoe.ui.theme.textTitle
-import com.testdevlab.besttactoe.ui.theme.white_60
 import org.jetbrains.compose.resources.DrawableResource
-import org.jetbrains.compose.resources.painterResource
+
+@Composable
+fun VictoryPopUp(
+    modifier: Modifier = Modifier,
+    gameResult: GameEndModel,
+    onGoBackClick: () -> Unit,
+    onPlayAgainClick: () -> Unit,
+) {
+    DarkBackground(
+        modifier = modifier
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(32.ldp, Alignment.CenterVertically),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (gameResult.isVictory) {
+                Text(
+                    text = "${gameResult.name!!} is Victorious!",
+                    style = textMedium
+                )
+            } else {
+                Text("!Draw!")
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(80.ldp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Button(
+                    modifier = Modifier.weight(1f),
+                    leftGradientColor = Orange,
+                    rightGradient = Yellow,
+                    text = "Play Again!",
+                    onClick = onPlayAgainClick
+                )
+                Button(
+                    modifier = Modifier.weight(1f),
+                    leftGradientColor = Color.Red,
+                    rightGradient = DarkOrange,
+                    text = "Leave",
+                    onClick = onGoBackClick
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun TurnShower(
@@ -48,106 +96,94 @@ fun TurnShower(
 ) {
     // IDEA: on player move, this text scrolls to left and other players text scrolls in from the left
     Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(16.ldp)
+        modifier = modifier.padding(vertical = 16.ldp).fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(32.ldp)
     ) {
-        SideButtonWithImage(
-            modifier = if (isPlayerTurn)
-                Modifier.fillMaxWidth(.7f) else Modifier.width(100.ldp),
+        MoveShowerLeft(
+            modifier = Modifier.weight(if (!isPlayerTurn) .3f else 1f),
             text = "Your turn",
-            cornerRadius = CornerRadius(0, 50, 50, 0),
             leftGradientColor = leftGradientColor,
             rightGradient = rightGradientColor,
-            isEnabled = false,
+            isPlayerTurn = isPlayerTurn,
             icon = playerIcon,
+            iconPadding = 15.ldp,
             iconColor = playerIconColor,
-            onClick = {}
         )
-        SideButtonWithImage(
-            modifier = if (isPlayerTurn)
-                 Modifier.width(100.ldp) else Modifier.fillMaxWidth(.7f),
+        MoveShowerRight(
+            modifier = Modifier.weight(if (isPlayerTurn) .3f else 1f),
             text = "'s turn",
-            cornerRadius = CornerRadius(50, 0 ,0 ,50),
             leftGradientColor = leftGradientColor,
             rightGradient = rightGradientColor,
-            isEnabled = false,
+            isPlayerTurn = isPlayerTurn,
             icon = opponentIcon,
             iconColor = opponentIconColor,
-            onClick = {}
+            iconPadding = 15.ldp,
         )
     }
 }
 
 @Composable
 fun GamesTopBar(
-    modifier: Modifier = Modifier.fillMaxWidth(),
-    backgroundColor: Color = white_60,
-    @DrawableRes playerIcon: DrawableResource,
-    height: Dp = 80.ldp,
-    score: ScoreModel,
-    time: String
-) {
-    Box(modifier = modifier.height(height).background(backgroundColor)) {
-        Row {
-            GamesTopBarElement(
-                text = "You are",
-                content = {
-                    Image(
-                        modifier = Modifier.aspectRatio(1f/1f),
-                        painter = painterResource(playerIcon),
-                        contentDescription = null,
-                    )
-                }
-            )
-            GamesTopBarElement(
-                text = "Score",
-                content = {
-                    Row {
-                        // 3 different text components, so they space out evenly when someone gets really high score
-                        Text(
-                            modifier = Modifier.weight(1f),
-                            text = "${score.playerScore}",
-                            style = textSmall
-                        )
-                        Text(
-                            modifier = Modifier.weight(.3f),
-                            text = "|",
-                            style = textSmall
-                        )
-                        Text(
-                            modifier = Modifier.weight(1f),
-                            text = "${score.enemyScore}",
-                            style = textSmall
-                        )
-                    }
-                }
-            )
-            GamesTopBarElement(
-                text = "You are",
-                content = {
-                    Text(time, style = textSmall)
-                }
-            )
-        }
-    }
-}
-
-@Composable
-fun GamesTopBarElement(
     modifier: Modifier = Modifier,
-    text: String,
-    content: @Composable () -> Unit
+    playerName: String,
+    opponentName: String,
+    score: ScoreModel
 ) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
+    Row(
+        modifier = modifier.padding(vertical = 16.ldp),
+        horizontalArrangement = Arrangement.spacedBy(16.ldp, Alignment.CenterHorizontally)
     ) {
-        Text(
-            text = text,
-            style = textSmall,
-            textAlign = TextAlign.Center
+        LeftSideButton(
+            modifier = Modifier.weight(1f),
+            leftGradientColor = DarkGreen,
+            rightGradient = Green,
+            text = playerName,
+            isClickable = false,
+            onClick = {},
         )
-        content()
+
+        Column (
+            modifier = Modifier.weight(.5f),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = "Score",
+                style = textMedium,
+                textAlign = TextAlign.Center
+            )
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = "${score.playerScore}",
+                    style = textMedium,
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    modifier = Modifier.weight(.2f),
+                    text = "|",
+                    style = textMedium,
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = "${score.opponentScore}",
+                    style = textMedium,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+        }
+
+        RightSideButton(
+            modifier = Modifier.weight(1f),
+            leftGradientColor = DarkGreen,
+            rightGradient = Green,
+            text = opponentName,
+            isClickable = false,
+            onClick = {},
+        )
     }
 }
 
@@ -313,7 +349,10 @@ fun CodeShower(
         modifier = Modifier
             .fillMaxWidth()
             .height(height)
-            .gradientBackground(listOf(leftGradientColor, rightGradientColor), 0f)
+            .gradientBackground(
+                listOf(leftGradientColor, rightGradientColor),
+                angle = 0f
+            )
             .padding(horizontal = 16.ldp, vertical = 12.ldp),
         contentAlignment = Alignment.Center
     ) {
@@ -329,7 +368,10 @@ fun CodeShower(
             )
             Box(
                 modifier = Modifier
-                    .gradientBackground(listOf(inputLeftGradientColor, inputRightGradientColor), 0f),
+                    .gradientBackground(
+                        listOf(inputLeftGradientColor, inputRightGradientColor),
+                        angle = 0f
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Text(

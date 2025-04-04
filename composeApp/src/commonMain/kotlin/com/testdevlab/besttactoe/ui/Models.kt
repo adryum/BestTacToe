@@ -1,9 +1,13 @@
 package com.testdevlab.besttactoe.ui
 
+import androidx.compose.ui.unit.Dp
 import com.testdevlab.besttactoe.core.repositories.PieceType
 import org.jetbrains.compose.resources.DrawableResource
 
-data class ScoreModel(val playerScore: Int, val enemyScore: Int)
+data class ScoreModel(
+    val playerScore: Int,
+    val opponentScore: Int
+)
 
 sealed class Tile(
     open val state: PieceType
@@ -42,16 +46,14 @@ data class MoveModel(
     val pieceIndex: Int,
 )
 
-//data class CornerRadius(
-//    val topLeft: Dp,
-//    val topRight: Dp,
-//    val bottomRight: Dp,
-//    val bottomLeft: Dp,
-//)
+data class TableOuterPadding(
+    val tablePadding: Dp,
+    val segmentPadding: Dp,
+    val piecePadding: Dp
+)
 
-data class CornerRadius(
-    val topLeft: Int,
-    val topRight: Int,
-    val bottomRight: Int,
-    val bottomLeft: Int,
+data class GameEndModel(
+    val name: String?,
+    val icon: DrawableResource?,
+    val isVictory: Boolean
 )
