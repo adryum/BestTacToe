@@ -1,10 +1,11 @@
 package com.testdevlab.besttactoe.core.repositories
 
 import com.testdevlab.besttactoe.ui.MoveModel
+import com.testdevlab.besttactoe.ui.PieceType
 import com.testdevlab.besttactoe.ui.PiecesUIModel
 import com.testdevlab.besttactoe.ui.SegmentUIModel
 
-class GameAI() {
+class GameAI {
     fun makeAMove(table: List<SegmentUIModel>) {
         val segmentIndex = choseSegment(table)
         val pieceIndex = chosePiece(table[segmentIndex])

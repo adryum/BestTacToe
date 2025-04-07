@@ -13,7 +13,7 @@ val Black35 = Color(0x59000000)
 val TransparentDark = Color(0x00000000)
 
 // new oldie
-val lightGreen = Color(0xFFC2F7D7)
+val SelectedSegmentColor = Color(0xff29cb6b)
 val lightBlue = Color(0xFF95D7F1)
 val lightRed = Color(0xFFF38484)
 val GrayDark = Color(0xFF383838)

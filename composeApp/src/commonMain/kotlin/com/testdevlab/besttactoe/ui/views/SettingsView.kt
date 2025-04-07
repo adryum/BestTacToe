@@ -3,6 +3,7 @@ package com.testdevlab.besttactoe.ui.views
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -10,7 +11,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.testdevlab.besttactoe.core.repositories.GameHandler
+import com.testdevlab.besttactoe.core.repositories.GameMode
 import com.testdevlab.besttactoe.ui.components.Button
+import com.testdevlab.besttactoe.ui.components.ButtonType
 import com.testdevlab.besttactoe.ui.components.MultipleStepDecorationsWithDarkContentAndColumn
 import com.testdevlab.besttactoe.ui.components.ToggleButton
 import com.testdevlab.besttactoe.ui.theme.Blue
@@ -18,15 +22,26 @@ import com.testdevlab.besttactoe.ui.theme.DarkBlue
 import com.testdevlab.besttactoe.ui.theme.Orange
 import com.testdevlab.besttactoe.ui.theme.Yellow
 import com.testdevlab.besttactoe.ui.theme.ldp
+import com.testdevlab.besttactoe.ui.viewmodels.NavigationObject
+import com.testdevlab.besttactoe.ui.viewmodels.Views
 import de.drick.compose.hotpreview.HotPreview
 
 @Composable
-fun SettingsView() {
-    SettingsViewContent()
+fun SettingsView(
+    gameHandler: GameHandler= GameHandler,
+    navigationHandler: NavigationObject = NavigationObject
+) {
+    SettingsViewContent(
+        onGoClick = navigationHandler::goTo,
+        onPlayClick = gameHandler::startGame
+    )
 }
 
 @Composable
-fun SettingsViewContent() {
+fun SettingsViewContent(
+    onGoClick: (Views) -> Unit,
+    onPlayClick: (GameMode) -> Unit,
+) {
     var isSoundEnabled by remember { mutableStateOf(true) }
     var isAnimationEnabled by remember { mutableStateOf(false) }
 
@@ -51,9 +66,22 @@ fun SettingsViewContent() {
                 onClick = { isAnimationEnabled = !isAnimationEnabled}
             )
             Button(
+                containerModifier = Modifier.fillMaxWidth(.7f),
+                text = "RoboRumble",
+                leftGradientColor = DarkBlue,
+                rightGradient = Blue,
+                buttonType = ButtonType.Center,
+                onClick = {
+                    onGoClick(Views.GameView)
+                    onPlayClick(GameMode.RoboRumble)
+                }
+            )
+            Button(
+                containerModifier = Modifier.fillMaxWidth(.7f),
                 text = "Resolution",
                 leftGradientColor = DarkBlue,
                 rightGradient = Blue,
+                buttonType = ButtonType.Center,
                 onClick = {}
             )
         }
@@ -63,5 +91,5 @@ fun SettingsViewContent() {
 @HotPreview(name = "Menu", widthDp = 540, heightDp = 1020)
 @Composable
 private fun SettingsViewPreview() {
-    SettingsViewContent()
+    SettingsViewContent({}, {})
 }

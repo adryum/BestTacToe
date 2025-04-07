@@ -1,9 +1,11 @@
 package com.testdevlab.besttactoe.ui.components
 
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,7 +14,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -32,7 +36,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.testdevlab.besttactoe.ui.theme.Black
 import com.testdevlab.besttactoe.ui.theme.Black35
@@ -128,236 +131,202 @@ fun ToggleButton(
     }
 }
 
+enum class MoveShowerType {
+    LeftSide,
+    RightSide
+}
+
+@Composable
+fun MoveShower(
+    containerModifier: Modifier = Modifier,
+    buttonModifier: Modifier = Modifier,
+    text: String = "abc",
+    showerType: MoveShowerType,
+    isPlayerTurn: Boolean,
+    width: Dp,
+    // shadow
+    enableShadow: Boolean = true,
+    shadowOpacity: Float = .65f,
+    shadowOffset: Dp = 8.ldp,
+    // style
+    textStyle: TextStyle = buttonStyle,
+    horizontalPadding: Dp = 20.ldp,
+    verticalPadding: Dp = 12.ldp,
+    leftGradientColor: Color,
+    rightGradient: Color,
+    contentAlignment: Alignment? = null,
+    // icon
+    iconPadding: Dp,
+    iconColor: Color,
+    icon: DrawableResource,
+) {
+    var buttonHeight by remember { mutableStateOf(0) }
+    val shape = when (showerType) {
+        MoveShowerType.LeftSide ->
+            RoundedCornerShape(0, 50, 50, 0)
+        MoveShowerType.RightSide ->
+            RoundedCornerShape(50, 0, 0, 50)
+    }
+
+    val animatedWidth by animateDpAsState(
+        targetValue = if (isPlayerTurn) width * 7 / 10 else width * 2 / 10,
+        animationSpec =
+//            tween(durationMillis = 200, easing = FastOutSlowInEasing)
+            spring(
+            dampingRatio = Spring.DampingRatioHighBouncy,
+            stiffness = Spring.StiffnessMedium
+        )
+    )
+
+    Box(
+        modifier = containerModifier
+            .width(animatedWidth)
+            .clip(shape)
+            .background(Black)
+    ) {
+        // button
+        Box(
+            modifier = buttonModifier
+                .zIndex(2f)
+                .fillMaxWidth()
+                .clip(shape)
+                .background(Brush.linearGradient(listOf(leftGradientColor, rightGradient)))
+                .onSizeChanged { buttonHeight = it.height },
+            contentAlignment =
+                contentAlignment
+                    ?: when (showerType) {
+                        MoveShowerType.LeftSide ->  Alignment.CenterStart
+                        MoveShowerType.RightSide -> Alignment.CenterEnd
+                    }
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (showerType == MoveShowerType.RightSide)
+                    Image(
+                        modifier = Modifier.padding(iconPadding).requiredSize(24.ldp),
+                        painter = painterResource(icon),
+                        contentDescription = null,
+                        colorFilter = ColorFilter.tint(iconColor)
+                    )
+                if (isPlayerTurn)
+                    Text(
+                        modifier = Modifier
+                            .padding(horizontal = horizontalPadding, vertical = verticalPadding),
+                        text = text,
+                        style = textStyle,
+                        textAlign = when (showerType) {
+                            MoveShowerType.LeftSide -> TextAlign.Left
+                            MoveShowerType.RightSide -> TextAlign.Right
+                        }
+                    )
+                if (showerType == MoveShowerType.LeftSide)
+                    Image(
+                        modifier = Modifier.padding(iconPadding).requiredSize(24.ldp),
+                        painter = painterResource(icon),
+                        contentDescription = null,
+                        colorFilter = ColorFilter.tint(iconColor)
+                    )
+            }
+
+        }
+
+        if (!enableShadow) return
+        // shadow
+        Box(
+            modifier = buttonModifier
+                .zIndex(1f)
+                .padding(top = shadowOffset)
+                .height(buttonHeight.pxToDp())
+                .fillMaxWidth()
+                .clip(shape)
+                .background(
+                    Brush.linearGradient(listOf(leftGradientColor, rightGradient)),
+                    alpha = shadowOpacity
+                )
+        )
+    }
+}
+
+enum class ButtonType {
+    LeftSide,
+    Center,
+    RightSide
+}
+
 @Composable
 fun Button(
-    modifier: Modifier = Modifier,
+    containerModifier: Modifier = Modifier,
+    buttonModifier: Modifier = Modifier,
     text: String = "abc",
-    height: Dp = 75.ldp,
-    leftGradientColor: Color,
-    rightGradient: Color,
-    enableShadow: Boolean = true,
-    shadowOpacity: Float = .65f,
-    shadowOffset: Dp = 8.ldp,
-    textStyle: TextStyle = buttonStyle,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = modifier
-    ) {
-        // button
-        Box(
-            modifier = Modifier
-                .zIndex(2f)
-                .height(height)
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(50))
-                .background(Brush.linearGradient(listOf(leftGradientColor, rightGradient)))
-                .clickable { onClick() },
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                modifier = Modifier,
-                text = text,
-                style = textStyle,
-                textAlign = TextAlign.Center
-            )
-        }
-
-        if (!enableShadow) return
-        // shadow
-        Box(
-            modifier = modifier
-                .zIndex(1f)
-                .padding(top = shadowOffset)
-                .height(height)
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(50))
-                .background(
-                    Brush.linearGradient(listOf(leftGradientColor, rightGradient)),
-                    alpha = shadowOpacity
-                )
-        )
-    }
-}
-
-@Composable
-fun MoveShowerLeft(
-    modifier: Modifier = Modifier,
-    text: String = "abc",
-    icon: DrawableResource,
-    iconColor: Color = Black,
-    iconPadding: Dp = 0.dp,
-    isPlayerTurn: Boolean,
-    leftGradientColor: Color,
-    rightGradient: Color,
-    enableShadow: Boolean = true,
-    shadowOpacity: Float = .65f,
-    shadowOffset: Dp = 8.ldp,
-    textStyle: TextStyle = buttonStyle,
-) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(0, 50, 50))
-            .background(Black35)
-    ) {
-        // button
-        Box(
-            modifier = Modifier
-                .zIndex(2f)
-                .height(75.ldp)
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(0, 50, 50))
-                .background(Brush.linearGradient(listOf(leftGradientColor, rightGradient))),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End) {
-                if (isPlayerTurn)
-                Text(
-                    modifier = Modifier
-                        .padding(horizontal = 10.ldp, vertical = 12.ldp),
-                    text = text,
-                    style = textStyle,
-                    textAlign = TextAlign.Left
-                )
-                Image(
-                    modifier = Modifier.padding(iconPadding).aspectRatio(1f).fillMaxHeight(),
-                    painter = painterResource(icon),
-                    contentDescription = null,
-                    colorFilter = ColorFilter.tint(iconColor)
-                )
-            }
-        }
-
-        if (!enableShadow) return
-        // shadow
-        Box(
-            modifier = Modifier
-                .zIndex(1f)
-                .padding(top = shadowOffset)
-                .height(75.ldp)
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(0, 50, 50))
-                .background(
-                    Brush.linearGradient(listOf(leftGradientColor, rightGradient)),
-                    alpha = shadowOpacity
-                )
-        )
-    }
-}
-
-@Composable
-fun MoveShowerRight(
-    modifier: Modifier = Modifier,
-    text: String = "abc",
-    height: Dp = 75.ldp,
-    icon: DrawableResource,
-    iconColor: Color = Black,
-    iconPadding: Dp = 0.dp,
-    isPlayerTurn: Boolean,
-    leftGradientColor: Color,
-    rightGradient: Color,
-    enableShadow: Boolean = true,
-    shadowOpacity: Float = .65f,
-    shadowOffset: Dp = 8.ldp,
-    textStyle: TextStyle = buttonStyle,
-) {
-    Box(
-        modifier = modifier
-    ) {
-        // button
-        Box(
-            modifier = Modifier
-                .zIndex(2f)
-                .height(height)
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(50, 0, 0, 50))
-                .background(Brush.linearGradient(listOf(leftGradientColor, rightGradient))),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Row {
-                Image(
-                    modifier = Modifier.padding(iconPadding),
-                    painter = painterResource(icon),
-                    contentDescription = null,
-                    colorFilter = ColorFilter.tint(iconColor)
-                )
-                if (!isPlayerTurn)
-                Text(
-                    modifier = Modifier
-                        .padding(horizontal = 10.ldp, vertical = 12.ldp),
-                    text = text,
-                    style = textStyle,
-                    textAlign = TextAlign.Left
-                )
-            }
-        }
-
-        if (!enableShadow) return
-        // shadow
-        Box(
-            modifier = Modifier
-                .zIndex(1f)
-                .padding(top = shadowOffset)
-                .height(height)
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(50, 0, 0, 50))
-                .background(
-                    Brush.linearGradient(listOf(leftGradientColor, rightGradient)),
-                    alpha = shadowOpacity
-                )
-        )
-    }
-}
-
-@Composable
-fun LeftSideButton(
-    modifier: Modifier = Modifier.fillMaxWidth(.7f),
-    text: String = "abc",
-    leftGradientColor: Color,
-    rightGradient: Color,
-    enableShadow: Boolean = true,
+    buttonType: ButtonType,
     isClickable: Boolean = true,
+    // shadow
+    enableShadow: Boolean = true,
     shadowOpacity: Float = .65f,
     shadowOffset: Dp = 8.ldp,
+    // style
     textStyle: TextStyle = buttonStyle,
+    horizontalPadding: Dp = 40.ldp,
+    verticalPadding: Dp = 12.ldp,
+    leftGradientColor: Color,
+    rightGradient: Color,
+    contentAlignment: Alignment? = null,
     onClick: () -> Unit
 ) {
+    val shape = when (buttonType) {
+        ButtonType.LeftSide ->
+            RoundedCornerShape(0, 50, 50, 0)
+        ButtonType.Center ->
+            RoundedCornerShape(50, 50, 50, 50)
+        ButtonType.RightSide ->
+            RoundedCornerShape(50, 0, 0, 50)
+    }
+
+    var buttonHeight by remember { mutableStateOf(0) }
+
     Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(0, 50, 50))
+        modifier = containerModifier
+            .clip(shape)
             .background(Black)
     ) {
         // button
         Box(
-            modifier = Modifier
+            modifier = buttonModifier
                 .zIndex(2f)
-                .height(75.ldp)
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(0, 50, 50))
+                .clip(shape)
                 .background(Brush.linearGradient(listOf(leftGradientColor, rightGradient)))
-                .clickable(enabled = isClickable) { onClick() },
-            contentAlignment = Alignment.CenterStart
+                .clickable(enabled = isClickable) { onClick() }
+                .onSizeChanged { buttonHeight = it.height },
+            contentAlignment =
+                contentAlignment
+                    ?: when (buttonType) {
+                        ButtonType.LeftSide ->  Alignment.CenterStart
+                        ButtonType.Center -> Alignment.Center
+                        ButtonType.RightSide -> Alignment.CenterEnd
+                    }
         ) {
             Text(
                 modifier = Modifier
-                    .padding(horizontal = 40.ldp, vertical = 12.ldp),
+                    .padding(horizontal = horizontalPadding, vertical = verticalPadding),
                 text = text,
                 style = textStyle,
-                textAlign = TextAlign.Left
+                textAlign = when (buttonType) {
+                    ButtonType.LeftSide -> TextAlign.Left
+                    ButtonType.Center -> TextAlign.Center
+                    ButtonType.RightSide -> TextAlign.Right
+                }
             )
         }
 
         if (!enableShadow) return
         // shadow
         Box(
-            modifier = Modifier
+            modifier = buttonModifier
                 .zIndex(1f)
                 .padding(top = shadowOffset)
-                .height(75.ldp)
+                .height(buttonHeight.pxToDp())
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(0, 50, 50))
+                .clip(shape)
                 .background(
                     Brush.linearGradient(listOf(leftGradientColor, rightGradient)),
                     alpha = shadowOpacity
@@ -366,70 +335,30 @@ fun LeftSideButton(
     }
 }
 
+@HotPreview(name = "button", widthDp = 500, heightDp = 1000)
 @Composable
-fun RightSideButton(
-    modifier: Modifier = Modifier,
-    text: String = "abc",
-    leftGradientColor: Color,
-    rightGradient: Color,
-    isClickable: Boolean = true,
-    enableShadow: Boolean = true,
-    shadowOpacity: Float = .65f,
-    shadowOffset: Dp = 8.ldp,
-    textStyle: TextStyle = buttonStyle,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(50, 0, 0, 50))
-            .background(Black)
-    ) {
-        // button
-        Box(
-            modifier = Modifier
-                .zIndex(2f)
-                .height(75.ldp)
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(50, 0, 0, 50))
-                .background(Brush.linearGradient(listOf(leftGradientColor, rightGradient)))
-                .clickable(enabled = isClickable) { onClick() },
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                modifier = Modifier
-                    .padding(horizontal = 20.ldp, vertical = 12.ldp),
-                text = text,
-                style = textStyle,
-                textAlign = TextAlign.Left
-            )
-        }
-
-        if (!enableShadow) return
-        // shadow
-        Box(
-            modifier = Modifier
-                .zIndex(1f)
-                .padding(top = shadowOffset)
-                .height(75.ldp)
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(50, 0, 0, 50))
-                .background(
-                    Brush.linearGradient(listOf(leftGradientColor, rightGradient)),
-                    alpha = shadowOpacity
-                )
-        )
-    }
-}
-
-@HotPreview(name = "long button", widthDp = 500, heightDp = 1000)
-@Composable
-fun LongButtonPreview() {
+fun ButtonPreview() {
     Surface(color = Black35) {
         Column {
-            LeftSideButton(
+            Button(
                 leftGradientColor = Orange,
                 rightGradient = Yellow,
                 enableShadow = true,
+                buttonType = ButtonType.LeftSide,
+                onClick = {}
+            )
+            Button(
+                leftGradientColor = Orange,
+                rightGradient = Yellow,
+                enableShadow = true,
+                buttonType = ButtonType.Center,
+                onClick = {}
+            )
+            Button(
+                leftGradientColor = Orange,
+                rightGradient = Yellow,
+                enableShadow = true,
+                buttonType = ButtonType.RightSide,
                 onClick = {}
             )
         }

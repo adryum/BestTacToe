@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -15,14 +14,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.zIndex
 import com.testdevlab.besttactoe.core.repositories.GameHandler
 import com.testdevlab.besttactoe.core.repositories.GameMode
-import com.testdevlab.besttactoe.ui.GameEndModel
+import com.testdevlab.besttactoe.ui.GameResultModel
 import com.testdevlab.besttactoe.ui.MoveModel
 import com.testdevlab.besttactoe.ui.OpponentUIModel
 import com.testdevlab.besttactoe.ui.PlayerUIModel
 import com.testdevlab.besttactoe.ui.ScoreModel
 import com.testdevlab.besttactoe.ui.SegmentUIModel
 import com.testdevlab.besttactoe.ui.TableOuterPadding
-import com.testdevlab.besttactoe.ui.components.DarkBackgroundWithDarkTop
 import com.testdevlab.besttactoe.ui.components.GamesTopBar
 import com.testdevlab.besttactoe.ui.components.MultipleStepDecorations
 import com.testdevlab.besttactoe.ui.components.TicTacToeTable
@@ -45,7 +43,7 @@ fun GameView(
     val opponentData by gameHandler.opponentData.collectAsState()
     val gameResult by gameHandler.gameResult.collectAsState()
     val gameMode by gameHandler.gameMode.collectAsState()
-    val gameScore by gameHandler.gameScore.collectAsState()
+    val gameScore by gameHandler.score.collectAsState()
 
     GameViewContent(
         boardData = boardData,
@@ -55,6 +53,7 @@ fun GameView(
         gameMode = gameMode,
         score = gameScore,
         onGoBack = navigationObject::goBack,
+        onLeaveClick = gameHandler::clearGameData,
         onPlayAgainClick = gameHandler::playAgain,
         onPieceClick = gameHandler::makeAMove
     )
@@ -65,11 +64,12 @@ fun GameViewContent(
     boardData: List<SegmentUIModel>,
     playerData: PlayerUIModel,
     opponentData: OpponentUIModel,
-    gameResult: GameEndModel?,
+    gameResult: GameResultModel?,
     gameMode: GameMode?,
     score: ScoreModel?,
     onGoBack: () -> Unit,
     onPlayAgainClick: () -> Unit,
+    onLeaveClick: () -> Unit,
     onPieceClick: (MoveModel) -> Unit
 ) {
     Column(
@@ -83,15 +83,17 @@ fun GameViewContent(
             score = score ?: ScoreModel(0,0),
         )
         MultipleStepDecorations(2)
-        Box {
+        Box(
+            modifier = Modifier.aspectRatio(1f)
+        ) {
             TicTacToeTable(
                 modifier = Modifier
-                    .zIndex(1f)
-                    .aspectRatio(1f),
+                    .fillMaxSize()
+                    .zIndex(1f),
                 segments = boardData,
                 padding = TableOuterPadding(
-                    tablePadding = 1.ldp,
-                    segmentPadding = 1.ldp,
+                    tablePadding = 2.ldp,
+                    segmentPadding = 2.ldp,
                     piecePadding = 1.ldp
                 ),
                 onPieceClick = onPieceClick,
@@ -101,16 +103,17 @@ fun GameViewContent(
                 enemyIcon = opponentData.icon,
                 gameMode = gameMode,
             )
-
             if (gameResult != null)
             VictoryPopUp(
                 modifier = Modifier
                     .zIndex(2f)
-                    .aspectRatio(1f)
-                    .fillMaxHeight(),
+                    .fillMaxSize(),
                 gameResult = gameResult,
                 onPlayAgainClick = onPlayAgainClick,
-                onGoBackClick = onGoBack
+                onGoBackClick = {
+                    onGoBack()
+                    onLeaveClick()
+                }
             )
         }
         TurnShower(
@@ -122,7 +125,6 @@ fun GameViewContent(
             opponentIconColor = Color.Red,
             isPlayerTurn = playerData.hasTurn
         )
-        DarkBackgroundWithDarkTop {  }
     }
 }
 

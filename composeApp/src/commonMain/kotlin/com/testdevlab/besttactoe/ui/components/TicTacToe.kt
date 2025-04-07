@@ -1,6 +1,8 @@
 package com.testdevlab.besttactoe.ui.components
 
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,25 +25,28 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.times
 import androidx.compose.ui.zIndex
 import besttactoe.composeapp.generated.resources.Res
 import besttactoe.composeapp.generated.resources.ic_settings
 import com.testdevlab.besttactoe.core.repositories.GameMode
-import com.testdevlab.besttactoe.core.repositories.PieceType
 import com.testdevlab.besttactoe.ui.MoveModel
+import com.testdevlab.besttactoe.ui.PieceType
+import com.testdevlab.besttactoe.ui.SegmentType
 import com.testdevlab.besttactoe.ui.SegmentUIModel
 import com.testdevlab.besttactoe.ui.TableOuterPadding
 import com.testdevlab.besttactoe.ui.theme.Blue
 import com.testdevlab.besttactoe.ui.theme.GrayDark
+import com.testdevlab.besttactoe.ui.theme.SelectedSegmentColor
 import com.testdevlab.besttactoe.ui.theme.TransparentDark
 import com.testdevlab.besttactoe.ui.theme.ldp
 import com.testdevlab.besttactoe.ui.theme.lightGray
-import com.testdevlab.besttactoe.ui.theme.lightGreen
 import com.testdevlab.besttactoe.ui.theme.pxToDp
 import com.testdevlab.besttactoe.ui.theme.white_60
 import org.jetbrains.compose.resources.DrawableResource
@@ -55,16 +60,20 @@ fun TicTacToePiece(
     isClickable: Boolean = true,
     onClick: () -> Unit
 ) {
-    var targetAlpha by remember { mutableStateOf(0f) }
-    val alpha by animateFloatAsState(
-        targetValue = targetAlpha
+    var hasIcon by remember { mutableStateOf(false)}
+    val scale by animateFloatAsState(
+        targetValue = if (hasIcon) 1f else 0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioHighBouncy,
+            stiffness = Spring.StiffnessMedium
+        )
     )
     LaunchedEffect(Unit) {
-        targetAlpha = 1f
+        hasIcon = true
     }
+
     Box(
         modifier = modifier
-            .alpha(alpha)
             .clickable(enabled = isClickable) {
                 onClick()
             }
@@ -72,7 +81,7 @@ fun TicTacToePiece(
     ) {
         if (icon == null) return
         Image(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().scale(scale),
             painter = painterResource(icon),
             contentDescription = null,
             colorFilter = tint
@@ -105,22 +114,35 @@ fun <T> ThreeByThreeGrid(
 @Composable
 fun SegmentImage(
     modifier: Modifier,
-    segmentState: PieceType,
+    segmentState: SegmentType,
     opponentIcon: DrawableResource,
     playerIcon: DrawableResource,
     imagePadding: Dp,
 ) {
     val color = when (segmentState) {
-        PieceType.Player -> Blue
-        PieceType.Opponent -> Color.Red
-        PieceType.Draw -> GrayDark
+        SegmentType.Player -> Blue
+        SegmentType.Opponent -> Color.Red
+        SegmentType.Draw -> GrayDark
         else -> white_60
     }
 
+    var showImage by remember { mutableStateOf(false)}
+    val scale by animateFloatAsState(
+        targetValue = if (showImage) 1f else 0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioHighBouncy,
+            stiffness = Spring.StiffnessMedium
+        )
+    )
+    LaunchedEffect(Unit) {
+        showImage = true
+    }
+
     Box(
-        modifier = modifier,
+        modifier = modifier.scale(scale),
         contentAlignment = Alignment.Center
     ) {
+        // background
         Box(modifier = Modifier
             .fillMaxSize()
             .border(
@@ -138,8 +160,8 @@ fun SegmentImage(
                 .padding(imagePadding),
             painter = painterResource(
                 when (segmentState) {
-                    PieceType.Opponent -> opponentIcon
-                    PieceType.Player -> playerIcon
+                    SegmentType.Opponent -> opponentIcon
+                    SegmentType.Player -> playerIcon
                     else -> Res.drawable.ic_settings
                 }
             ),
@@ -156,7 +178,7 @@ fun TicTacToeSegment(
     segment: SegmentUIModel,
     tileColor: Color = lightGray,
     segmentColor: Color = TransparentDark,
-    selectedSegmentColor: Color = lightGreen,
+    selectedSegmentColor: Color = SelectedSegmentColor,
     isPlayerTurn: Boolean,
     isGameEnded: Boolean,
     gameMode: GameMode?,
@@ -164,47 +186,35 @@ fun TicTacToeSegment(
     playerIcon: DrawableResource,
     onPieceClick: (Int) -> Unit
 ) {
-    val piecePaddingsInSegment = 6
     var segmentSize by remember { mutableStateOf(IntSize.Zero) }
 
     @Composable
-    fun getPieceHeight() = segmentSize.height.pxToDp() / 3 - piecePadding * piecePaddingsInSegment
+    fun getPieceHeight() = segmentSize.height.pxToDp() / 3 - 2 * piecePadding
 
     @Composable
-    fun getPieceWidth() = segmentSize.width.pxToDp() / 3  - piecePadding * piecePaddingsInSegment
+    fun getPieceWidth() = segmentSize.width.pxToDp() / 3 - 2 * piecePadding
 
     fun isPieceClickable() =
         !isGameEnded &&
         ((segment.isActive && isPlayerTurn) || (segment.isActive && gameMode == GameMode.HotSeat))
-
-    var targetAlpha by remember { mutableStateOf(0f) }
-    val alpha by animateFloatAsState(
-        targetValue = targetAlpha
-    )
-
-    if (segment.isAnythingButEmpty)
-        LaunchedEffect(Unit) {
-            targetAlpha = 1f
-        }
 
     Box(modifier = modifier
         .background(if (segment.isActive) selectedSegmentColor else segmentColor)
         .onSizeChanged { sizePx ->
             segmentSize = sizePx
         },
-        contentAlignment = Alignment.Center
     ) {
-        SegmentImage(
-            modifier = Modifier
-                .zIndex(2f)
-                .alpha(alpha)
-                .padding(4.ldp)
-                .fillMaxSize(),
-            segmentState = segment.state,
-            playerIcon = playerIcon,
-            opponentIcon = opponentIcon,
-            imagePadding = 10.ldp,
-        )
+        if (segment.isAnythingButNone)
+            SegmentImage(
+                modifier = Modifier
+                    .zIndex(2f)
+                    .padding(4.ldp)
+                    .fillMaxSize(),
+                segmentState = segment.state,
+                playerIcon = playerIcon,
+                opponentIcon = opponentIcon,
+                imagePadding = 10.ldp,
+            )
         ThreeByThreeGrid(
             modifier = Modifier.zIndex(1f),
             content = segment.pieces
@@ -253,12 +263,12 @@ fun TicTacToeTable(
 
     @Composable
     fun getSegmentHeight(): Dp {
-        return  size.height.pxToDp() / 3 - padding.segmentPadding * 6
+        return  size.height.pxToDp() / 3 - 2 * padding.segmentPadding
     }
 
     @Composable
     fun getSegmentWidth(): Dp {
-        return  size.width.pxToDp() / 3  - padding.segmentPadding * 6
+        return  size.width.pxToDp() / 3 - 2 * padding.segmentPadding
     }
     Box(
         modifier = modifier
@@ -269,27 +279,28 @@ fun TicTacToeTable(
             },
     ) {
         ThreeByThreeGrid(content = segments) { segment ->
-            TicTacToeSegment(
-                modifier = Modifier
-                    .padding(padding.segmentPadding)
-                    .size(getSegmentWidth(), getSegmentHeight()),
-                piecePadding = padding.piecePadding,
-                segment = segment,
-                segmentColor = white_60,
-                isPlayerTurn = isPlayerTurn,
-                playerIcon = playerIcon,
-                opponentIcon = enemyIcon,
-                onPieceClick = { pieceIndex ->
-                    onPieceClick(
-                        MoveModel(
-                            segmentIndex = segment.index,
-                            pieceIndex = pieceIndex,
+                TicTacToeSegment(
+                    modifier = Modifier
+                        .padding(padding.segmentPadding)
+                        .size(getSegmentWidth(), getSegmentHeight()),
+                    piecePadding = padding.piecePadding,
+                    segment = segment,
+                    segmentColor = white_60,
+                    isPlayerTurn = isPlayerTurn,
+                    playerIcon = playerIcon,
+                    opponentIcon = enemyIcon,
+                    onPieceClick = { pieceIndex ->
+                        onPieceClick(
+                            MoveModel(
+                                segmentIndex = segment.index,
+                                pieceIndex = pieceIndex,
+                            )
                         )
-                    )
-                },
-                gameMode = gameMode,
-                isGameEnded = isGameEnded,
-            )
+                    },
+                    gameMode = gameMode,
+                    isGameEnded = isGameEnded,
+                )
+
         }
     }
 }

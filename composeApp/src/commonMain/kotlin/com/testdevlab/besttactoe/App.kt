@@ -48,7 +48,8 @@ fun App() {
     Surface {
         AppContent(
             currentView = currentView,
-            goBack = NavigationObject::goBack
+            goBack = NavigationObject::goBack,
+            onGameLeave = GameHandler::clearGameData
         )
     }
 }
@@ -57,10 +58,12 @@ fun App() {
 @Composable
 fun AppContent(
     currentView: Views,
-    goBack: () -> Unit
+    goBack: () -> Unit,
+    onGameLeave: () -> Unit
 ) {
     val isTopBarShown = currentView.showTopBar()
     val viewTitle = currentView.getViewTitle()
+    val topBarHeight = 80.ldp
 
     // background for the whole app. might later change with animations
     Box(
@@ -83,7 +86,7 @@ fun AppContent(
                 modifier = Modifier.fillMaxSize()
             ) {
                 if (isTopBarShown)
-                    TopBar(height = 100.ldp) {
+                    TopBar(height = topBarHeight) {
                         TicTacToePiece(
                             modifier = Modifier.padding(12.ldp).aspectRatio(1f),
                             isClickable = true,
@@ -91,15 +94,15 @@ fun AppContent(
                             onClick = {
                                 goBack()
                                 if (currentView == Views.GameView)
-                                    GameHandler.clearGame()
+                                    onGameLeave()
                             }
                         )
-                }
+                    }
 
                 // It gets inside, just is hidden
                 if (currentView != Views.GameView)  {
                     ViewTitle(
-                        modifier = Modifier.padding(top = if (isTopBarShown) 0.ldp else  100.ldp),
+                        modifier = Modifier.padding(top = if (isTopBarShown) 0.ldp else topBarHeight),
                         text = viewTitle
                     )
                 }

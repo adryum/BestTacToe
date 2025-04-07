@@ -1,7 +1,6 @@
 package com.testdevlab.besttactoe.ui
 
 import androidx.compose.ui.unit.Dp
-import com.testdevlab.besttactoe.core.repositories.PieceType
 import org.jetbrains.compose.resources.DrawableResource
 
 data class ScoreModel(
@@ -9,26 +8,41 @@ data class ScoreModel(
     val opponentScore: Int
 )
 
-sealed class Tile(
-    open val state: PieceType
-) {
-    val isOpponents get() = state == PieceType.Opponent
-    val isEmpty get() = state == PieceType.Empty
-    val isPlayers get() = state == PieceType.Player
-    val isAnythingButEmpty get() = state != PieceType.Empty
+enum class SegmentType {
+    Opponent,
+    Player,
+    None,
+    Draw
+}
+
+enum class PieceType {
+    Opponent,
+    Player,
+    Empty,
 }
 
 data class SegmentUIModel(
     val index: Int,
     val isActive: Boolean,
     val pieces: List<PiecesUIModel>,
-    override val state: PieceType
-): Tile(state)
+    val state: SegmentType
+) {
+    val isOpponents = state == SegmentType.Opponent
+    val isNone = state == SegmentType.None
+    val isPlayers = state == SegmentType.Player
+    val isDraw = state == SegmentType.Draw
+    val isAnythingButNone = state != SegmentType.None
+}
 
 data class PiecesUIModel(
     val index: Int,
-    override val state: PieceType
-): Tile(state)
+    val state: PieceType
+) {
+    val isOpponents = state == PieceType.Opponent
+    val isEmpty = state == PieceType.Empty
+    val isPlayers = state == PieceType.Player
+    val isAnythingButEmpty = state != PieceType.Empty
+}
 
 data class OpponentUIModel(
     val name: String,
@@ -52,7 +66,7 @@ data class TableOuterPadding(
     val piecePadding: Dp
 )
 
-data class GameEndModel(
+data class GameResultModel(
     val name: String?,
     val icon: DrawableResource?,
     val isVictory: Boolean

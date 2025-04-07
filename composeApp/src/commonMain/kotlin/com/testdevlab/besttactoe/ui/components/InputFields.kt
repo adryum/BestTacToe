@@ -31,12 +31,14 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.testdevlab.besttactoe.ui.components.Button
+import com.testdevlab.besttactoe.ui.components.ButtonType
 import com.testdevlab.besttactoe.ui.theme.GrayDark
 import com.testdevlab.besttactoe.ui.theme.GrayLight
 import com.testdevlab.besttactoe.ui.theme.Orange
 import com.testdevlab.besttactoe.ui.theme.White
 import com.testdevlab.besttactoe.ui.theme.gradientBackground
 import com.testdevlab.besttactoe.ui.theme.ldp
+import com.testdevlab.besttactoe.ui.theme.textMedium
 import com.testdevlab.besttactoe.ui.theme.textNormal
 import com.testdevlab.besttactoe.ui.theme.textSmall
 
@@ -155,9 +157,10 @@ fun CodeInputField(
             )
             Button(
                 text = "Enter",
-                height = 50.ldp,
                 leftGradientColor = inputLeftGradientColor,
                 rightGradient = inputRightGradientColor,
+                textStyle = textMedium,
+                buttonType = ButtonType.Center,
                 onClick = { onSend() }
             )
         }
