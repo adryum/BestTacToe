@@ -2,7 +2,7 @@ package com.testdevlab.besttactoe.core.repositories
 
 import com.testdevlab.besttactoe.ui.MoveModel
 import com.testdevlab.besttactoe.ui.PieceType
-import com.testdevlab.besttactoe.ui.PiecesUIModel
+import com.testdevlab.besttactoe.ui.PieceUIModel
 import com.testdevlab.besttactoe.ui.SegmentType
 import com.testdevlab.besttactoe.ui.SegmentUIModel
 
@@ -51,13 +51,13 @@ object TicTacToeManager {
 
     fun createTable(enableAllSegments: Boolean = false): List<SegmentUIModel> {
         val list = mutableListOf<SegmentUIModel>()
-        val pieceList = mutableListOf<PiecesUIModel>()
+        val pieceList = mutableListOf<PieceUIModel>()
 
         // create piece list
         for (i in 0 ..< 9) {
             pieceList.add(
                 i,
-                PiecesUIModel(
+                PieceUIModel(
                     index = i,
                     state = PieceType.Empty,
                 )
@@ -80,13 +80,11 @@ object TicTacToeManager {
         return list.map { it.copy() }
     }
 
-    private fun activateNextSegments(
-        table: List<SegmentUIModel>,
-        moveModel: MoveModel
-    ) = if (table[moveModel.pieceIndex].isAnythingButNone) {
-            activateAllUnfinishedSegments(table)
+    private fun activateNextSegments(table: List<SegmentUIModel>, moveModel: MoveModel) =
+        if (table[moveModel.pieceIndex].isAnythingButNone) {
+            activateAllUnfinishedSegments(table = table)
         } else {
-            moveToNextSegment(moveModel.segmentIndex, moveModel.pieceIndex, table)
+            moveToNextSegment(pieceIndex = moveModel.pieceIndex, table = table)
         }
     }
 
@@ -141,13 +139,10 @@ object TicTacToeManager {
         }
 
     private fun moveToNextSegment(
-        currentSegmentIndex: Int,
         pieceIndex: Int,
         table: List<SegmentUIModel>
     ): List<SegmentUIModel> {
         return table.map { segment ->
-            if (currentSegmentIndex == pieceIndex) return table
-
             when (segment.index) {
                 pieceIndex -> segment.copy(isActive = true)
                 else -> segment.copy(isActive = false)
@@ -187,7 +182,7 @@ object TicTacToeManager {
         return true
     }
 
-    private fun isSegmentDraw(pieces: List<PiecesUIModel>): Boolean {
+    private fun isSegmentDraw(pieces: List<PieceUIModel>): Boolean {
         for (piece in pieces) {
             if (piece.isEmpty) return false
         }
@@ -255,12 +250,12 @@ object TicTacToeManager {
     //endregion
 
     //region piece victory checks
-    private fun hasVictoryLine(pieceList: List<PiecesUIModel>) =
+    private fun hasVictoryLine(pieceList: List<PieceUIModel>) =
         isDiagonalVictory(pieceList) ||
         isHorizontalVictory(pieceList) ||
         isVerticalVictory(pieceList)
 
-    private fun isDiagonalVictory(pieces: List<PiecesUIModel>): Boolean {
+    private fun isDiagonalVictory(pieces: List<PieceUIModel>): Boolean {
         // 2 diagonal checks \ /
         if (pieces[4].isEmpty) return false
 
@@ -270,7 +265,7 @@ object TicTacToeManager {
                 pieces[2].state == pieces[6].state
     }
 
-    private fun isHorizontalVictory(pieces: List<PiecesUIModel>): Boolean {
+    private fun isHorizontalVictory(pieces: List<PieceUIModel>): Boolean {
         // 3 horizontal checks =-
         var rowsFirstItemIndex: Int
 
@@ -293,7 +288,7 @@ object TicTacToeManager {
         return false
     }
 
-    private fun isVerticalVictory(segmentPieces: List<PiecesUIModel>): Boolean {
+    private fun isVerticalVictory(segmentPieces: List<PieceUIModel>): Boolean {
         // 3 vertical checks |||
         for (column in 0..2) {
             // 0 1 2

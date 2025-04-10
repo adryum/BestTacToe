@@ -1,4 +1,4 @@
-package com.testdevlab.besttactoe.ui.viewmodels
+package com.testdevlab.besttactoe.ui.navigation
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -47,5 +47,6 @@ enum class Views {
     MultiplayerView,
     JoinLobbyView,
     CreateLobbyView,
-    SettingsView
+    SettingsView,
+    HistoryView
 }

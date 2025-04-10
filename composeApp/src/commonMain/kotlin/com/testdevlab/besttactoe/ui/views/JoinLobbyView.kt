@@ -9,9 +9,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.input.TextFieldValue
 import com.testdevlab.besttactoe.ui.components.DarkBackgroundWithDarkTop
-import com.testdevlab.besttactoe.ui.theme.DarkOrange
-import com.testdevlab.besttactoe.ui.theme.Orange
-import com.testdevlab.besttactoe.ui.theme.Yellow
+import com.testdevlab.besttactoe.ui.theme.DarkOrangeOrangeList
+import com.testdevlab.besttactoe.ui.theme.OrangeYellowList
 import com.testdevlab.besttactoe.ui.theme.ldp
 import de.drick.compose.hotpreview.HotPreview
 
@@ -32,10 +31,8 @@ fun JoinRoomViewContent(
         CodeInputField(
             value = codeInputValue,
             height = 80.ldp,
-            leftGradientColor = DarkOrange,
-            rightGradientColor = Orange,
-            inputLeftGradientColor = Orange,
-            inputRightGradientColor = Yellow,
+            colorGradient = DarkOrangeOrangeList,
+            inputColorGradient = OrangeYellowList,
             onValueChanged = { textFieldValue ->
                 codeInputValue = textFieldValue
             },

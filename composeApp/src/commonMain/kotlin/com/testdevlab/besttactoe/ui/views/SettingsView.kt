@@ -17,13 +17,12 @@ import com.testdevlab.besttactoe.ui.components.Button
 import com.testdevlab.besttactoe.ui.components.ButtonType
 import com.testdevlab.besttactoe.ui.components.MultipleStepDecorationsWithDarkContentAndColumn
 import com.testdevlab.besttactoe.ui.components.ToggleButton
-import com.testdevlab.besttactoe.ui.theme.Blue
-import com.testdevlab.besttactoe.ui.theme.DarkBlue
+import com.testdevlab.besttactoe.ui.navigation.NavigationObject
+import com.testdevlab.besttactoe.ui.navigation.Views
+import com.testdevlab.besttactoe.ui.theme.DarkBlueBlueList
 import com.testdevlab.besttactoe.ui.theme.Orange
 import com.testdevlab.besttactoe.ui.theme.Yellow
 import com.testdevlab.besttactoe.ui.theme.ldp
-import com.testdevlab.besttactoe.ui.viewmodels.NavigationObject
-import com.testdevlab.besttactoe.ui.viewmodels.Views
 import de.drick.compose.hotpreview.HotPreview
 
 @Composable
@@ -68,8 +67,7 @@ fun SettingsViewContent(
             Button(
                 containerModifier = Modifier.fillMaxWidth(.7f),
                 text = "RoboRumble",
-                leftGradientColor = DarkBlue,
-                rightGradient = Blue,
+                colorGradient = DarkBlueBlueList,
                 buttonType = ButtonType.Center,
                 onClick = {
                     onGoClick(Views.GameView)
@@ -79,8 +77,7 @@ fun SettingsViewContent(
             Button(
                 containerModifier = Modifier.fillMaxWidth(.7f),
                 text = "Resolution",
-                leftGradientColor = DarkBlue,
-                rightGradient = Blue,
+                colorGradient = DarkBlueBlueList,
                 buttonType = ButtonType.Center,
                 onClick = {}
             )

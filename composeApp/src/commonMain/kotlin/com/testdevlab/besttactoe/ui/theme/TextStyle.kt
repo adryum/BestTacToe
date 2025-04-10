@@ -1,18 +1,34 @@
 package com.testdevlab.besttactoe.ui.theme
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import besttactoe.composeapp.generated.resources.Res
+import besttactoe.composeapp.generated.resources.latin_numbers
+import besttactoe.composeapp.generated.resources.sports
+import org.jetbrains.compose.resources.Font
+
+@Composable
+fun getSportFontFamily() = FontFamily(
+    Font(Res.font.sports)
+)
+
+@Composable
+fun getLatinFontFamily() = FontFamily(
+    Font(Res.font.latin_numbers)
+)
 
 val text = TextStyle(
     fontSize = 48.sp,
     fontWeight = FontWeight(500),
     letterSpacing = 15.sp,
-    color = GrayDark
+    color = GrayDark,
 )
 
-val textNormal = text.copy(fontSize = 36.sp, letterSpacing = 0.sp)
-val textMedium = text.copy(fontSize = 24.sp, letterSpacing = .1.sp, color = White, lineHeight = 20.sp)
+val textLarge = text.copy(fontSize = 32.sp, letterSpacing = .1.sp, color = White, lineHeight = 40.sp)
+val textMedium = text.copy(fontSize = 24.sp, letterSpacing = .1.sp, color = White, lineHeight = 32.sp)
 val textSmall = text.copy(fontSize = 16.sp, fontWeight = FontWeight(100), letterSpacing = .1.sp)
 
 val textTitle = text.copy(
@@ -20,7 +36,7 @@ val textTitle = text.copy(
     letterSpacing = .1.sp,
     fontWeight = FontWeight(500),
     color = White,
-    lineHeight = 80.sp
+    lineHeight = 80.sp,
 )
 
 val buttonStyle = text.copy(

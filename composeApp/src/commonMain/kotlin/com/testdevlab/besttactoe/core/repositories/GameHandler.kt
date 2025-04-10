@@ -3,6 +3,9 @@ package com.testdevlab.besttactoe.core.repositories
 import besttactoe.composeapp.generated.resources.Res
 import besttactoe.composeapp.generated.resources.ic_circle
 import besttactoe.composeapp.generated.resources.ic_thin_cross
+import com.testdevlab.besttactoe.core.cache.Preferences
+import com.testdevlab.besttactoe.core.cache.models.GameDBModel
+import com.testdevlab.besttactoe.core.cache.models.ScoreDBModel
 import com.testdevlab.besttactoe.core.common.launchDefault
 import com.testdevlab.besttactoe.ui.GameResultModel
 import com.testdevlab.besttactoe.ui.MoveModel
@@ -12,7 +15,10 @@ import com.testdevlab.besttactoe.ui.PlayerUIModel
 import com.testdevlab.besttactoe.ui.ScoreModel
 import com.testdevlab.besttactoe.ui.SegmentType
 import com.testdevlab.besttactoe.ui.SegmentUIModel
+import com.testdevlab.besttactoe.ui.theme.toSegmentDBModelList
+import com.testdevlab.besttactoe.ui.theme.toSegmentUIModelList
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -41,7 +47,7 @@ object GameHandler {
     )
     private val _tableData = MutableStateFlow<List<SegmentUIModel>>(emptyList())
     private val _gameResult = MutableStateFlow<GameResultModel?>(null)
-    private val _canAIMove = MutableStateFlow<Boolean?>(null)
+    private val _canAIMove = MutableSharedFlow<Unit>(1)
     private val _gameMode = MutableStateFlow<GameMode?>(null)
     private val _score = MutableStateFlow<ScoreModel?>(null)
     private val gameEnded get() = _gameResult.value != null
@@ -59,26 +65,58 @@ object GameHandler {
         // for AI
         launchDefault {
             _canAIMove.collect {
+                println("collected move")
+
                 if (
                     (_gameMode.value == GameMode.VS_AI &&
-                    _canAIMove.value != true &&
-                    !gameEnded) ||
+                    !isPlayerTurn && !gameEnded) ||
                     (_gameMode.value == GameMode.RoboRumble && !gameEnded)
                 ) {
-                    println("robo move")
-                    delay(if (_gameMode.value == GameMode.RoboRumble) 100 else  700)
+                    delay(if (_gameMode.value == GameMode.RoboRumble) 10 else  700)
                     gameAI?.makeAMove(_tableData.value)
                 }
             }
         }
     }
 
+    private fun saveGame() {
+        Preferences.saveGameData(
+            GameDBModel(
+                score = ScoreDBModel(
+                    playerScore = _score.value?.playerScore!!,
+                    opponentScore = _score.value?.opponentScore!!,
+                    opponentName = _opponentData.value.name,
+                    playerName = _playerData.value.name
+                ),
+                table = _tableData.value.toSegmentDBModelList(),
+                isPlayerTurn = isPlayerTurn,
+                gameMode = _gameMode.value!!
+            )
+        )
+    }
+
+    fun loadGame(gameMode: GameMode) {
+        println("Game Loaded!")
+        val loadedGame = Preferences.getGameData(gameMode)!!
+        _gameMode.update { loadedGame.gameMode }
+        _score.update {
+            ScoreModel(
+                playerScore = loadedGame.score.playerScore,
+                opponentScore = loadedGame.score.opponentScore
+            )
+        }
+        _tableData.update { loadedGame.table.toSegmentUIModelList() }
+        if (_gameMode.value == GameMode.VS_AI) gameAI = GameAI()
+        setPlayerTurn(loadedGame.isPlayerTurn)
+    }
+
     fun makeAMove(pieceData: MoveModel) {
-        println("move made")
         _tableData.update {
             TicTacToeManager.processMove(pieceData, _tableData.value.map { it.copy() })
         }
     }
+
+    fun isThereASavedGame(gameMode: GameMode) = Preferences.isThereASaveFor(gameMode)
 
     fun startGame(gameMode: GameMode) {
         println("game started")
@@ -110,15 +148,28 @@ object GameHandler {
             )
         _gameResult.update { null }
 
+        makeTableData()
         if (_gameMode.value == GameMode.VS_AI || _gameMode.value == GameMode.RoboRumble) {
             gameAI = GameAI()
             tossACoin()
         }
-
-        makeTableData()
     }
 
-    fun clearGameData() {
+    fun exitGame() {
+        if (gameEnded) {
+            leaveFinishedGame()
+        } else {
+            saveGame()
+            clearGameData()
+        }
+    }
+
+    private fun leaveFinishedGame() {
+        Preferences.dropGameData(gameMode = _gameMode.value!!)
+        clearGameData()
+    }
+
+    private fun clearGameData() {
         println("clear data called")
         gameAI = null
         _gameResult.update { null }
@@ -157,8 +208,9 @@ object GameHandler {
     private fun setPlayerTurn(value: Boolean) {
         _playerData.update { _playerData.value.copy(hasTurn = value) }
         // triggers AI move
-        if (_gameMode.value == GameMode.VS_AI || _gameMode.value == GameMode.RoboRumble)
-            _canAIMove.update { _playerData.value.hasTurn }
+        if ((_gameMode.value == GameMode.VS_AI && !_playerData.value.hasTurn) ||
+            _gameMode.value == GameMode.RoboRumble)
+            _canAIMove.tryEmit(Unit)
     }
 
     fun switchTurns() = setPlayerTurn(!isPlayerTurn)

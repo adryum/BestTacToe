@@ -26,11 +26,10 @@ import com.testdevlab.besttactoe.ui.components.MultipleStepDecorations
 import com.testdevlab.besttactoe.ui.components.TicTacToeTable
 import com.testdevlab.besttactoe.ui.components.TurnShower
 import com.testdevlab.besttactoe.ui.components.VictoryPopUp
+import com.testdevlab.besttactoe.ui.navigation.NavigationObject
 import com.testdevlab.besttactoe.ui.theme.Blue
-import com.testdevlab.besttactoe.ui.theme.DarkGreen
-import com.testdevlab.besttactoe.ui.theme.Green
+import com.testdevlab.besttactoe.ui.theme.YellowList
 import com.testdevlab.besttactoe.ui.theme.ldp
-import com.testdevlab.besttactoe.ui.viewmodels.NavigationObject
 import de.drick.compose.hotpreview.HotPreview
 
 @Composable
@@ -53,7 +52,7 @@ fun GameView(
         gameMode = gameMode,
         score = gameScore,
         onGoBack = navigationObject::goBack,
-        onLeaveClick = gameHandler::clearGameData,
+        exitGame = gameHandler::exitGame,
         onPlayAgainClick = gameHandler::playAgain,
         onPieceClick = gameHandler::makeAMove
     )
@@ -69,7 +68,7 @@ fun GameViewContent(
     score: ScoreModel?,
     onGoBack: () -> Unit,
     onPlayAgainClick: () -> Unit,
-    onLeaveClick: () -> Unit,
+    exitGame: () -> Unit,
     onPieceClick: (MoveModel) -> Unit
 ) {
     Column(
@@ -112,13 +111,12 @@ fun GameViewContent(
                 onPlayAgainClick = onPlayAgainClick,
                 onGoBackClick = {
                     onGoBack()
-                    onLeaveClick()
+                    exitGame()
                 }
             )
         }
         TurnShower(
-            leftGradientColor = DarkGreen,
-            rightGradientColor = Green,
+            colorList = YellowList,
             playerIcon = playerData.icon,
             playerIconColor = Blue,
             opponentIcon = opponentData.icon,

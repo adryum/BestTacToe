@@ -24,7 +24,7 @@ enum class PieceType {
 data class SegmentUIModel(
     val index: Int,
     val isActive: Boolean,
-    val pieces: List<PiecesUIModel>,
+    val pieces: List<PieceUIModel>,
     val state: SegmentType
 ) {
     val isOpponents = state == SegmentType.Opponent
@@ -34,7 +34,7 @@ data class SegmentUIModel(
     val isAnythingButNone = state != SegmentType.None
 }
 
-data class PiecesUIModel(
+data class PieceUIModel(
     val index: Int,
     val state: PieceType
 ) {
@@ -71,3 +71,9 @@ data class GameResultModel(
     val icon: DrawableResource?,
     val isVictory: Boolean
 )
+
+enum class GamesResultType {
+    Victory,
+    Draw,
+    Loss,
+}

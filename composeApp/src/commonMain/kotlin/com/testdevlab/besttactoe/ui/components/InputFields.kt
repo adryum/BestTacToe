@@ -39,7 +39,6 @@ import com.testdevlab.besttactoe.ui.theme.White
 import com.testdevlab.besttactoe.ui.theme.gradientBackground
 import com.testdevlab.besttactoe.ui.theme.ldp
 import com.testdevlab.besttactoe.ui.theme.textMedium
-import com.testdevlab.besttactoe.ui.theme.textNormal
 import com.testdevlab.besttactoe.ui.theme.textSmall
 
 @Composable
@@ -68,7 +67,7 @@ fun TextInputWithIcon(
     maxLines: Int = 1,
     singleLine: Boolean = true,
     showLabel: Boolean = true,
-    textStyle: TextStyle = textNormal,
+    textStyle: TextStyle = textMedium,
     hintStyle: TextStyle = textSmall,
     trailingIcon: @Composable () -> Unit = {},
     readOnly: Boolean = false,
@@ -127,10 +126,8 @@ fun CodeInputField(
     hint: String = "Code here",
     value: TextFieldValue,
     height: Dp,
-    leftGradientColor: Color,
-    rightGradientColor: Color,
-    inputLeftGradientColor: Color,
-    inputRightGradientColor: Color,
+    colorGradient: List<Color>,
+    inputColorGradient: List<Color>,
     onValueChanged: (TextFieldValue) -> Unit,
     onSend: () -> Unit
 ) {
@@ -138,7 +135,7 @@ fun CodeInputField(
         modifier = Modifier
             .fillMaxWidth()
             .height(height)
-            .gradientBackground(listOf(leftGradientColor, rightGradientColor), 0f)
+            .gradientBackground(colorGradient, 0f)
             .padding(horizontal = 16.ldp, vertical = 12.ldp),
         contentAlignment = Alignment.Center
     ) {
@@ -157,8 +154,7 @@ fun CodeInputField(
             )
             Button(
                 text = "Enter",
-                leftGradientColor = inputLeftGradientColor,
-                rightGradient = inputRightGradientColor,
+                colorGradient = inputColorGradient,
                 textStyle = textMedium,
                 buttonType = ButtonType.Center,
                 onClick = { onSend() }

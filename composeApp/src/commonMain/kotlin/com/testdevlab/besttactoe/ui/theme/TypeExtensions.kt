@@ -8,8 +8,17 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import com.testdevlab.besttactoe.ui.PiecesUIModel
-import com.testdevlab.besttactoe.ui.viewmodels.Views
+import besttactoe.composeapp.generated.resources.Res
+import besttactoe.composeapp.generated.resources.ic_circle
+import besttactoe.composeapp.generated.resources.ic_cross
+import besttactoe.composeapp.generated.resources.ic_robot
+import com.testdevlab.besttactoe.core.cache.models.HistoryDBModel
+import com.testdevlab.besttactoe.core.cache.models.PieceDBModel
+import com.testdevlab.besttactoe.core.cache.models.SegmentDBModel
+import com.testdevlab.besttactoe.ui.GamesResultType
+import com.testdevlab.besttactoe.ui.PieceUIModel
+import com.testdevlab.besttactoe.ui.SegmentUIModel
+import com.testdevlab.besttactoe.ui.navigation.Views
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.min
@@ -33,19 +42,10 @@ fun Views.showTopBar(): Boolean = when (this) {
     Views.JoinLobbyView,
     Views.MultiplayerView,
     Views.SettingsView,
-    Views.GameView -> true
+    Views.GameView,
+    Views.HistoryView -> true
 
     Views.MainView, -> false
-}
-
-fun Views.showGameBar(): Boolean = when (this) {
-    Views.CreateLobbyView,
-    Views.JoinLobbyView,
-    Views.MultiplayerView,
-    Views.MainView,
-    Views.SettingsView -> false
-
-    Views.GameView -> true
 }
 
 fun Views.getViewTitle(): String = when (this) {
@@ -55,9 +55,8 @@ fun Views.getViewTitle(): String = when (this) {
     Views.JoinLobbyView -> "Join room"
     Views.MultiplayerView -> "Multiplayer"
     Views.SettingsView -> "Settings"
+    Views.HistoryView -> "History"
 }
-
-fun List<PiecesUIModel>.toPieceStateList() = this.map { it.state }
 
 fun Modifier.gradientBackground(colors: List<Color>, angle: Float) = this.then(
     Modifier.drawBehind {
@@ -83,4 +82,46 @@ fun Modifier.gradientBackground(colors: List<Color>, angle: Float) = this.then(
         )
     }
 )
+fun PieceUIModel.toPieceDBModel() = PieceDBModel(
+    index = this.index,
+    state = this.state
+)
+fun SegmentUIModel.toSegmentDBModel() = SegmentDBModel(
+    index = this.index,
+    state = this.state,
+    isActive = this.isActive,
+    pieces = pieces.map { it.toPieceDBModel() }
+)
+fun List<SegmentUIModel>.toSegmentDBModelList() = this.map { it.toSegmentDBModel() }
 
+fun PieceDBModel.toPieceUIModel() = PieceUIModel(
+    index = this.index,
+    state = this.state
+)
+fun SegmentDBModel.toSegmentUIModel() = SegmentUIModel(
+    index = this.index,
+    state = this.state,
+    isActive = this.isActive,
+    pieces = pieces.map { it.toPieceUIModel() }
+)
+fun List<SegmentDBModel>.toSegmentUIModelList() = this.map { it.toSegmentUIModel() }
+
+fun GamesResultType.isVictory() = this == GamesResultType.Victory
+fun GamesResultType.isLoss() = this == GamesResultType.Loss
+fun GamesResultType.isDraw() = this == GamesResultType.Draw
+
+fun GamesResultType.color() = when (this) {
+    GamesResultType.Victory -> Blue
+    GamesResultType.Loss -> Red
+    GamesResultType.Draw -> GrayLight
+}
+
+fun GamesResultType.icon() = when (this) {
+    GamesResultType.Victory -> Res.drawable.ic_cross
+    GamesResultType.Loss -> Res.drawable.ic_circle
+    GamesResultType.Draw -> Res.drawable.ic_robot
+}
+
+fun List<List<GamesResultType>>.toHistoryDBModel() = HistoryDBModel(
+    results = this
+)

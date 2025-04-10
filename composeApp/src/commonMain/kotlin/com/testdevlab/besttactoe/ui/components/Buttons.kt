@@ -1,8 +1,12 @@
 package com.testdevlab.besttactoe.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,9 +25,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,20 +40,26 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.zIndex
 import com.testdevlab.besttactoe.ui.theme.Black
 import com.testdevlab.besttactoe.ui.theme.Black35
 import com.testdevlab.besttactoe.ui.theme.DarkGreen
+import com.testdevlab.besttactoe.ui.theme.DarkGreenList
 import com.testdevlab.besttactoe.ui.theme.DarkOrange
 import com.testdevlab.besttactoe.ui.theme.Green
 import com.testdevlab.besttactoe.ui.theme.Orange
-import com.testdevlab.besttactoe.ui.theme.Yellow
+import com.testdevlab.besttactoe.ui.theme.OrangeYellowList
+import com.testdevlab.besttactoe.ui.theme.RedList
 import com.testdevlab.besttactoe.ui.theme.buttonStyle
+import com.testdevlab.besttactoe.ui.theme.getSportFontFamily
 import com.testdevlab.besttactoe.ui.theme.ldp
 import com.testdevlab.besttactoe.ui.theme.pxToDp
 import de.drick.compose.hotpreview.HotPreview
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
@@ -152,8 +164,7 @@ fun MoveShower(
     textStyle: TextStyle = buttonStyle,
     horizontalPadding: Dp = 20.ldp,
     verticalPadding: Dp = 12.ldp,
-    leftGradientColor: Color,
-    rightGradient: Color,
+    colorGradient: List<Color>,
     contentAlignment: Alignment? = null,
     // icon
     iconPadding: Dp,
@@ -170,10 +181,8 @@ fun MoveShower(
 
     val animatedWidth by animateDpAsState(
         targetValue = if (isPlayerTurn) width * 7 / 10 else width * 2 / 10,
-        animationSpec =
-//            tween(durationMillis = 200, easing = FastOutSlowInEasing)
-            spring(
-            dampingRatio = Spring.DampingRatioHighBouncy,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioLowBouncy,
             stiffness = Spring.StiffnessMedium
         )
     )
@@ -190,7 +199,7 @@ fun MoveShower(
                 .zIndex(2f)
                 .fillMaxWidth()
                 .clip(shape)
-                .background(Brush.linearGradient(listOf(leftGradientColor, rightGradient)))
+                .background(Brush.linearGradient(colorGradient))
                 .onSizeChanged { buttonHeight = it.height },
             contentAlignment =
                 contentAlignment
@@ -216,7 +225,9 @@ fun MoveShower(
                         textAlign = when (showerType) {
                             MoveShowerType.LeftSide -> TextAlign.Left
                             MoveShowerType.RightSide -> TextAlign.Right
-                        }
+                        },
+                        softWrap = false,
+                        overflow = TextOverflow.Ellipsis
                     )
                 if (showerType == MoveShowerType.LeftSide)
                     Image(
@@ -239,10 +250,120 @@ fun MoveShower(
                 .fillMaxWidth()
                 .clip(shape)
                 .background(
-                    Brush.linearGradient(listOf(leftGradientColor, rightGradient)),
+                    Brush.linearGradient(colorGradient),
                     alpha = shadowOpacity
                 )
         )
+    }
+}
+
+@Composable
+fun ButtonSlideInHorizontally(
+    containerModifier: Modifier = Modifier,
+    buttonModifier: Modifier = Modifier,
+    text: String = "abc",
+    buttonType: ButtonType,
+    isClickable: Boolean = true,
+    // shadow
+    enableShadow: Boolean = true,
+    shadowOpacity: Float = .65f,
+    shadowOffset: Dp = 8.ldp,
+    // style
+    textStyle: TextStyle = buttonStyle,
+    horizontalPadding: Dp = 40.ldp,
+    verticalPadding: Dp = 12.ldp,
+    colorGradient: List<Color>,
+    contentAlignment: Alignment? = null,
+    // animation
+    isShown: Boolean = true,
+    delay: Long = 0,
+    onClick: () -> Unit
+) {
+    val shape = RoundedCornerShape(
+        topStartPercent = 0, topEndPercent = 50,
+        bottomEndPercent = 50, bottomStartPercent = 0
+    )
+
+    var buttonHeight by remember { mutableStateOf(0) }
+    var isShownAnimation by remember { mutableStateOf(false) }
+
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(isShown) {
+        scope.launch {
+            delay(delay)
+            isShownAnimation = isShown
+        }
+    }
+
+    AnimatedVisibility(
+        visible = isShownAnimation,
+        enter = slideInHorizontally(
+            animationSpec = tween(durationMillis = 200),
+            initialOffsetX = { fullWidth ->
+                -fullWidth
+            }
+        ),
+        exit = slideOutHorizontally(
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioLowBouncy,
+                stiffness = Spring.StiffnessMedium
+            ),
+            targetOffsetX = { fullWidth ->
+                -fullWidth
+            }
+        )
+    ) {
+        Box(
+            modifier = containerModifier
+                .clip(shape)
+                .background(Black)
+        ) {
+            // button
+            Box(
+                modifier = buttonModifier
+                    .zIndex(2f)
+                    .fillMaxWidth()
+                    .clip(shape)
+                    .background(Brush.linearGradient(colorGradient))
+                    .clickable(enabled = isClickable) { onClick() }
+                    .onSizeChanged { buttonHeight = it.height },
+                contentAlignment =
+                    contentAlignment
+                        ?: when (buttonType) {
+                            ButtonType.LeftSide -> Alignment.CenterStart
+                            ButtonType.Center -> Alignment.Center
+                            ButtonType.RightSide -> Alignment.CenterEnd
+                        }
+            ) {
+                Text(
+                    modifier = Modifier
+                        .padding(horizontal = horizontalPadding, vertical = verticalPadding),
+                    text = text,
+                    style = textStyle,
+                    textAlign = when (buttonType) {
+                        ButtonType.LeftSide -> TextAlign.Left
+                        ButtonType.Center -> TextAlign.Center
+                        ButtonType.RightSide -> TextAlign.Right
+                    },
+                    fontFamily = getSportFontFamily()
+                )
+            }
+
+            if (!enableShadow) return@AnimatedVisibility
+            // shadow
+            Box(
+                modifier = buttonModifier
+                    .zIndex(1f)
+                    .padding(top = shadowOffset)
+                    .height(buttonHeight.pxToDp())
+                    .fillMaxWidth()
+                    .clip(shape)
+                    .background(
+                        Brush.linearGradient(colorGradient),
+                        alpha = shadowOpacity
+                    )
+            )
+        }
     }
 }
 
@@ -267,20 +388,27 @@ fun Button(
     textStyle: TextStyle = buttonStyle,
     horizontalPadding: Dp = 40.ldp,
     verticalPadding: Dp = 12.ldp,
-    leftGradientColor: Color,
-    rightGradient: Color,
+    colorGradient: List<Color>,
     contentAlignment: Alignment? = null,
     onClick: () -> Unit
 ) {
     val shape = when (buttonType) {
         ButtonType.LeftSide ->
-            RoundedCornerShape(0, 50, 50, 0)
+            RoundedCornerShape(
+                topStartPercent = 0, topEndPercent = 50,
+                bottomEndPercent = 50, bottomStartPercent = 0
+            )
         ButtonType.Center ->
-            RoundedCornerShape(50, 50, 50, 50)
+            RoundedCornerShape(
+                topStartPercent = 50, topEndPercent = 50,
+                bottomEndPercent = 50, bottomStartPercent = 50
+            )
         ButtonType.RightSide ->
-            RoundedCornerShape(50, 0, 0, 50)
+            RoundedCornerShape(
+                topStartPercent = 50, topEndPercent = 0,
+                bottomEndPercent = 0, bottomStartPercent = 50
+            )
     }
-
     var buttonHeight by remember { mutableStateOf(0) }
 
     Box(
@@ -294,13 +422,13 @@ fun Button(
                 .zIndex(2f)
                 .fillMaxWidth()
                 .clip(shape)
-                .background(Brush.linearGradient(listOf(leftGradientColor, rightGradient)))
+                .background(Brush.linearGradient(colorGradient))
                 .clickable(enabled = isClickable) { onClick() }
                 .onSizeChanged { buttonHeight = it.height },
             contentAlignment =
                 contentAlignment
                     ?: when (buttonType) {
-                        ButtonType.LeftSide ->  Alignment.CenterStart
+                        ButtonType.LeftSide -> Alignment.CenterStart
                         ButtonType.Center -> Alignment.Center
                         ButtonType.RightSide -> Alignment.CenterEnd
                     }
@@ -314,7 +442,8 @@ fun Button(
                     ButtonType.LeftSide -> TextAlign.Left
                     ButtonType.Center -> TextAlign.Center
                     ButtonType.RightSide -> TextAlign.Right
-                }
+                },
+                fontFamily = getSportFontFamily()
             )
         }
 
@@ -328,7 +457,7 @@ fun Button(
                 .fillMaxWidth()
                 .clip(shape)
                 .background(
-                    Brush.linearGradient(listOf(leftGradientColor, rightGradient)),
+                    Brush.linearGradient(colorGradient),
                     alpha = shadowOpacity
                 )
         )
@@ -341,22 +470,19 @@ fun ButtonPreview() {
     Surface(color = Black35) {
         Column {
             Button(
-                leftGradientColor = Orange,
-                rightGradient = Yellow,
+                colorGradient = OrangeYellowList,
                 enableShadow = true,
                 buttonType = ButtonType.LeftSide,
                 onClick = {}
             )
             Button(
-                leftGradientColor = Orange,
-                rightGradient = Yellow,
+                colorGradient = RedList,
                 enableShadow = true,
                 buttonType = ButtonType.Center,
                 onClick = {}
             )
             Button(
-                leftGradientColor = Orange,
-                rightGradient = Yellow,
+                colorGradient = DarkGreenList,
                 enableShadow = true,
                 buttonType = ButtonType.RightSide,
                 onClick = {}
