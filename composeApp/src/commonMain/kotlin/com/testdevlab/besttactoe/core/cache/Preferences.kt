@@ -1,96 +1,61 @@
 package com.testdevlab.besttactoe.core.cache
 
-import com.russhwolf.settings.ExperimentalSettingsApi
 import com.russhwolf.settings.Settings
-import com.russhwolf.settings.serialization.decodeValueOrNull
-import com.russhwolf.settings.serialization.encodeValue
-import com.russhwolf.settings.serialization.removeValue
-import com.testdevlab.besttactoe.core.cache.models.GameDBModel
+import com.testdevlab.besttactoe.core.cache.models.GameResultDBModel
 import com.testdevlab.besttactoe.core.cache.models.HistoryDBModel
 import com.testdevlab.besttactoe.core.repositories.GameMode
-import com.testdevlab.besttactoe.ui.GamesResultType
-import com.testdevlab.besttactoe.ui.theme.toHistoryDBModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.serialization.ExperimentalSerializationApi
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 object Preferences {
     private val _settings: Settings = Settings()
-    private val _AIGameDataKey = "GAME_DATA_AI"
-    private val _hotSeatGameDataKey = "GAME_DATA_HOT_SEAT"
-    private val _gameHistoryKey = "GAME_HISTORY_LIST"
-    private val _history = MutableStateFlow<List<List<GamesResultType>>>(emptyList())
-    val history = _history.asStateFlow()
+    // vars are delegating (giving) their functionalities, e.g. get() and set(), to
+    // delegated (given) delegations (in this situation delegations are properties)
+    // so when this property (var) is called it uses delegated functionality.
+    var playerName by stringPreference()
+    var hotSeat by stringPreference()
+    var vsAI by stringPreference()
+    var history by stringPreference()
+        private set
 
-    init {
-        _history.update { getHistory()?.results ?: emptyList() }
+    /**(Example) var playerName by stringPreference()
+     *
+     * here by calling this property it takes delegated get function which is getting
+     * string value from "database" with key which is property.name "playerName"
+     *
+     * so get result will be string value from "database" with key "playerName"
+     **/
+    private fun stringPreference()
+    // object : ReadWriteProperty<Any?, String?>
+    // (object) is an anonymous object this is used when you don't want to create a new class
+    // (ReadWriteProperty<Any?, String?>) provide getValue and setValue methods "READ" and "WRITE"
+    = object : ReadWriteProperty<Any?, String?> {
+        override fun getValue(thisRef: Any?, property: KProperty<*>) =
+            _settings.getString(key = property.name, defaultValue = "").takeIf { it.isNotBlank() }
+
+        override fun setValue(thisRef: Any?, property: KProperty<*>, value: String?) {
+            _settings.putString(key = property.name, value = value ?: "")
+        }
     }
 
-    private fun getKeyFromGameMode(gameMode: GameMode) = when (gameMode) {
-        GameMode.VS_AI -> _AIGameDataKey
-        GameMode.HotSeat -> _hotSeatGameDataKey
-        GameMode.Multiplayer -> ""
-        GameMode.RoboRumble -> ""
+    fun addGameToHistory(game: GameResultDBModel) {
+        // add to list or create new list
+        history = history?.let { stringJson ->
+            val newResults = stringJson
+                .toObject<HistoryDBModel>()
+                .results
+                .toMutableList()
+                .apply { add(game) }
+                .toList()
+
+            HistoryDBModel(results = newResults).toJson()
+        } ?: HistoryDBModel(results = listOf(game)).toJson()
     }
 
-    // store values
-    @OptIn(ExperimentalSerializationApi::class, ExperimentalSettingsApi::class)
-    fun saveGameData(gameData: GameDBModel) {
-        _settings.encodeValue(
-            serializer = GameDBModel.serializer(),
-            key = getKeyFromGameMode(gameData.gameMode),
-            value = gameData
-        )
+    fun isThereASavedGame(gameMode: GameMode) = when (gameMode) {
+        GameMode.VS_AI -> !vsAI.isNullOrEmpty()
+        GameMode.HotSeat -> !hotSeat.isNullOrEmpty()
+        GameMode.Multiplayer -> false
+        GameMode.RoboRumble -> false
     }
-
-    @OptIn(ExperimentalSerializationApi::class, ExperimentalSettingsApi::class)
-    fun addGameToHistory(gameResult: List<GamesResultType>) {
-        // history -> List<List<GamesResultType>>
-        // idea: get -> result, add, store
-        // idea: get -> null, make
-        val result = _settings.decodeValueOrNull(
-            serializer = HistoryDBModel.serializer(),
-            key = _gameHistoryKey
-        )
-
-        val historyList = if (result == null) {
-                listOf(gameResult).toHistoryDBModel()
-            } else {
-                 result.results.toMutableList()
-                    .apply { this.add(gameResult) }
-                    .toList()
-                    .toHistoryDBModel()
-            }
-
-        _settings.encodeValue(
-            serializer =  HistoryDBModel.serializer(),
-            key = _gameHistoryKey,
-            value = historyList
-        )
-
-        _history.update { historyList.results }
-    }
-
-    fun isThereASaveFor(gameMode: GameMode) = getGameData(gameMode) != null
-
-    // get values
-    @OptIn(ExperimentalSerializationApi::class, ExperimentalSettingsApi::class)
-    fun getGameData(gameMode: GameMode) = _settings.decodeValueOrNull(
-        serializer = GameDBModel.serializer(),
-        key = getKeyFromGameMode(gameMode)
-    )
-
-    @OptIn(ExperimentalSerializationApi::class, ExperimentalSettingsApi::class)
-    fun getHistory() = _settings.decodeValueOrNull(
-        serializer = HistoryDBModel.serializer(),
-        key = _gameHistoryKey
-    )
-
-    // delete values
-    @OptIn(ExperimentalSerializationApi::class, ExperimentalSettingsApi::class)
-    fun dropGameData(gameMode: GameMode) = _settings.removeValue(
-        serializer = GameDBModel.serializer(),
-        key = getKeyFromGameMode(gameMode)
-    )
 }

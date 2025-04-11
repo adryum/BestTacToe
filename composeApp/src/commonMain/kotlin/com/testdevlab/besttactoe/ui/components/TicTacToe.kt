@@ -34,11 +34,11 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.times
 import androidx.compose.ui.zIndex
 import besttactoe.composeapp.generated.resources.Res
-import besttactoe.composeapp.generated.resources.ic_settings
+import besttactoe.composeapp.generated.resources.ic_equals
 import com.testdevlab.besttactoe.core.repositories.GameMode
 import com.testdevlab.besttactoe.ui.MoveModel
-import com.testdevlab.besttactoe.ui.PieceType
-import com.testdevlab.besttactoe.ui.SegmentType
+import com.testdevlab.besttactoe.ui.Piece
+import com.testdevlab.besttactoe.ui.Segment
 import com.testdevlab.besttactoe.ui.SegmentUIModel
 import com.testdevlab.besttactoe.ui.TableOuterPadding
 import com.testdevlab.besttactoe.ui.theme.Blue
@@ -114,15 +114,15 @@ fun <T> ThreeByThreeGrid(
 @Composable
 fun SegmentImage(
     modifier: Modifier,
-    segmentState: SegmentType,
+    segmentState: Segment,
     opponentIcon: DrawableResource,
     playerIcon: DrawableResource,
     imagePadding: Dp,
 ) {
     val color = when (segmentState) {
-        SegmentType.Player -> Blue
-        SegmentType.Opponent -> Color.Red
-        SegmentType.Draw -> GrayDark
+        Segment.Player -> Blue
+        Segment.Opponent -> Color.Red
+        Segment.Draw -> GrayDark
         else -> white_60
     }
 
@@ -160,9 +160,9 @@ fun SegmentImage(
                 .padding(imagePadding),
             painter = painterResource(
                 when (segmentState) {
-                    SegmentType.Opponent -> opponentIcon
-                    SegmentType.Player -> playerIcon
-                    else -> Res.drawable.ic_settings
+                    Segment.Opponent -> opponentIcon
+                    Segment.Player -> playerIcon
+                    else -> Res.drawable.ic_equals
                 }
             ),
             contentDescription = null,
@@ -227,13 +227,13 @@ fun TicTacToeSegment(
                         .background(tileColor),
                     isClickable = isPieceClickable(),
                     tint = when (piece.state) {
-                        PieceType.Player -> ColorFilter.tint(Blue)
-                        PieceType.Opponent ->  ColorFilter.tint(Color.Red)
+                        Piece.Player -> ColorFilter.tint(Blue)
+                        Piece.Opponent ->  ColorFilter.tint(Color.Red)
                         else -> null
                     },
                     icon = when (piece.state) {
-                        PieceType.Player -> playerIcon
-                        PieceType.Opponent -> opponentIcon
+                        Piece.Player -> playerIcon
+                        Piece.Opponent -> opponentIcon
                         else -> null
                     },
                     onClick = {

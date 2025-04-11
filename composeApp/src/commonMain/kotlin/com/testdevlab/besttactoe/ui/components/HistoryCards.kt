@@ -28,7 +28,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.zIndex
 import com.testdevlab.besttactoe.core.repositories.GameMode
-import com.testdevlab.besttactoe.ui.GamesResultType
+import com.testdevlab.besttactoe.ui.GameResult
 import com.testdevlab.besttactoe.ui.theme.Black
 import com.testdevlab.besttactoe.ui.theme.Black35
 import com.testdevlab.besttactoe.ui.theme.Blue
@@ -51,7 +51,7 @@ fun HistoryCard(
     containerModifier: Modifier = Modifier,
     buttonModifier: Modifier = Modifier,
     gameMode: GameMode,
-    gameResults: List<GamesResultType>,
+    gameResults: List<GameResult>,
     colorGradient: List<Color>,
 ) {
     val shape = RoundedCornerShape(
@@ -88,6 +88,7 @@ fun HistoryCard(
                             GameMode.HotSeat -> DarkGreen
                             GameMode.Multiplayer -> DarkOrange
                             GameMode.RoboRumble -> White
+                            GameMode.None -> Black
                         },
                         modifier = Modifier.fillMaxWidth(.2f),
                         text = when (gameMode) {
@@ -95,6 +96,7 @@ fun HistoryCard(
                             GameMode.HotSeat -> "Hot-Seat"
                             GameMode.Multiplayer -> "Multiplayer"
                             GameMode.RoboRumble -> "RoboRumble"
+                            GameMode.None -> "NONE"
                         },
                         style = textLarge,
                         fontFamily = getSportFontFamily()
@@ -159,7 +161,7 @@ fun HistoryCard(
 @Composable
 fun TurnAmountShower(
     modifier: Modifier = Modifier,
-    results: List<GamesResultType>
+    results: List<GameResult>
 ) {
     Row(
         modifier = modifier,
@@ -181,12 +183,12 @@ fun TurnAmountShower(
 @Composable
 fun TurnResultGrid(
     modifier: Modifier,
-    results: List<GamesResultType>
+    results: List<GameResult>
 ) {
     Column(
         modifier = modifier,
     ) {
-        for (type in GamesResultType.entries) {
+        for (type in GameResult.entries) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

@@ -1,7 +1,7 @@
 package com.testdevlab.besttactoe.core.repositories
 
 import com.testdevlab.besttactoe.ui.MoveModel
-import com.testdevlab.besttactoe.ui.PieceType
+import com.testdevlab.besttactoe.ui.Piece
 import com.testdevlab.besttactoe.ui.PieceUIModel
 import com.testdevlab.besttactoe.ui.SegmentUIModel
 
@@ -31,7 +31,7 @@ class GameAI {
     private fun chosePiece(segment: SegmentUIModel): Int {
         val possiblePieces = mutableListOf<PieceUIModel>()
         for (piece in segment.pieces) {
-            if (piece.state == PieceType.Empty) possiblePieces.add(piece)
+            if (piece.state == Piece.Empty) possiblePieces.add(piece)
         }
         val randomPiece = (0..< possiblePieces.size).random()
 

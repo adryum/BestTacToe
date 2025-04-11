@@ -1,10 +1,10 @@
 package com.testdevlab.besttactoe.core.cache.models
 
-import com.testdevlab.besttactoe.ui.PieceType
+import com.testdevlab.besttactoe.ui.Piece
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class PieceDBModel(
     val index: Int,
-    val state: PieceType
+    val state: Piece
 )

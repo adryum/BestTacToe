@@ -12,11 +12,15 @@ import besttactoe.composeapp.generated.resources.Res
 import besttactoe.composeapp.generated.resources.ic_circle
 import besttactoe.composeapp.generated.resources.ic_cross
 import besttactoe.composeapp.generated.resources.ic_robot
-import com.testdevlab.besttactoe.core.cache.models.HistoryDBModel
+import com.testdevlab.besttactoe.core.cache.models.GameResultDBModel
 import com.testdevlab.besttactoe.core.cache.models.PieceDBModel
 import com.testdevlab.besttactoe.core.cache.models.SegmentDBModel
-import com.testdevlab.besttactoe.ui.GamesResultType
+import com.testdevlab.besttactoe.core.repositories.GameMode
+import com.testdevlab.besttactoe.ui.GameResult
+import com.testdevlab.besttactoe.ui.GameResultUIModel
+import com.testdevlab.besttactoe.ui.Piece
 import com.testdevlab.besttactoe.ui.PieceUIModel
+import com.testdevlab.besttactoe.ui.Segment
 import com.testdevlab.besttactoe.ui.SegmentUIModel
 import com.testdevlab.besttactoe.ui.navigation.Views
 import kotlin.math.PI
@@ -106,22 +110,37 @@ fun SegmentDBModel.toSegmentUIModel() = SegmentUIModel(
 )
 fun List<SegmentDBModel>.toSegmentUIModelList() = this.map { it.toSegmentUIModel() }
 
-fun GamesResultType.isVictory() = this == GamesResultType.Victory
-fun GamesResultType.isLoss() = this == GamesResultType.Loss
-fun GamesResultType.isDraw() = this == GamesResultType.Draw
+fun GameResult.isVictory() = this == GameResult.Victory
+fun GameResult.isLoss() = this == GameResult.Loss
+fun GameResult.isDraw() = this == GameResult.Draw
 
-fun GamesResultType.color() = when (this) {
-    GamesResultType.Victory -> Blue
-    GamesResultType.Loss -> Red
-    GamesResultType.Draw -> GrayLight
+fun GameResult.color() = when (this) {
+    GameResult.Victory -> Blue
+    GameResult.Loss -> Red
+    GameResult.Draw -> GrayLight
 }
 
-fun GamesResultType.icon() = when (this) {
-    GamesResultType.Victory -> Res.drawable.ic_cross
-    GamesResultType.Loss -> Res.drawable.ic_circle
-    GamesResultType.Draw -> Res.drawable.ic_robot
+fun GameResult.icon() = when (this) {
+    GameResult.Victory -> Res.drawable.ic_cross
+    GameResult.Loss -> Res.drawable.ic_circle
+    GameResult.Draw -> Res.drawable.ic_robot
 }
 
-fun List<List<GamesResultType>>.toHistoryDBModel() = HistoryDBModel(
-    results = this
+fun GameResultDBModel.toGameResultUIModel() = GameResultUIModel(
+    playerName, opponentName, gameMode, matches
 )
+fun List<GameResultDBModel>.toGameResultUIModelList() = this.map { it.toGameResultUIModel() }
+
+fun GameMode.isVsAI() = this == GameMode.VS_AI
+fun GameMode.isMultiplayer() = this == GameMode.Multiplayer
+fun GameMode.isHotSeat() = this == GameMode.HotSeat
+fun GameMode.isRoboRumble() = this == GameMode.RoboRumble
+
+fun Segment.isPlayer() = this == Segment.Player
+fun Segment.isOpponent() = this == Segment.Opponent
+fun Segment.isDraw() = this == Segment.Draw
+fun Segment.isNone() = this == Segment.None
+
+fun Piece.isPlayer() = this == Piece.Player
+fun Piece.isOpponent() = this == Piece.Opponent
+fun Piece.isEmpty() = this == Piece.Empty

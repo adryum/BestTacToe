@@ -1,109 +1,78 @@
 package com.testdevlab.besttactoe.ui.views
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import com.testdevlab.besttactoe.core.cache.Preferences
-import com.testdevlab.besttactoe.core.repositories.GameMode
-import com.testdevlab.besttactoe.ui.GamesResultType
+import com.testdevlab.besttactoe.core.cache.models.HistoryDBModel
+import com.testdevlab.besttactoe.core.cache.toObject
+import com.testdevlab.besttactoe.ui.GameResultUIModel
 import com.testdevlab.besttactoe.ui.components.HistoryCard
-import com.testdevlab.besttactoe.ui.navigation.NavigationObject
-import com.testdevlab.besttactoe.ui.navigation.Views
-import com.testdevlab.besttactoe.ui.theme.DarkOrangeOrangeList
 import com.testdevlab.besttactoe.ui.theme.OrangeList
-import com.testdevlab.besttactoe.ui.theme.YellowList
+import com.testdevlab.besttactoe.ui.theme.getSportFontFamily
 import com.testdevlab.besttactoe.ui.theme.ldp
+import com.testdevlab.besttactoe.ui.theme.textLarge
+import com.testdevlab.besttactoe.ui.theme.toGameResultUIModelList
 import de.drick.compose.hotpreview.HotPreview
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun HistoryView(
-    navigationObject: NavigationObject = NavigationObject,
     preferences: Preferences = Preferences
 ) {
-    val history by preferences.history.collectAsState()
+    var gameHistory by remember { mutableStateOf<List<GameResultUIModel>>(emptyList()) }
+    LaunchedEffect(Unit) { println("Pulled history")
+        gameHistory = preferences
+            .history
+            ?.toObject<HistoryDBModel>()
+            ?.results
+            ?.toGameResultUIModelList() ?: emptyList()
+    }
 
     HistoryViewContent(
-        history = history,
-        goTo = navigationObject::goTo
+        gameResults = gameHistory
     )
 }
 
 @Composable
 fun HistoryViewContent(
-    history: List<List<GamesResultType>>,
-    goTo: (Views) -> Unit
+    gameResults: List<GameResultUIModel>
 ) {
-    val scope = rememberCoroutineScope()
-    var isCoroutineStarted by remember { mutableStateOf(false) }
-    var isShown by remember { mutableStateOf(false) }
-
-    fun goToWrapped(view: Views, additionalAction: () -> Unit = {}) {
-        isShown = false
-        if (!isCoroutineStarted)
-            scope.launch {
-                isCoroutineStarted = true
-                delay(400)
-                goTo(view)
-                additionalAction()
-            }
-    }
-
-    LaunchedEffect(Unit) {
-        isShown = true
-    }
-
-    val scrollState = rememberScrollState()
-//    LazyColumn(
-//        modifier = Modifier.verticalScroll(scrollState),
-//        verticalArrangement = Arrangement.spacedBy(32.ldp)
-//    ) {
-//        items(history) {
-//            HistoryCard(
-//                gameMode = GameMode.VS_AI,
-//                gameResults = listOf(GamesResultType.Draw, GamesResultType.Victory,(GamesResultType.Draw), (GamesResultType.Loss),(GamesResultType.Loss)),
-//                colorGradient = OrangeList
-//            )
-//        }
-    Column(modifier = Modifier.verticalScroll(scrollState),
-        verticalArrangement = Arrangement.spacedBy(16.ldp)
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(32.ldp)
     ) {
-
-        HistoryCard(
-            gameMode = GameMode.VS_AI,
-            gameResults = listOf(GamesResultType.Draw, GamesResultType.Victory,(GamesResultType.Draw), (GamesResultType.Loss),(GamesResultType.Loss)),
-            colorGradient = OrangeList
-        )
-        HistoryCard(
-            gameMode = GameMode.Multiplayer,
-            gameResults = listOf(GamesResultType.Draw, GamesResultType.Victory,(GamesResultType.Draw), (GamesResultType.Loss),(GamesResultType.Loss)),
-            colorGradient = YellowList
-        )
-        HistoryCard(
-            gameMode = GameMode.HotSeat,
-            gameResults = listOf(GamesResultType.Draw, GamesResultType.Victory,(GamesResultType.Draw), (GamesResultType.Loss),(GamesResultType.Loss)),
-            colorGradient = DarkOrangeOrangeList
-        )
+        if (gameResults.isEmpty()) {
+            item {
+                Text(
+                    text = "No history jet has been made",
+                    style = textLarge,
+                    textAlign = TextAlign.Center,
+                    fontFamily = getSportFontFamily()
+                )
+            }
+        } else {
+            items(items = gameResults) { result ->
+                HistoryCard(
+                    gameMode = result.gameMode,
+                    gameResults = result.matches,
+                    colorGradient = OrangeList
+                )
+            }
+        }
     }
-//    }
 }
 
 @HotPreview(name = "History", widthDp = 540, heightDp = 1020)
 @Composable
 private fun HistoryViewPreview() {
     HistoryViewContent(
-        history = emptyList(),
-        goTo = {},
+        gameResults = emptyList()
     )
 }

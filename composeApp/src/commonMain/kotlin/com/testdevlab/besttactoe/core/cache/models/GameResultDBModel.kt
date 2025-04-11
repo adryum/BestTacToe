@@ -5,10 +5,9 @@ import com.testdevlab.besttactoe.ui.GameResult
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class GameDBModel(
-    val score: ScoreDBModel,
-    val table: List<SegmentDBModel>,
-    val isPlayerTurn: Boolean,
+data class GameResultDBModel(
+    val playerName: String,
+    val opponentName: String,
     val gameMode: GameMode,
-    val matchHistory: List<GameResult>
+    val matches: List<GameResult>
 )

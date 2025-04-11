@@ -55,7 +55,7 @@ fun App() {
         AppContent(
             currentView = currentView,
             goBack = NavigationObject::goBack,
-            exitGame = GameHandler::exitGame,
+            exitGame = GameHandler::saveAndClearGame,
         )
     }
 }
@@ -144,27 +144,17 @@ fun AppContent(
                     )
                 }
 
-//                AnimatedContent(
-//                    targetState = currentView,
-//                    transitionSpec = {
-//                        slideInVertically { height -> height }  togetherWith
-//                        slideOutVertically { height -> -height }
-//                    }
-//                ) {
-                    when (currentView) {
-                        Views.MainView -> MainView()
-                        Views.CreateLobbyView -> CreateLobbyView()
-                        Views.GameView -> GameView()
-                        Views.JoinLobbyView -> JoinRoomView()
-                        Views.MultiplayerView -> MultiplayerView()
-                        Views.SettingsView -> SettingsView()
-                        Views.HistoryView -> HistoryView()
-                    }
+                when (currentView) {
+                    Views.MainView -> MainView()
+                    Views.CreateLobbyView -> CreateLobbyView()
+                    Views.GameView -> GameView()
+                    Views.JoinLobbyView -> JoinRoomView()
+                    Views.MultiplayerView -> MultiplayerView()
+                    Views.SettingsView -> SettingsView()
+                    Views.HistoryView -> HistoryView()
                 }
-
             }
-//        }
-
+        }
     }
 }
 

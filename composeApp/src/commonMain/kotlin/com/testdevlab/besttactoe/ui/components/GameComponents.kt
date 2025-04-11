@@ -24,9 +24,11 @@ import com.testdevlab.besttactoe.ui.theme.BlueList
 import com.testdevlab.besttactoe.ui.theme.DarkOrangeOrangeList
 import com.testdevlab.besttactoe.ui.theme.OrangeYellowList
 import com.testdevlab.besttactoe.ui.theme.RedList
-import com.testdevlab.besttactoe.ui.theme.buttonStyle
+import com.testdevlab.besttactoe.ui.theme.getSportFontFamily
+import com.testdevlab.besttactoe.ui.theme.isDraw
 import com.testdevlab.besttactoe.ui.theme.ldp
 import com.testdevlab.besttactoe.ui.theme.pxToDp
+import com.testdevlab.besttactoe.ui.theme.textLarge
 import com.testdevlab.besttactoe.ui.theme.textMedium
 import org.jetbrains.compose.resources.DrawableResource
 
@@ -45,17 +47,11 @@ fun VictoryPopUp(
             verticalArrangement = Arrangement.spacedBy(32.ldp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (gameResult.isVictory) {
-                Text(
-                    text = "${gameResult.name!!} is Victorious!",
-                    style = buttonStyle
-                )
-            } else {
-                Text(
-                    text = "!Draw!",
-                    style = buttonStyle
-                )
-            }
+            Text(
+                text = gameResult.name + if (gameResult.result.isDraw()) "" else " is Victorious!",
+                style = textLarge,
+                fontFamily = getSportFontFamily()
+            )
 
             Row(
                 modifier = Modifier
@@ -67,7 +63,7 @@ fun VictoryPopUp(
                 Button(
                     containerModifier = Modifier.weight(1f),
                     colorGradient = OrangeYellowList,
-                    text = "Play Again!",
+                    text = "Rematch",
                     buttonType = ButtonType.Center,
                     onClick = onPlayAgainClick,
                     textStyle = textMedium

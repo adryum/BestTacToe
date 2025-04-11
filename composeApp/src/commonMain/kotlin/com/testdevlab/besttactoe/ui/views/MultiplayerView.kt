@@ -93,7 +93,7 @@ fun MultiplayerViewContent(
     )
 
 
-    MultipleStepDecorationsWithDarkContentAndColumn(2) { maxWidth ->
+    MultipleStepDecorationsWithDarkContentAndColumn(2) {
         ButtonSlideInHorizontally(
             containerModifier = Modifier.fillMaxWidth(.7f),
             text = "Join",

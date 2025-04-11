@@ -1,10 +1,12 @@
 package com.testdevlab.besttactoe.core.repositories
 
+import com.testdevlab.besttactoe.ui.GameResult
 import com.testdevlab.besttactoe.ui.MoveModel
-import com.testdevlab.besttactoe.ui.PieceType
+import com.testdevlab.besttactoe.ui.Piece
 import com.testdevlab.besttactoe.ui.PieceUIModel
-import com.testdevlab.besttactoe.ui.SegmentType
+import com.testdevlab.besttactoe.ui.Segment
 import com.testdevlab.besttactoe.ui.SegmentUIModel
+import com.testdevlab.besttactoe.ui.theme.isPlayer
 
 object TicTacToeManager {
     fun processMove(
@@ -23,10 +25,10 @@ object TicTacToeManager {
         val segmentResult = checkSegmentState(
             table = modifiedTable,
             segmentIndex = moveModel.segmentIndex,
-            victorType = GameHandler.turnHolderSegmentType
+            victor = GameHandler.turnHolderSegmentType
         )
 
-        if (segmentResult != SegmentType.None)
+        if (segmentResult != Segment.None)
             modifiedTable = setSegmentState(
                 state = segmentResult,
                 table = modifiedTable,
@@ -35,12 +37,19 @@ object TicTacToeManager {
 
         val tableResult = checkTableState(
             table = modifiedTable,
-            victorType = GameHandler.turnHolderSegmentType
+            victor = GameHandler.turnHolderSegmentType
         )
 
-        if (tableResult != SegmentType.None) {
+        if (tableResult != Segment.None) {
             // victory code
-            GameHandler.endGame(isVictory = tableResult != SegmentType.Draw)
+            val gameResult = when (tableResult) {
+                Segment.Opponent -> GameResult.Loss
+                Segment.Player -> GameResult.Victory
+                Segment.Draw -> GameResult.Draw
+                Segment.None -> null
+            }
+
+            GameHandler.endMatch(gameResult = gameResult!!)
         } else {
             modifiedTable = activateNextSegments(table = modifiedTable, moveModel = moveModel)
             GameHandler.switchTurns()
@@ -50,34 +59,34 @@ object TicTacToeManager {
     }
 
     fun createTable(enableAllSegments: Boolean = false): List<SegmentUIModel> {
-        val list = mutableListOf<SegmentUIModel>()
+        val segmentList = mutableListOf<SegmentUIModel>()
         val pieceList = mutableListOf<PieceUIModel>()
 
         // create piece list
-        for (i in 0 ..< 9) {
+        for (i in 0..<9) {
             pieceList.add(
                 i,
                 PieceUIModel(
                     index = i,
-                    state = PieceType.Empty,
+                    state = Piece.Empty,
                 )
             )
         }
 
         // create segment list aka table
-        for (i in 0 ..< 9) {
-            list.add(
+        for (i in 0..<9) {
+            segmentList.add(
                 i,
                 SegmentUIModel(
                     index = i,
                     isActive = enableAllSegments,
-                    state = SegmentType.None,
+                    state = Segment.None,
                     pieces = pieceList.map { it.copy() }
                 )
             )
         }
 
-        return list.map { it.copy() }
+        return segmentList.map { it.copy() }
     }
 
     private fun activateNextSegments(table: List<SegmentUIModel>, moveModel: MoveModel) =
@@ -86,41 +95,40 @@ object TicTacToeManager {
         } else {
             moveToNextSegment(pieceIndex = moveModel.pieceIndex, table = table)
         }
-    }
 
     private fun checkTableState(
         table: List<SegmentUIModel>,
-        victorType: SegmentType
-    ): SegmentType {
+        victor: Segment
+    ): Segment {
         if (hasSegmentVictoryLine(table)) {
-            return if (victorType == SegmentType.Player) {
-                SegmentType.Player
+            return if (victor.isPlayer()) {
+                Segment.Player
             } else {
-                SegmentType.Opponent
+                Segment.Opponent
             }
         }
 
-        if (isTableDraw(table)) return SegmentType.Draw
+        if (isTableDraw(table)) return Segment.Draw
 
-        return SegmentType.None
+        return Segment.None
     }
 
     private fun checkSegmentState(
         table: List<SegmentUIModel>,
         segmentIndex: Int,
-        victorType: SegmentType
-    ): SegmentType {
+        victor: Segment
+    ): Segment {
         if (hasVictoryLine(table[segmentIndex].pieces)) {
-            return if (victorType == SegmentType.Player) {
-                SegmentType.Player
+            return if (victor.isPlayer()) {
+                Segment.Player
             } else {
-                SegmentType.Opponent
+                Segment.Opponent
             }
         }
 
-        if (isSegmentDraw(table[segmentIndex].pieces)) return SegmentType.Draw
+        if (isSegmentDraw(table[segmentIndex].pieces)) return Segment.Draw
 
-        return SegmentType.None
+        return Segment.None
     }
 
     private fun setPieceValueAt(table: List<SegmentUIModel>, moveModel: MoveModel) =
@@ -162,7 +170,7 @@ object TicTacToeManager {
     private fun setSegmentState(
         deactivateProvidedSegment: Boolean = true,
         segmentIndex: Int,
-        state: SegmentType,
+        state: Segment,
         table: List<SegmentUIModel>
     ) = table.map { segment ->
         if (segment.index != segmentIndex) {
@@ -192,8 +200,8 @@ object TicTacToeManager {
     //region segment victory checks
     private fun hasSegmentVictoryLine(table: List<SegmentUIModel>) =
         isDiagonalSegmentVictory(table) ||
-        isHorizontalSegmentVictory(table) ||
-        isVerticalSegmentVictory(table)
+                isHorizontalSegmentVictory(table) ||
+                isVerticalSegmentVictory(table)
 
     private fun isDiagonalSegmentVictory(table: List<SegmentUIModel>): Boolean {
         // 2 diagonal checks \ /
@@ -252,8 +260,8 @@ object TicTacToeManager {
     //region piece victory checks
     private fun hasVictoryLine(pieceList: List<PieceUIModel>) =
         isDiagonalVictory(pieceList) ||
-        isHorizontalVictory(pieceList) ||
-        isVerticalVictory(pieceList)
+                isHorizontalVictory(pieceList) ||
+                isVerticalVictory(pieceList)
 
     private fun isDiagonalVictory(pieces: List<PieceUIModel>): Boolean {
         // 2 diagonal checks \ /
@@ -308,3 +316,4 @@ object TicTacToeManager {
         return false
     }
     //endregion
+}

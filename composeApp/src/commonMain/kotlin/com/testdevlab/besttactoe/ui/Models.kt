@@ -1,6 +1,7 @@
 package com.testdevlab.besttactoe.ui
 
 import androidx.compose.ui.unit.Dp
+import com.testdevlab.besttactoe.core.repositories.GameMode
 import org.jetbrains.compose.resources.DrawableResource
 
 data class ScoreModel(
@@ -8,40 +9,34 @@ data class ScoreModel(
     val opponentScore: Int
 )
 
-enum class SegmentType {
-    Opponent,
-    Player,
-    None,
-    Draw
-}
-
-enum class PieceType {
-    Opponent,
-    Player,
-    Empty,
-}
+data class GameResultUIModel(
+    val playerName: String,
+    val opponentName: String,
+    val gameMode: GameMode,
+    val matches: List<GameResult>
+)
 
 data class SegmentUIModel(
     val index: Int,
     val isActive: Boolean,
     val pieces: List<PieceUIModel>,
-    val state: SegmentType
+    val state: Segment
 ) {
-    val isOpponents = state == SegmentType.Opponent
-    val isNone = state == SegmentType.None
-    val isPlayers = state == SegmentType.Player
-    val isDraw = state == SegmentType.Draw
-    val isAnythingButNone = state != SegmentType.None
+    val isOpponents = state == Segment.Opponent
+    val isNone = state == Segment.None
+    val isPlayers = state == Segment.Player
+    val isDraw = state == Segment.Draw
+    val isAnythingButNone = state != Segment.None
 }
 
 data class PieceUIModel(
     val index: Int,
-    val state: PieceType
+    val state: Piece
 ) {
-    val isOpponents = state == PieceType.Opponent
-    val isEmpty = state == PieceType.Empty
-    val isPlayers = state == PieceType.Player
-    val isAnythingButEmpty = state != PieceType.Empty
+    val isOpponents = state == Piece.Opponent
+    val isEmpty = state == Piece.Empty
+    val isPlayers = state == Piece.Player
+    val isAnythingButEmpty = state != Piece.Empty
 }
 
 data class OpponentUIModel(
@@ -67,12 +62,25 @@ data class TableOuterPadding(
 )
 
 data class GameResultModel(
-    val name: String?,
-    val icon: DrawableResource?,
-    val isVictory: Boolean
+    val name: String,
+    val icon: DrawableResource,
+    val result: GameResult
 )
 
-enum class GamesResultType {
+enum class Segment {
+    Opponent,
+    Player,
+    None,
+    Draw
+}
+
+enum class Piece {
+    Opponent,
+    Player,
+    Empty,
+}
+
+enum class GameResult {
     Victory,
     Draw,
     Loss,

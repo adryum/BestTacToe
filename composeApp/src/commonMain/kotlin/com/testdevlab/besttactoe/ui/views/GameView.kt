@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -31,6 +32,7 @@ import com.testdevlab.besttactoe.ui.theme.Blue
 import com.testdevlab.besttactoe.ui.theme.YellowList
 import com.testdevlab.besttactoe.ui.theme.ldp
 import de.drick.compose.hotpreview.HotPreview
+import kotlinx.coroutines.delay
 
 @Composable
 fun GameView(
@@ -40,20 +42,32 @@ fun GameView(
     val boardData by gameHandler.tableData.collectAsState(initial = emptyList())
     val playerData by gameHandler.playerData.collectAsState()
     val opponentData by gameHandler.opponentData.collectAsState()
-    val gameResult by gameHandler.gameResult.collectAsState()
+    val isRoundTimeout by gameHandler.isRoundTimeout.collectAsState()
     val gameMode by gameHandler.gameMode.collectAsState()
     val gameScore by gameHandler.score.collectAsState()
+    val hasGameEnded by gameHandler.hasGameEnded.collectAsState()
+    val gameResult by gameHandler.gameResult.collectAsState()
+
+    if (!hasGameEnded)
+        LaunchedEffect(isRoundTimeout) {
+            if (!isRoundTimeout) return@LaunchedEffect
+
+            println("TIMEOUT")
+            delay(2000)
+            gameHandler.proceedToTheNextMatch()
+        }
 
     GameViewContent(
         boardData = boardData,
         playerData = playerData,
         opponentData = opponentData,
-        gameResult = gameResult,
+        isRoundTimeout = isRoundTimeout,
         gameMode = gameMode,
         score = gameScore,
+        gameResult = gameResult,
         onGoBack = navigationObject::goBack,
-        exitGame = gameHandler::exitGame,
-        onPlayAgainClick = gameHandler::playAgain,
+        exitGame = gameHandler::saveAndClearGame,
+        onRematchClick = gameHandler::rematch,
         onPieceClick = gameHandler::makeAMove
     )
 }
@@ -61,13 +75,14 @@ fun GameView(
 @Composable
 fun GameViewContent(
     boardData: List<SegmentUIModel>,
+    gameResult: GameResultModel?,
     playerData: PlayerUIModel,
     opponentData: OpponentUIModel,
-    gameResult: GameResultModel?,
+    isRoundTimeout: Boolean,
     gameMode: GameMode?,
     score: ScoreModel?,
     onGoBack: () -> Unit,
-    onPlayAgainClick: () -> Unit,
+    onRematchClick: () -> Unit,
     exitGame: () -> Unit,
     onPieceClick: (MoveModel) -> Unit
 ) {
@@ -96,24 +111,24 @@ fun GameViewContent(
                     piecePadding = 1.ldp
                 ),
                 onPieceClick = onPieceClick,
-                isGameEnded = gameResult != null,
+                isGameEnded = isRoundTimeout,
                 isPlayerTurn = playerData.hasTurn,
                 playerIcon = playerData.icon,
                 enemyIcon = opponentData.icon,
                 gameMode = gameMode,
             )
             if (gameResult != null)
-            VictoryPopUp(
-                modifier = Modifier
-                    .zIndex(2f)
-                    .fillMaxSize(),
-                gameResult = gameResult,
-                onPlayAgainClick = onPlayAgainClick,
-                onGoBackClick = {
-                    onGoBack()
-                    exitGame()
-                }
-            )
+                VictoryPopUp(
+                    modifier = Modifier
+                        .zIndex(2f)
+                        .fillMaxSize(),
+                    gameResult = gameResult,
+                    onPlayAgainClick = onRematchClick,
+                    onGoBackClick = {
+                        onGoBack()
+                        exitGame()
+                    }
+                )
         }
         TurnShower(
             colorList = YellowList,
