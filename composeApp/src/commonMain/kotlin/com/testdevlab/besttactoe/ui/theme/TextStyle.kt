@@ -32,11 +32,11 @@ val textMedium = text.copy(fontSize = 24.sp, letterSpacing = .1.sp, color = Whit
 val textSmall = text.copy(fontSize = 16.sp, fontWeight = FontWeight(100), letterSpacing = .1.sp)
 
 val textTitle = text.copy(
-    fontSize = 96.sp,
+    fontSize = 72.sp,
     letterSpacing = .1.sp,
     fontWeight = FontWeight(500),
     color = White,
-    lineHeight = 80.sp,
+    lineHeight = 60.sp,
 )
 
 val buttonStyle = text.copy(

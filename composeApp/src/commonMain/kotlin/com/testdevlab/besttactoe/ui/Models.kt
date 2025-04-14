@@ -1,5 +1,6 @@
 package com.testdevlab.besttactoe.ui
 
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import com.testdevlab.besttactoe.core.repositories.GameMode
 import org.jetbrains.compose.resources.DrawableResource
@@ -39,15 +40,10 @@ data class PieceUIModel(
     val isAnythingButEmpty = state != Piece.Empty
 }
 
-data class OpponentUIModel(
-    val name: String,
-    val icon: DrawableResource
-)
-
-data class PlayerUIModel(
+data class ParticipantUIModel(
     val name: String,
     val icon: DrawableResource,
-    val hasTurn: Boolean
+    val tint: Color
 )
 
 data class MoveModel(
@@ -65,6 +61,16 @@ data class GameResultModel(
     val name: String,
     val icon: DrawableResource,
     val result: GameResult
+)
+
+data class PopUpModel(
+    val title: String,
+    val description: String,
+    val buttonOneText: String,
+    val buttonTwoText: String,
+    val onActionOne: () -> Unit,
+    val onActionTwo: () -> Unit,
+    val onCancel: () -> Unit
 )
 
 enum class Segment {

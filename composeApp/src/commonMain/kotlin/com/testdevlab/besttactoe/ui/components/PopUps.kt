@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.window.Dialog
 import besttactoe.composeapp.generated.resources.Res
 import besttactoe.composeapp.generated.resources.ic_cross
+import com.testdevlab.besttactoe.ui.PopUpModel
 import com.testdevlab.besttactoe.ui.theme.Black35
 import com.testdevlab.besttactoe.ui.theme.DarkList
 import com.testdevlab.besttactoe.ui.theme.Red
@@ -37,90 +38,81 @@ import com.testdevlab.besttactoe.ui.theme.textMedium
 fun TwoChoicePopUp(
     modifier: Modifier = Modifier,
     colors: List<Color>,
-    title: String,
-    description: String,
-    leftButtonText: String,
-    rightButtonText: String,
-    isShown: Boolean,
-    onCancelClick: () -> Unit,
-    onLeftChoiceClick: () -> Unit,
-    onRightChoiceClick: () -> Unit,
+    content: PopUpModel,
 ) {
-    if (!isShown) return
-    Dialog(onDismissRequest = onCancelClick) {
-        Box(
-            modifier
-                .fillMaxWidth(.8f)
-                .fillMaxHeight(.5f)
-                .clip(shape = RoundedCornerShape(5))
-                .border(width = 2.ldp, color = Black35, shape = RoundedCornerShape(5))
-                .gradientBackground(colors = colors, angle = 45f)
+    Box(
+        modifier
+            .fillMaxWidth(.8f)
+            .fillMaxHeight(.5f)
+            .clip(shape = RoundedCornerShape(5))
+            .border(width = 2.ldp, color = Black35, shape = RoundedCornerShape(5))
+            .gradientBackground(colors = colors, angle = 45f)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(.2f)
+                    .gradientBackground(colors = DarkList, angle = 0f),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                Text(
+                    modifier = Modifier.padding(start = 12.ldp),
+                    text = content.title,
+                    style = textLarge,
+                    fontFamily = getSportFontFamily(),
+                    textAlign = TextAlign.Center
+                )
+                TicTacToePiece(
+                    modifier = Modifier.fillMaxHeight().aspectRatio(1f).padding(12.ldp),
+                    icon = Res.drawable.ic_cross,
+                    tint = ColorFilter.tint(Red),
+                    onClick = content.onCancel
+                )
+            }
+
+            Column(modifier = Modifier.padding(16.ldp)) {
+                Text(
+                    text = content.description,
+                    style = textMedium,
+                    fontFamily = getSportFontFamily(),
+                    textAlign = TextAlign.Center
+                )
+
+                // spacer
+                Box(modifier = Modifier.weight(1f))
+
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(.2f)
-                        .gradientBackground(colors = DarkList, angle = 0f),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.ldp, Alignment.CenterHorizontally)
                 ) {
-                    Text(
-                        modifier = Modifier.padding(start = 12.ldp),
-                        text = title,
-                        style = textLarge,
-                        fontFamily = getSportFontFamily(),
-                        textAlign = TextAlign.Center
+                    Button(
+                        containerModifier = Modifier.weight(1f),
+                        text = content.buttonOneText,
+                        colorGradient = YellowList,
+                        buttonType = ButtonType.Center,
+                        onClick = content.onActionOne,
+                        textStyle = textMedium,
+                        horizontalPadding = 10.ldp
                     )
-                    TicTacToePiece(
-                        modifier = Modifier.fillMaxHeight().aspectRatio(1f).padding(12.ldp),
-                        icon = Res.drawable.ic_cross,
-                        tint = ColorFilter.tint(Red),
-                        onClick = onCancelClick
+                    Button(
+                        containerModifier = Modifier.weight(1f),
+                        text = content.buttonTwoText,
+                        colorGradient = RedList,
+                        buttonType = ButtonType.Center,
+                        onClick = content.onActionTwo,
+                        textStyle = textMedium,
+                        horizontalPadding = 10.ldp
                     )
-                }
-
-                Column(modifier = Modifier.padding(16.ldp)) {
-                    Text(
-                        text = description,
-                        style = textMedium,
-                        fontFamily = getSportFontFamily(),
-                        textAlign = TextAlign.Center
-                    )
-
-                    // spacer
-                    Box(modifier = Modifier.weight(1f))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.ldp, Alignment.CenterHorizontally)
-                    ) {
-                        Button(
-                            containerModifier = Modifier.weight(1f),
-                            text = leftButtonText,
-                            colorGradient = YellowList,
-                            buttonType = ButtonType.Center,
-                            onClick = onLeftChoiceClick,
-                            textStyle = textMedium,
-                            horizontalPadding = 10.ldp
-                        )
-                        Button(
-                            containerModifier = Modifier.weight(1f),
-                            text = rightButtonText,
-                            colorGradient = RedList,
-                            buttonType = ButtonType.Center,
-                            onClick = onRightChoiceClick,
-                            textStyle = textMedium,
-                            horizontalPadding = 10.ldp
-                        )
-                    }
                 }
             }
         }
     }
+
 }
 
 @Composable

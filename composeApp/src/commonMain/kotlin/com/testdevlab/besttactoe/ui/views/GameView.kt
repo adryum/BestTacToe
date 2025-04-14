@@ -17,8 +17,7 @@ import com.testdevlab.besttactoe.core.repositories.GameHandler
 import com.testdevlab.besttactoe.core.repositories.GameMode
 import com.testdevlab.besttactoe.ui.GameResultModel
 import com.testdevlab.besttactoe.ui.MoveModel
-import com.testdevlab.besttactoe.ui.OpponentUIModel
-import com.testdevlab.besttactoe.ui.PlayerUIModel
+import com.testdevlab.besttactoe.ui.ParticipantUIModel
 import com.testdevlab.besttactoe.ui.ScoreModel
 import com.testdevlab.besttactoe.ui.SegmentUIModel
 import com.testdevlab.besttactoe.ui.TableOuterPadding
@@ -47,6 +46,7 @@ fun GameView(
     val gameScore by gameHandler.score.collectAsState()
     val hasGameEnded by gameHandler.hasGameEnded.collectAsState()
     val gameResult by gameHandler.gameResult.collectAsState()
+    val isPlayerTurn by gameHandler.isPlayerTurn.collectAsState()
 
     if (!hasGameEnded)
         LaunchedEffect(isRoundTimeout) {
@@ -62,6 +62,7 @@ fun GameView(
         playerData = playerData,
         opponentData = opponentData,
         isRoundTimeout = isRoundTimeout,
+        isPlayerTurn = isPlayerTurn,
         gameMode = gameMode,
         score = gameScore,
         gameResult = gameResult,
@@ -76,9 +77,10 @@ fun GameView(
 fun GameViewContent(
     boardData: List<SegmentUIModel>,
     gameResult: GameResultModel?,
-    playerData: PlayerUIModel,
-    opponentData: OpponentUIModel,
+    playerData: ParticipantUIModel?,
+    opponentData: ParticipantUIModel?,
     isRoundTimeout: Boolean,
+    isPlayerTurn: Boolean,
     gameMode: GameMode?,
     score: ScoreModel?,
     onGoBack: () -> Unit,
@@ -86,6 +88,8 @@ fun GameViewContent(
     exitGame: () -> Unit,
     onPieceClick: (MoveModel) -> Unit
 ) {
+    if (playerData == null || opponentData == null) return  // 1000% fool-proof null data solution
+
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -112,7 +116,7 @@ fun GameViewContent(
                 ),
                 onPieceClick = onPieceClick,
                 isGameEnded = isRoundTimeout,
-                isPlayerTurn = playerData.hasTurn,
+                isPlayerTurn = isPlayerTurn,
                 playerIcon = playerData.icon,
                 enemyIcon = opponentData.icon,
                 gameMode = gameMode,
@@ -136,7 +140,7 @@ fun GameViewContent(
             playerIconColor = Blue,
             opponentIcon = opponentData.icon,
             opponentIconColor = Color.Red,
-            isPlayerTurn = playerData.hasTurn
+            isPlayerTurn = isPlayerTurn
         )
     }
 }

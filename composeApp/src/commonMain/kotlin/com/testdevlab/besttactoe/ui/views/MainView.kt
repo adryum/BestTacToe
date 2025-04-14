@@ -2,39 +2,39 @@ package com.testdevlab.besttactoe.ui.views
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.testdevlab.besttactoe.core.repositories.GameHandler
 import com.testdevlab.besttactoe.core.repositories.GameMode
-import com.testdevlab.besttactoe.ui.components.ButtonSlideInHorizontally
+import com.testdevlab.besttactoe.ui.PopUpModel
+import com.testdevlab.besttactoe.ui.components.Button
 import com.testdevlab.besttactoe.ui.components.ButtonType
 import com.testdevlab.besttactoe.ui.components.MultipleStepDecorationsWithDarkContentAndColumn
-import com.testdevlab.besttactoe.ui.components.TwoChoicePopUp
 import com.testdevlab.besttactoe.ui.navigation.NavigationObject
 import com.testdevlab.besttactoe.ui.navigation.Views
 import com.testdevlab.besttactoe.ui.theme.DarkGreenGreenList
 import com.testdevlab.besttactoe.ui.theme.DarkOrangeOrangeList
 import com.testdevlab.besttactoe.ui.theme.OrangeYellowList
 import com.testdevlab.besttactoe.ui.theme.YellowList
+import com.testdevlab.besttactoe.ui.theme.slideInOutLeft
 import de.drick.compose.hotpreview.HotPreview
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun MainView(
     navigationObject: NavigationObject = NavigationObject,
     gameHandler: GameHandler = GameHandler
 ) {
+    val isLoadingView by navigationObject.isViewLoadingIn.collectAsState()
+    
     MainViewContent(
         onGameStart = gameHandler::startGame,
-        goTo = navigationObject::goTo,
+        goToDelayed = navigationObject::delayedGoTo,
+        isLoadingView = isLoadingView,
         isThereSavedGameFor = gameHandler::isThereASavedGame,
-        loadGame = gameHandler::loadGame
+        loadGame = gameHandler::loadGame,
+        showPopUp = navigationObject::showPopUp,
+        hidePopUp = navigationObject::hidePopUp
     )
 }
 
@@ -42,107 +42,76 @@ fun MainView(
 fun MainViewContent(
     onGameStart: (GameMode) -> Unit,
     isThereSavedGameFor: (GameMode) -> Boolean,
+    isLoadingView: Boolean,
     loadGame: (GameMode) -> Unit,
-    goTo: (Views) -> Unit
+    showPopUp: (PopUpModel) -> Unit,
+    hidePopUp: () -> Unit,
+    goToDelayed: (Views, Long, () -> Unit) -> Unit
 ) {
-    val scope = rememberCoroutineScope()
-    var isCoroutineStarted by remember { mutableStateOf(false) }
-    var isShown by remember { mutableStateOf(false)}
-
-    fun goToWrapped(view: Views, additionalAction: () -> Unit = {}) {
-        isShown = false
-        if (!isCoroutineStarted)
-            scope.launch {
-                isCoroutineStarted = true
-                delay(500)
-                goTo(view)
-                additionalAction()
-            }
-    }
-
-    LaunchedEffect(Unit) {
-        isShown = true
-    }
-
-    var isStartGameClicked by remember { mutableStateOf(false) }
-
-    TwoChoicePopUp(
-        isShown = isStartGameClicked,
+    val loadOutDelay = 500L
+    val popUpContent = PopUpModel(
         title = "Start new game?",
         description = "Previous save will be erased!",
-        leftButtonText = "New game",
-        rightButtonText = "Load game",
-        colors = DarkOrangeOrangeList,
-        onCancelClick = {
-            isStartGameClicked = false
+        buttonOneText = "New game",
+        onActionOne = {
+            goToDelayed(
+                Views.GameView,
+                loadOutDelay
+            ) { onGameStart(GameMode.VS_AI) }
         },
-        onLeftChoiceClick = {
-            goToWrapped(
-                view = Views.GameView,
-                additionalAction = { onGameStart(GameMode.VS_AI)}
-            )
-            isStartGameClicked = false
+        buttonTwoText = "Load game",
+        onActionTwo = {
+            goToDelayed(
+                Views.GameView,
+                loadOutDelay
+            ) { loadGame(GameMode.VS_AI) }
         },
-        onRightChoiceClick = {
-            goToWrapped(
-                view = Views.GameView,
-                additionalAction = {  loadGame(GameMode.VS_AI) }
-            )
-            isStartGameClicked = false
-        }
+        onCancel = hidePopUp
     )
 
     MultipleStepDecorationsWithDarkContentAndColumn(2) {
-        ButtonSlideInHorizontally(
-            containerModifier = Modifier.fillMaxWidth(.7f),
+        Button(
+            containerModifier = Modifier.fillMaxWidth(.7f).slideInOutLeft(duration = 300, isShown = isLoadingView),
             text = "VS AI",
             colorGradient = DarkOrangeOrangeList,
             buttonType = ButtonType.LeftSide,
             onClick = {
                 if (isThereSavedGameFor(GameMode.VS_AI)) {
-                    isStartGameClicked = true
+                    showPopUp(popUpContent)
                 } else {
-                    goToWrapped(
-                        view = Views.GameView,
-                        additionalAction = { onGameStart(GameMode.VS_AI)}
-                    )
+                    goToDelayed(
+                        Views.GameView,
+                        loadOutDelay
+                    ) { onGameStart(GameMode.VS_AI) }
                 }
-            },
-            isShown = isShown,
-            delay = 100
+            }
         )
-        ButtonSlideInHorizontally(
-            containerModifier = Modifier.fillMaxWidth(.7f),
+        Button(
+            containerModifier = Modifier.fillMaxWidth(.7f).slideInOutLeft(duration = 400, isShown = isLoadingView),
             text = "Multiplayer",
             colorGradient = DarkGreenGreenList,
             buttonType = ButtonType.LeftSide,
             onClick = {
-                goToWrapped(view = Views.MultiplayerView)
-            },
-            isShown = isShown,
-            delay = 200
+                goToDelayed(Views.MultiplayerView, loadOutDelay, {})
+            }
         )
-        ButtonSlideInHorizontally(
-            containerModifier = Modifier.fillMaxWidth(.7f),
+        Button(
+            containerModifier = Modifier.fillMaxWidth(.7f).slideInOutLeft(duration = 500, isShown = isLoadingView),
             text = "Game history",
             colorGradient = OrangeYellowList,
             buttonType = ButtonType.LeftSide,
             onClick = {
-                goToWrapped(view = Views.HistoryView)
-            },
-            isShown = isShown,
-            delay = 300
+                goToDelayed(Views.HistoryView, loadOutDelay, {})
+            }
         )
-        ButtonSlideInHorizontally(
-            containerModifier = Modifier.fillMaxWidth(.7f),
+        Button(
+            containerModifier = Modifier.fillMaxWidth(.7f).slideInOutLeft(duration = 500, isShown = isLoadingView),
             text = "Settings",
             colorGradient = YellowList,
             buttonType = ButtonType.LeftSide,
             onClick = {
-                goToWrapped(view = Views.SettingsView)
-             },
-            isShown = isShown,
-            delay = 400
+                goToDelayed(Views.SettingsView, loadOutDelay, {})
+             }
         )
     }
 }
@@ -151,9 +120,12 @@ fun MainViewContent(
 @Composable
 private fun MainViewPreview() {
     MainViewContent(
-        goTo = {},
-        isThereSavedGameFor = {_ -> true},
+        goToDelayed = { _, _, _ -> },
+        isThereSavedGameFor = { _ -> true },
         loadGame = {},
-        onGameStart = {}
+        onGameStart = {},
+        isLoadingView = false,
+        showPopUp = { },
+        hidePopUp = {},
     )
 }

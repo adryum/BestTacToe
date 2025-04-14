@@ -48,7 +48,7 @@ import com.testdevlab.besttactoe.ui.theme.textMedium
 
 @Composable
 fun HistoryCard(
-    containerModifier: Modifier = Modifier,
+    modifier: Modifier = Modifier,
     buttonModifier: Modifier = Modifier,
     gameMode: GameMode,
     gameResults: List<GameResult>,
@@ -61,7 +61,7 @@ fun HistoryCard(
     var buttonHeight by remember { mutableStateOf(0) }
 
     Box(
-        modifier = containerModifier
+        modifier = modifier
             .fillMaxWidth(.9f)
             .height(200.ldp)
             .clip(shape)

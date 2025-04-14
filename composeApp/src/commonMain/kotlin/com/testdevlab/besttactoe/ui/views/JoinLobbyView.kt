@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.input.TextFieldValue
+import com.testdevlab.besttactoe.core.repositories.MultiplayerHandler
 import com.testdevlab.besttactoe.ui.components.DarkBackgroundWithDarkTop
 import com.testdevlab.besttactoe.ui.theme.DarkOrangeOrangeList
 import com.testdevlab.besttactoe.ui.theme.OrangeYellowList
@@ -15,8 +16,10 @@ import com.testdevlab.besttactoe.ui.theme.ldp
 import de.drick.compose.hotpreview.HotPreview
 
 @Composable
-fun JoinRoomView() {
-    JoinRoomViewContent(onCodeEnter = {})
+fun JoinRoomView(
+    multiplayerHandler: MultiplayerHandler = MultiplayerHandler
+) {
+    JoinRoomViewContent(onCodeEnter = multiplayerHandler::JoinLobby)
 }
 
 @Composable

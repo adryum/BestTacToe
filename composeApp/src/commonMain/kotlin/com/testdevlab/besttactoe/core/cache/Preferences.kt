@@ -13,10 +13,15 @@ object Preferences {
     // delegated (given) delegations (in this situation delegations are properties)
     // so when this property (var) is called it uses delegated functionality.
     var playerName by stringPreference()
+    var chosenIcons by stringPreference() // x or o  icons
     var hotSeat by stringPreference()
     var vsAI by stringPreference()
     var history by stringPreference()
         private set
+
+    init {
+        if (playerName.isNullOrEmpty()) playerName = "Guest123"
+    }
 
     /**(Example) var playerName by stringPreference()
      *
@@ -55,7 +60,8 @@ object Preferences {
     fun isThereASavedGame(gameMode: GameMode) = when (gameMode) {
         GameMode.VS_AI -> !vsAI.isNullOrEmpty()
         GameMode.HotSeat -> !hotSeat.isNullOrEmpty()
-        GameMode.Multiplayer -> false
+        GameMode.None,
+        GameMode.Multiplayer,
         GameMode.RoboRumble -> false
     }
 }

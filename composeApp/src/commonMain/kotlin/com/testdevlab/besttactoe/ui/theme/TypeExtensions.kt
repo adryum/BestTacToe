@@ -144,3 +144,27 @@ fun Segment.isNone() = this == Segment.None
 fun Piece.isPlayer() = this == Piece.Player
 fun Piece.isOpponent() = this == Piece.Opponent
 fun Piece.isEmpty() = this == Piece.Empty
+
+fun Int.toColor() = Color(this)
+
+fun Int.toRGBHex() = toColor().toRGBHex()
+
+fun Color.toRGBHex(): String {
+    val redHex = (this.red * 255).toInt().toString(16).padStart(2, '0')
+    val greenHex = (this.green * 255).toInt().toString(16).padStart(2, '0')
+    val blueHex = (this.blue * 255).toInt().toString(16).padStart(2, '0')
+    return "#$redHex$greenHex$blueHex".uppercase()
+}
+
+fun String.toColor(): Color {
+    val regex = Regex("^#([0-9a-fA-F]{6})$")
+    if (!regex.matches(this)) {
+        return White
+    }
+    val hex = if (startsWith("#")) substring(1) else this
+    val red = hex.substring(0, 2).toInt(16) / 255f
+    val green = hex.substring(2, 4).toInt(16) / 255f
+    val blue = hex.substring(4, 6).toInt(16) / 255f
+
+    return Color(red = red, green = green, blue = blue, alpha = 1f)
+}

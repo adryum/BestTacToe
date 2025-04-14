@@ -1,12 +1,8 @@
 package com.testdevlab.besttactoe.ui.components
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,11 +21,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,8 +52,6 @@ import com.testdevlab.besttactoe.ui.theme.getSportFontFamily
 import com.testdevlab.besttactoe.ui.theme.ldp
 import com.testdevlab.besttactoe.ui.theme.pxToDp
 import de.drick.compose.hotpreview.HotPreview
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
@@ -254,116 +246,6 @@ fun MoveShower(
                     alpha = shadowOpacity
                 )
         )
-    }
-}
-
-@Composable
-fun ButtonSlideInHorizontally(
-    containerModifier: Modifier = Modifier,
-    buttonModifier: Modifier = Modifier,
-    text: String = "abc",
-    buttonType: ButtonType,
-    isClickable: Boolean = true,
-    // shadow
-    enableShadow: Boolean = true,
-    shadowOpacity: Float = .65f,
-    shadowOffset: Dp = 8.ldp,
-    // style
-    textStyle: TextStyle = buttonStyle,
-    horizontalPadding: Dp = 40.ldp,
-    verticalPadding: Dp = 12.ldp,
-    colorGradient: List<Color>,
-    contentAlignment: Alignment? = null,
-    // animation
-    isShown: Boolean = true,
-    delay: Long = 0,
-    onClick: () -> Unit
-) {
-    val shape = RoundedCornerShape(
-        topStartPercent = 0, topEndPercent = 50,
-        bottomEndPercent = 50, bottomStartPercent = 0
-    )
-
-    var buttonHeight by remember { mutableStateOf(0) }
-    var isShownAnimation by remember { mutableStateOf(false) }
-
-    val scope = rememberCoroutineScope()
-    LaunchedEffect(isShown) {
-        scope.launch {
-            delay(delay)
-            isShownAnimation = isShown
-        }
-    }
-
-    AnimatedVisibility(
-        visible = isShownAnimation,
-        enter = slideInHorizontally(
-            animationSpec = tween(durationMillis = 200),
-            initialOffsetX = { fullWidth ->
-                -fullWidth
-            }
-        ),
-        exit = slideOutHorizontally(
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioLowBouncy,
-                stiffness = Spring.StiffnessMedium
-            ),
-            targetOffsetX = { fullWidth ->
-                -fullWidth
-            }
-        )
-    ) {
-        Box(
-            modifier = containerModifier
-                .clip(shape)
-                .background(Black)
-        ) {
-            // button
-            Box(
-                modifier = buttonModifier
-                    .zIndex(2f)
-                    .fillMaxWidth()
-                    .clip(shape)
-                    .background(Brush.linearGradient(colorGradient))
-                    .clickable(enabled = isClickable) { onClick() }
-                    .onSizeChanged { buttonHeight = it.height },
-                contentAlignment =
-                    contentAlignment
-                        ?: when (buttonType) {
-                            ButtonType.LeftSide -> Alignment.CenterStart
-                            ButtonType.Center -> Alignment.Center
-                            ButtonType.RightSide -> Alignment.CenterEnd
-                        }
-            ) {
-                Text(
-                    modifier = Modifier
-                        .padding(horizontal = horizontalPadding, vertical = verticalPadding),
-                    text = text,
-                    style = textStyle,
-                    textAlign = when (buttonType) {
-                        ButtonType.LeftSide -> TextAlign.Left
-                        ButtonType.Center -> TextAlign.Center
-                        ButtonType.RightSide -> TextAlign.Right
-                    },
-                    fontFamily = getSportFontFamily()
-                )
-            }
-
-            if (!enableShadow) return@AnimatedVisibility
-            // shadow
-            Box(
-                modifier = buttonModifier
-                    .zIndex(1f)
-                    .padding(top = shadowOffset)
-                    .height(buttonHeight.pxToDp())
-                    .fillMaxWidth()
-                    .clip(shape)
-                    .background(
-                        Brush.linearGradient(colorGradient),
-                        alpha = shadowOpacity
-                    )
-            )
-        }
     }
 }
 

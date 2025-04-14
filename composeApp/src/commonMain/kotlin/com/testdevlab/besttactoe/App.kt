@@ -2,6 +2,7 @@ package com.testdevlab.besttactoe
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.EaseInOutSine
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -21,8 +22,10 @@ import androidx.compose.ui.Modifier
 import besttactoe.composeapp.generated.resources.Res
 import besttactoe.composeapp.generated.resources.ic_back_rounded
 import com.testdevlab.besttactoe.core.repositories.GameHandler
+import com.testdevlab.besttactoe.ui.PopUpModel
 import com.testdevlab.besttactoe.ui.components.TicTacToePiece
 import com.testdevlab.besttactoe.ui.components.TopBar
+import com.testdevlab.besttactoe.ui.components.TwoChoicePopUp
 import com.testdevlab.besttactoe.ui.components.ViewTitle
 import com.testdevlab.besttactoe.ui.navigation.NavigationObject
 import com.testdevlab.besttactoe.ui.navigation.Views
@@ -33,8 +36,11 @@ import com.testdevlab.besttactoe.ui.theme.Orange
 import com.testdevlab.besttactoe.ui.theme.Yellow
 import com.testdevlab.besttactoe.ui.theme.getViewTitle
 import com.testdevlab.besttactoe.ui.theme.gradientBackground
+import com.testdevlab.besttactoe.ui.theme.idleRotate
 import com.testdevlab.besttactoe.ui.theme.ldp
+import com.testdevlab.besttactoe.ui.theme.popped
 import com.testdevlab.besttactoe.ui.theme.showTopBar
+import com.testdevlab.besttactoe.ui.theme.slideLeftToRight
 import com.testdevlab.besttactoe.ui.views.CreateLobbyView
 import com.testdevlab.besttactoe.ui.views.GameView
 import com.testdevlab.besttactoe.ui.views.HistoryView
@@ -50,11 +56,17 @@ fun App() {
     // stuff passed here is shown on every device
     // for viewModels I will need to define here only values that I'll use from them
     val currentView by NavigationObject.currentView.collectAsState()
+    val isLoadingView by NavigationObject.isViewLoadingIn.collectAsState()
+    val isPopUpShown by NavigationObject.isPopUpShown.collectAsState()
+    val popUpContent by NavigationObject.popUpContent.collectAsState()
 
     Surface {
         AppContent(
             currentView = currentView,
-            goBack = NavigationObject::goBack,
+            goBack = NavigationObject::delayedGoBack,
+            isPopUpShown = isPopUpShown,
+            popUpContent = popUpContent,
+            isLoadingView = isLoadingView,
             exitGame = GameHandler::saveAndClearGame,
         )
     }
@@ -65,6 +77,9 @@ fun App() {
 fun AppContent(
     currentView: Views,
     goBack: () -> Unit,
+    popUpContent: PopUpModel?,
+    isLoadingView: Boolean,
+    isPopUpShown: Boolean,
     exitGame: () -> Unit,
 ) {
     val isTopBarShown = currentView.showTopBar()
@@ -124,7 +139,7 @@ fun AppContent(
                 if (isTopBarShown)
                     TopBar(height = topBarHeight) {
                         TicTacToePiece(
-                            modifier = Modifier.padding(12.ldp).aspectRatio(1f),
+                            modifier = Modifier.popped().padding(12.ldp).aspectRatio(1f),
                             isClickable = true,
                             icon = Res.drawable.ic_back_rounded,
                             onClick = {
@@ -139,8 +154,10 @@ fun AppContent(
                 // It gets inside, just is hidden
                 if (currentView != Views.GameView)  {
                     ViewTitle(
-                        modifier = Modifier.padding(top = if (isTopBarShown) 0.ldp else topBarHeight),
-                        text = viewTitle
+                        modifier = Modifier.padding(top = if (isTopBarShown) 0.ldp else topBarHeight)
+                            .slideLeftToRight(duration = 1000, isShown = isLoadingView)
+                            .idleRotate(maxAngle = 20f, oneCycleDurationMills = 1000, easing = EaseInOutSine),
+                        text = viewTitle,
                     )
                 }
 
@@ -156,8 +173,11 @@ fun AppContent(
             }
         }
     }
-}
 
+    println("$isPopUpShown  ${popUpContent != null}")
+    if (isPopUpShown && popUpContent != null)
+        TwoChoicePopUp(colors = DarkOrangeOrangeList, content = popUpContent)
+}
 
 @Composable
 @HotPreview("app", widthDp = 500, heightDp = 1000)

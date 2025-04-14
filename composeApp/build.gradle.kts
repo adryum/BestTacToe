@@ -1,3 +1,4 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -6,7 +7,25 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
-    kotlin("plugin.serialization") version "2.1.20"
+    alias(libs.plugins.serialization)
+    alias(libs.plugins.buildKonfig)
+}
+
+fun getVersionCode(): Int {
+    val code = providers.exec {
+        commandLine("git", "rev-list", "--count", "HEAD")
+    }.standardOutput.asText.get().trim()
+    println("Version code: $code")
+    return code.toIntOrNull() ?: 0
+}
+
+buildkonfig {
+    packageName = "com.testdevlab.besttactoe"
+
+    defaultConfigs {
+        buildConfigField(STRING, "version", "1.0.${getVersionCode()}")
+        buildConfigField(STRING, "SOCKET_URL", "http://kokamocis.lv:404")
+    }
 }
 
 kotlin {
@@ -35,10 +54,11 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation(libs.hotpreview)
-            implementation("com.russhwolf:multiplatform-settings:1.3.0")
-            implementation("com.russhwolf:multiplatform-settings-no-arg:1.3.0")
-            implementation("com.russhwolf:multiplatform-settings-serialization:1.3.0")
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
+            implementation(libs.multiplatform.settings)
+            implementation(libs.multiplatform.settings.no.arg)
+            implementation(libs.multiplatform.settings.serialization)
+            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.socket.io.client)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -86,6 +106,7 @@ dependencies {
     implementation(libs.androidx.compose.testing)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.ui.text.google.fonts)
+    implementation(libs.androidx.runtime.android)
     debugImplementation(compose.uiTooling)
     implementation(libs.coil.compose)
 

@@ -23,6 +23,7 @@ import com.testdevlab.besttactoe.ui.theme.DarkBlueBlueList
 import com.testdevlab.besttactoe.ui.theme.Orange
 import com.testdevlab.besttactoe.ui.theme.Yellow
 import com.testdevlab.besttactoe.ui.theme.ldp
+import com.testdevlab.besttactoe.ui.theme.popped
 import de.drick.compose.hotpreview.HotPreview
 
 @Composable
@@ -51,6 +52,7 @@ fun SettingsViewContent(
             verticalArrangement = Arrangement.spacedBy(20.ldp, Alignment.CenterVertically)
         ) {
             ToggleButton(
+                modifier = Modifier.popped(200),
                 isEnabled = isSoundEnabled,
                 text = "Sound",
                 leftGradientColor = Orange,
@@ -58,6 +60,7 @@ fun SettingsViewContent(
                 onClick = { isSoundEnabled = !isSoundEnabled}
             )
             ToggleButton(
+                modifier = Modifier.popped(300),
                 isEnabled = isAnimationEnabled,
                 text = "Animation",
                 leftGradientColor = Orange,
@@ -65,7 +68,7 @@ fun SettingsViewContent(
                 onClick = { isAnimationEnabled = !isAnimationEnabled}
             )
             Button(
-                containerModifier = Modifier.fillMaxWidth(.7f),
+                containerModifier = Modifier.fillMaxWidth(.7f).popped(400),
                 text = "RoboRumble",
                 colorGradient = DarkBlueBlueList,
                 buttonType = ButtonType.Center,
@@ -75,7 +78,7 @@ fun SettingsViewContent(
                 }
             )
             Button(
-                containerModifier = Modifier.fillMaxWidth(.7f),
+                containerModifier = Modifier.fillMaxWidth(.7f).popped(500),
                 text = "Resolution",
                 colorGradient = DarkBlueBlueList,
                 buttonType = ButtonType.Center,
