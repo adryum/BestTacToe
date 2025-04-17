@@ -23,6 +23,7 @@ import androidx.compose.ui.window.Dialog
 import besttactoe.composeapp.generated.resources.Res
 import besttactoe.composeapp.generated.resources.ic_cross
 import com.testdevlab.besttactoe.ui.PopUpModel
+import com.testdevlab.besttactoe.ui.navigation.NavigationObject
 import com.testdevlab.besttactoe.ui.theme.Black35
 import com.testdevlab.besttactoe.ui.theme.DarkList
 import com.testdevlab.besttactoe.ui.theme.Red
@@ -71,7 +72,9 @@ fun TwoChoicePopUp(
                     modifier = Modifier.fillMaxHeight().aspectRatio(1f).padding(12.ldp),
                     icon = Res.drawable.ic_cross,
                     tint = ColorFilter.tint(Red),
-                    onClick = content.onCancel
+                    onClick = {
+                        NavigationObject.hidePopUp()
+                    }
                 )
             }
 
@@ -95,7 +98,10 @@ fun TwoChoicePopUp(
                         text = content.buttonOneText,
                         colorGradient = YellowList,
                         buttonType = ButtonType.Center,
-                        onClick = content.onActionOne,
+                        onClick = {
+                            content.onActionOne()
+                            NavigationObject.hidePopUp()
+                        },
                         textStyle = textMedium,
                         horizontalPadding = 10.ldp
                     )
@@ -104,7 +110,10 @@ fun TwoChoicePopUp(
                         text = content.buttonTwoText,
                         colorGradient = RedList,
                         buttonType = ButtonType.Center,
-                        onClick = content.onActionTwo,
+                        onClick = {
+                            content.onActionTwo()
+                            NavigationObject.hidePopUp()
+                        },
                         textStyle = textMedium,
                         horizontalPadding = 10.ldp
                     )

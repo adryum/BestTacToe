@@ -43,7 +43,8 @@ data class PieceUIModel(
 data class ParticipantUIModel(
     val name: String,
     val icon: DrawableResource,
-    val tint: Color
+    val tint: Color,
+    val id: Int
 )
 
 data class MoveModel(
@@ -70,7 +71,11 @@ data class PopUpModel(
     val buttonTwoText: String,
     val onActionOne: () -> Unit,
     val onActionTwo: () -> Unit,
-    val onCancel: () -> Unit
+)
+
+data class IconUIModel(
+    val res: DrawableResource,
+    val tint: Color,
 )
 
 enum class Segment {

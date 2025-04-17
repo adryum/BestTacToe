@@ -6,7 +6,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import com.testdevlab.besttactoe.core.repositories.GameHandler
-import com.testdevlab.besttactoe.core.repositories.MultiplayerHandler
 import com.testdevlab.besttactoe.ui.components.CodeShower
 import com.testdevlab.besttactoe.ui.components.DarkBackgroundWithDarkTop
 import com.testdevlab.besttactoe.ui.theme.DarkOrange
@@ -17,13 +16,12 @@ import de.drick.compose.hotpreview.HotPreview
 
 @Composable
 fun CreateLobbyView(
-    multiplayerHandler: MultiplayerHandler = MultiplayerHandler,
     gameHandler: GameHandler = GameHandler
 ) {
     val code by gameHandler.code.collectAsState()
 
     LaunchedEffect(Unit) {
-        multiplayerHandler.CreateLobby()
+        gameHandler.createLobby()
     }
 
     CreateLobbyViewContent(
@@ -33,11 +31,11 @@ fun CreateLobbyView(
 
 @Composable
 fun CreateLobbyViewContent(
-    codeString: String
+    codeString: String?
 ) {
     DarkBackgroundWithDarkTop(verticalColumnAlignment = Alignment.Top) {
         CodeShower(
-            code = codeString,
+            code = codeString ?: "Creating lobby...",
             leftGradientColor = Orange,
             rightGradientColor = Yellow,
             inputLeftGradientColor = DarkOrange,

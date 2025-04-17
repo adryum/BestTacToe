@@ -47,6 +47,30 @@ fun Modifier.popped(
     scale(animatedScale).fadeIn(duration = delay.toInt())
 }
 
+fun Modifier.scale(
+    from: Float,
+    to: Float,
+    delay: Long = 200,
+    stiffness: Float = Spring.StiffnessLow,
+    damping: Float = Spring.DampingRatioMediumBouncy
+): Modifier = composed {
+    var isReady by remember { mutableStateOf(false) }
+    val animatedScale by animateFloatAsState(
+        targetValue = if (isReady) to else from,
+        animationSpec = spring(
+            dampingRatio = damping,
+            stiffness = stiffness
+        )
+    )
+
+    LaunchedEffect(Unit) {
+        delay(delay)
+        isReady = true
+    }
+
+    scale(animatedScale)
+}
+
 fun Modifier.fadeIn(
     duration: Int,
     easing: Easing = LinearEasing
@@ -158,10 +182,17 @@ fun Modifier.slideInOutLeft(
     }
 }
 
-fun Modifier.idleRotate(
+enum class RotationAxis {
+    Z,
+    X,
+    Y
+}
+
+fun Modifier.idleRotateClamped(
     maxAngle: Float,
     oneCycleDurationMills: Int,
-    easing: Easing = EaseInOutQuart
+    easing: Easing = EaseInOutQuart,
+    axis: RotationAxis = RotationAxis.Z
 ): Modifier = composed {
     val transition = rememberInfiniteTransition()
     val angle by transition.animateFloat(
@@ -177,7 +208,66 @@ fun Modifier.idleRotate(
     )
 
     Modifier.graphicsLayer {
-        rotationZ = angle
+        when (axis) {
+            RotationAxis.Z -> rotationZ = angle
+            RotationAxis.X -> rotationX = angle
+            RotationAxis.Y -> rotationY = angle
+        }
+    }
+}
+
+fun Modifier.idleBreathing(
+    fromScale: Float,
+    toScale: Float,
+    breatheInTime: Int,
+    easing: Easing = EaseInOutQuart,
+    repeatMode: RepeatMode = RepeatMode.Reverse,
+    enabled: Boolean = true
+): Modifier = composed {
+    if (!enabled) return@composed this
+
+    val transition = rememberInfiniteTransition()
+    val scale by transition.animateFloat(
+        initialValue = fromScale,
+        targetValue = toScale,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = breatheInTime,
+                easing = easing
+            ),
+            repeatMode = repeatMode
+        )
+    )
+
+    scale(scale)
+}
+
+fun Modifier.idleRotate(
+    oneCycleDurationMills: Int,
+    isClockwise: Boolean = true,
+    easing: Easing = EaseInOutQuart,
+    axis: RotationAxis = RotationAxis.Z,
+    repeatMode: RepeatMode = RepeatMode.Reverse
+): Modifier = composed {
+    val transition = rememberInfiniteTransition()
+    val angleProgress by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = if (isClockwise) 1f else -1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = oneCycleDurationMills,
+                easing = easing
+            ),
+            repeatMode = repeatMode
+        )
+    )
+
+    Modifier.graphicsLayer {
+        when (axis) {
+            RotationAxis.Z -> rotationZ = 360 * angleProgress
+            RotationAxis.X -> rotationX = 360 * angleProgress
+            RotationAxis.Y -> rotationY = 360 * angleProgress
+        }
     }
 }
 

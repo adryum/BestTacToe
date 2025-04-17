@@ -1,6 +1,5 @@
 package com.testdevlab.besttactoe
 
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.EaseInOutSine
 import androidx.compose.animation.core.LinearEasing
@@ -9,6 +8,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -23,6 +23,7 @@ import besttactoe.composeapp.generated.resources.Res
 import besttactoe.composeapp.generated.resources.ic_back_rounded
 import com.testdevlab.besttactoe.core.repositories.GameHandler
 import com.testdevlab.besttactoe.ui.PopUpModel
+import com.testdevlab.besttactoe.ui.components.DarkBackground
 import com.testdevlab.besttactoe.ui.components.TicTacToePiece
 import com.testdevlab.besttactoe.ui.components.TopBar
 import com.testdevlab.besttactoe.ui.components.TwoChoicePopUp
@@ -36,7 +37,7 @@ import com.testdevlab.besttactoe.ui.theme.Orange
 import com.testdevlab.besttactoe.ui.theme.Yellow
 import com.testdevlab.besttactoe.ui.theme.getViewTitle
 import com.testdevlab.besttactoe.ui.theme.gradientBackground
-import com.testdevlab.besttactoe.ui.theme.idleRotate
+import com.testdevlab.besttactoe.ui.theme.idleRotateClamped
 import com.testdevlab.besttactoe.ui.theme.ldp
 import com.testdevlab.besttactoe.ui.theme.popped
 import com.testdevlab.besttactoe.ui.theme.showTopBar
@@ -67,7 +68,7 @@ fun App() {
             isPopUpShown = isPopUpShown,
             popUpContent = popUpContent,
             isLoadingView = isLoadingView,
-            exitGame = GameHandler::saveAndClearGame,
+            handleGoingBack = GameHandler::handleGoingBack
         )
     }
 }
@@ -77,10 +78,10 @@ fun App() {
 fun AppContent(
     currentView: Views,
     goBack: () -> Unit,
+    handleGoingBack: (Views) -> Unit,
     popUpContent: PopUpModel?,
     isLoadingView: Boolean,
     isPopUpShown: Boolean,
-    exitGame: () -> Unit,
 ) {
     val isTopBarShown = currentView.showTopBar()
     val viewTitle = currentView.getViewTitle()
@@ -129,54 +130,57 @@ fun AppContent(
             angle = angle
         )
     ) {
-        Crossfade(
-            targetState = currentView,
-            animationSpec = tween()
-        ) { currentView ->
-            Column(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                if (isTopBarShown)
-                    TopBar(height = topBarHeight) {
-                        TicTacToePiece(
-                            modifier = Modifier.popped().padding(12.ldp).aspectRatio(1f),
-                            isClickable = true,
-                            icon = Res.drawable.ic_back_rounded,
-                            onClick = {
-                                goBack()
-                                if (currentView == Views.GameView) {
-                                    exitGame()
-                                }
-                            }
-                        )
-                    }
-
-                // It gets inside, just is hidden
-                if (currentView != Views.GameView)  {
-                    ViewTitle(
-                        modifier = Modifier.padding(top = if (isTopBarShown) 0.ldp else topBarHeight)
-                            .slideLeftToRight(duration = 1000, isShown = isLoadingView)
-                            .idleRotate(maxAngle = 20f, oneCycleDurationMills = 1000, easing = EaseInOutSine),
-                        text = viewTitle,
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            if (isTopBarShown)
+                TopBar(height = topBarHeight) {
+                    TicTacToePiece(
+                        modifier = Modifier.popped().padding(12.ldp).aspectRatio(1f),
+                        isClickable = true,
+                        icon = Res.drawable.ic_back_rounded,
+                        onClick = {
+                            goBack()
+                            handleGoingBack(currentView)
+                        }
                     )
                 }
 
-                when (currentView) {
-                    Views.MainView -> MainView()
-                    Views.CreateLobbyView -> CreateLobbyView()
-                    Views.GameView -> GameView()
-                    Views.JoinLobbyView -> JoinRoomView()
-                    Views.MultiplayerView -> MultiplayerView()
-                    Views.SettingsView -> SettingsView()
-                    Views.HistoryView -> HistoryView()
-                }
+            // It gets inside, just is hidden
+            if (currentView != Views.GameView)  {
+                ViewTitle(
+                    modifier = Modifier
+                        .padding(top = if (isTopBarShown) 0.ldp else topBarHeight)
+                        .slideLeftToRight(
+                            duration = 1000,
+                            isShown = isLoadingView
+                        )
+                        .idleRotateClamped(
+                            maxAngle = 10f,
+                            oneCycleDurationMills = 2000,
+                            easing = EaseInOutSine
+                        ),
+                    text = viewTitle,
+                )
+            }
+
+            when (currentView) {
+                Views.MainView -> MainView()
+                Views.CreateLobbyView -> CreateLobbyView()
+                Views.GameView -> GameView()
+                Views.JoinLobbyView -> JoinRoomView()
+                Views.MultiplayerView -> MultiplayerView()
+                Views.SettingsView -> SettingsView()
+                Views.HistoryView -> HistoryView()
             }
         }
+
     }
 
-    println("$isPopUpShown  ${popUpContent != null}")
     if (isPopUpShown && popUpContent != null)
-        TwoChoicePopUp(colors = DarkOrangeOrangeList, content = popUpContent)
+        DarkBackground(modifier = Modifier.fillMaxSize().clickable(enabled = false) {  }) {
+            TwoChoicePopUp(colors = DarkOrangeOrangeList, content = popUpContent)
+        }
 }
 
 @Composable

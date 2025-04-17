@@ -118,6 +118,7 @@ fun DarkBackground(
             .background(Black35)
             .padding(bottom = innerBottomPadding)
         ,
+        contentAlignment = Alignment.Center
     ) {
         content()
     }

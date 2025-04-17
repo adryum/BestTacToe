@@ -1,25 +1,32 @@
 package com.testdevlab.besttactoe.ui.views
 
 import CodeInputField
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
-import com.testdevlab.besttactoe.core.repositories.MultiplayerHandler
-import com.testdevlab.besttactoe.ui.components.DarkBackgroundWithDarkTop
-import com.testdevlab.besttactoe.ui.theme.DarkOrangeOrangeList
-import com.testdevlab.besttactoe.ui.theme.OrangeYellowList
+import com.testdevlab.besttactoe.core.repositories.GameHandler
+import com.testdevlab.besttactoe.ui.components.Button
+import com.testdevlab.besttactoe.ui.components.ButtonType
+import com.testdevlab.besttactoe.ui.theme.OrangeList
 import com.testdevlab.besttactoe.ui.theme.ldp
+import com.testdevlab.besttactoe.ui.theme.popped
+import com.testdevlab.besttactoe.ui.theme.textMedium
 import de.drick.compose.hotpreview.HotPreview
 
 @Composable
 fun JoinRoomView(
-    multiplayerHandler: MultiplayerHandler = MultiplayerHandler
+    gameHandler: GameHandler = GameHandler
 ) {
-    JoinRoomViewContent(onCodeEnter = multiplayerHandler::JoinLobby)
+    JoinRoomViewContent(onCodeEnter = gameHandler::joinLobby)
 }
 
 @Composable
@@ -27,20 +34,28 @@ fun JoinRoomViewContent(
     onCodeEnter: (String) -> Unit
 ) {
     var codeInputValue by remember { mutableStateOf(TextFieldValue("")) }
-    DarkBackgroundWithDarkTop(
-        verticalColumnAlignment = Alignment.Top,
-        horizontalColumnAlignment = Alignment.CenterHorizontally
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(32.ldp)
     ) {
         CodeInputField(
+            modifier = Modifier.size(height = 100.ldp, width = 250.ldp).popped(200),
             value = codeInputValue,
-            height = 80.ldp,
-            colorGradient = DarkOrangeOrangeList,
-            inputColorGradient = OrangeYellowList,
             onValueChanged = { textFieldValue ->
                 codeInputValue = textFieldValue
-            },
-            onSend = { onCodeEnter(codeInputValue.text) }
+            }
         )
+        Button(
+            containerModifier = Modifier.size(width = 120.ldp, height = 50.ldp).popped(300),
+            text = "Enter",
+            buttonType = ButtonType.Center,
+            colorGradient = OrangeList,
+            textStyle = textMedium,
+            horizontalPadding = 4.ldp
+        ) {
+            onCodeEnter(codeInputValue.text)
+        }
     }
 }
 

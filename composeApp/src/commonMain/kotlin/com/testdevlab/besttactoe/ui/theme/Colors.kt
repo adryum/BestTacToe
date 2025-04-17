@@ -2,6 +2,17 @@ package com.testdevlab.besttactoe.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
+// new oldie
+val SelectedSegmentColor = Color(0xff29cb6b)
+val lightBlue = Color(0xFF95D7F1)
+val lightRed = Color(0xFFF38484)
+val GrayDark = Color(0xFF383838)
+val GrayLight = Color(0xff868686)
+val white_60 = Color(0x99ffffff)
+val lightGray = Color(0xFFD9D9D9)
+val White = Color(0xfff1f1f1)
+val Black = Color(0xff000000)
+
 val Orange = Color(0xFFFF8400)
 val DarkOrange = Color(0xFFEB3204)
 val Red = Color(0xfff81616)
@@ -25,14 +36,6 @@ val BlueList = listOf(Blue, Blue)
 val DarkBlueList = listOf(DarkBlue, DarkBlue)
 val DarkBlueBlueList = listOf(DarkBlue, Blue)
 val RedList = listOf(Red, Red)
+val WhiteToLightGray = listOf(White, GrayLight)
 
-// new oldie
-val SelectedSegmentColor = Color(0xff29cb6b)
-val lightBlue = Color(0xFF95D7F1)
-val lightRed = Color(0xFFF38484)
-val GrayDark = Color(0xFF383838)
-val GrayLight = Color(0xff868686)
-val white_60 = Color(0x99ffffff)
-val lightGray = Color(0xFFD9D9D9)
-val White = Color(0xfff1f1f1)
-val Black = Color(0xff000000)
+

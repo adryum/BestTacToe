@@ -46,9 +46,9 @@ fun Views.showTopBar(): Boolean = when (this) {
     Views.JoinLobbyView,
     Views.MultiplayerView,
     Views.SettingsView,
-    Views.GameView,
     Views.HistoryView -> true
 
+    Views.GameView,
     Views.MainView, -> false
 }
 

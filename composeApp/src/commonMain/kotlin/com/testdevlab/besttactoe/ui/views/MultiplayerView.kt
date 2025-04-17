@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import com.testdevlab.besttactoe.core.repositories.GameHandler
 import com.testdevlab.besttactoe.core.repositories.GameMode
+import com.testdevlab.besttactoe.ui.PopUpModel
 import com.testdevlab.besttactoe.ui.components.Button
 import com.testdevlab.besttactoe.ui.components.ButtonType
 import com.testdevlab.besttactoe.ui.components.MultipleStepDecorationsWithDarkContentAndColumn
@@ -28,48 +29,41 @@ fun MultiplayerView(
     MultiplayerViewContent(
         isThereSavedGameFor = gameHandler::isThereASavedGame,
         loadGame = gameHandler::loadGame,
-        startGame = gameHandler::startGame,
+        onGameStart = gameHandler::startLocalGame,
         isShown = isShown,
+        showPupUp = navigationObject::showPopUp,
         goToDelayed = navigationObject::delayedGoTo
     )
 }
 
 @Composable
 fun MultiplayerViewContent(
-    startGame: (GameMode) -> Unit,
+    onGameStart: (GameMode) -> Unit,
     isThereSavedGameFor: (GameMode) -> Boolean,
     isShown: Boolean,
+    showPupUp: (PopUpModel) -> Unit,
     loadGame: (GameMode) -> Unit,
     goToDelayed: (Views, Long, () -> Unit) -> Unit
 ) {
-
-//    TwoChoicePopUp(
-//        isShown = isStartGameClicked,
-//        title = "Start new game?",
-//        description = "Previous save will be erased!",
-//        leftButtonText = "New game",
-//        rightButtonText = "Load game",
-//        colors = DarkOrangeOrangeList,
-//        onCancelClick = {
-//            isStartGameClicked = false
-//        },
-//        onLeftChoiceClick = {
-//            goToWrapped(
-//                view = Views.GameView,
-//                additionalAction = { startGame(GameMode.HotSeat)}
-//            )
-//            isStartGameClicked = false
-//        },
-//        onRightChoiceClick = {
-//            goToWrapped(
-//                view = Views.GameView,
-//                additionalAction = {  loadGame(GameMode.HotSeat) }
-//            )
-//            isStartGameClicked = false
-//        }
-//    )
-
     val loadOutDelay = 600L
+    val popUpContent = PopUpModel(
+        title = "Start new game?",
+        description = "Previous save will be erased!",
+        buttonOneText = "New game",
+        onActionOne = {
+            goToDelayed(
+                Views.GameView,
+                loadOutDelay
+            ) { onGameStart(GameMode.HotSeat) }
+        },
+        buttonTwoText = "Load game",
+        onActionTwo = {
+            goToDelayed(
+                Views.GameView,
+                loadOutDelay
+            ) { loadGame(GameMode.HotSeat) }
+        }
+    )
 
     MultipleStepDecorationsWithDarkContentAndColumn(2) {
         Button(
@@ -103,9 +97,9 @@ fun MultiplayerViewContent(
             buttonType = ButtonType.LeftSide,
             onClick = {
                 if (isThereSavedGameFor(GameMode.HotSeat)) {
-//                    isStartGameClicked = true
+                    showPupUp(popUpContent)
                 } else {
-                    goToDelayed(Views.GameView, loadOutDelay) { startGame(GameMode.HotSeat)}
+                    goToDelayed(Views.GameView, loadOutDelay) { onGameStart(GameMode.HotSeat)}
                 }
             }
         )
@@ -116,10 +110,11 @@ fun MultiplayerViewContent(
 @Composable
 private fun MultiplayerViewPreview() {
     MultiplayerViewContent(
-        startGame = {},
+        onGameStart = {},
         isThereSavedGameFor = { _ -> false },
         loadGame = {},
         isShown = false,
-        goToDelayed = {_,_,_ -> }
+        goToDelayed = {_,_,_ -> },
+        showPupUp = {}
     )
 }

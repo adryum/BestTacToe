@@ -1,9 +1,14 @@
 package com.testdevlab.besttactoe.core.cache
 
+import androidx.compose.ui.graphics.toArgb
 import com.russhwolf.settings.Settings
+import com.testdevlab.besttactoe.core.cache.models.ChosenIconDBModel
 import com.testdevlab.besttactoe.core.cache.models.GameResultDBModel
 import com.testdevlab.besttactoe.core.cache.models.HistoryDBModel
 import com.testdevlab.besttactoe.core.repositories.GameMode
+import com.testdevlab.besttactoe.ui.theme.Blue
+import com.testdevlab.besttactoe.ui.theme.Icon
+import com.testdevlab.besttactoe.ui.theme.Red
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -20,7 +25,16 @@ object Preferences {
         private set
 
     init {
-        if (playerName.isNullOrEmpty()) playerName = "Guest123"
+        // if null then...
+//        if (playerName.isNullOrEmpty())
+            playerName = "RiepuZaglis32"
+        if (chosenIcons.isNullOrEmpty())
+            chosenIcons = ChosenIconDBModel(
+                opponentIcon = Icon.Circle,
+                opponentTint = Red.toArgb(),
+                playerIcon = Icon.Cross,
+                playerTint = Blue.toArgb()
+            ).toJson()
     }
 
     /**(Example) var playerName by stringPreference()

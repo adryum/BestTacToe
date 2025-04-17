@@ -1,29 +1,18 @@
 package com.testdevlab.besttactoe.core.repositories
 
-import com.testdevlab.besttactoe.core.cache.Preferences
 import com.testdevlab.besttactoe.core.cache.toJson
+import com.testdevlab.besttactoe.core.networking.RequestCode
 import com.testdevlab.besttactoe.core.networking.RequestEndRound
 import com.testdevlab.besttactoe.core.networking.RequestJoin
 import com.testdevlab.besttactoe.core.networking.RequestMakeMove
-import com.testdevlab.besttactoe.core.networking.RequestString
+import com.testdevlab.besttactoe.core.networking.RequestName
 import com.testdevlab.besttactoe.core.networking.SocketClient
 import com.testdevlab.besttactoe.core.networking.SocketRequest
 
 object MultiplayerHandler {
-    fun CreateLobby() {
-        SendCreateGame(name = Preferences.playerName ?: "RobloxBlaster22")
-    }
-
-    fun JoinLobby(code: String) {
-        SendGameJoin(
-            code = code,
-            name = Preferences.playerName ?: "RobloxBlaster22"
-        )
-    }
-
-    fun SendCreateGame(name: String) {
+    fun sendCreateGame(name: String) {
         val content = SocketRequest.GameCreated(
-            content = RequestString(name)
+            content = RequestName(name)
         )
 
         SocketClient.sendMessage(
@@ -32,7 +21,7 @@ object MultiplayerHandler {
         )
     }
 
-    fun SendGameJoin(code: String, name: String) {
+    fun sendGameJoin(code: String, name: String) {
         val content = SocketRequest.GameJoin(
             content = RequestJoin(
                 code = code,
@@ -46,9 +35,9 @@ object MultiplayerHandler {
         )
     }
 
-    fun SendGameLeave(code: String) {
+    fun sendGameLeave(code: String) {
         val request = SocketRequest.GameLeave(
-            content = RequestString(argString = code)
+            content = RequestCode(code = code)
         )
 
         SocketClient.sendMessage(
@@ -57,9 +46,9 @@ object MultiplayerHandler {
         )
     }
 
-    fun SendRematch(code: String) {
+    fun sendRematch(code: String) {
         val request = SocketRequest.GameRematch(
-            content = RequestString(argString = code)
+            content = RequestCode(code = code)
         )
 
         SocketClient.sendMessage(
@@ -68,7 +57,7 @@ object MultiplayerHandler {
         )
     }
 
-    fun SendRoundEnd(code: String, id: Int) {
+    fun sendRoundEnd(code: String, id: Int) {
         val request = SocketRequest.RoundEnd(
             content = RequestEndRound(
                 id = id,
@@ -82,7 +71,7 @@ object MultiplayerHandler {
         )
     }
 
-    fun SendMakeMove(code: String, id: Int, segment: Int, piece: Int) {
+    fun sendMakeMove(code: String, id: Int, segment: Int, piece: Int) {
         val request = SocketRequest.MoveMake(
             content = RequestMakeMove(
                 id = id,

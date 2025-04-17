@@ -7,5 +7,6 @@ enum class SocketResponse(val response: String) {
     GAME_TURN("game_turn"),
     ROUND_ENDED("round_ended"),
     MOVE_MADE("move_made"),
+    REMATCH("game_rematch"),
     ERROR("error")
 }

@@ -64,12 +64,10 @@ data object NavigationObject {
         if (!_isViewLoadingIn.value) return
 
         launchDefault {
-            println("Loading...")
             _isViewLoadingIn.update { false }
             delay(duration)
             goBack()
             _isViewLoadingIn.update { true }
-            println("Done!")
         }
     }
 

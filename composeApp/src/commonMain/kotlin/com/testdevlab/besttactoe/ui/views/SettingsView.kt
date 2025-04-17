@@ -33,7 +33,7 @@ fun SettingsView(
 ) {
     SettingsViewContent(
         onGoClick = navigationHandler::goTo,
-        onPlayClick = gameHandler::startGame
+        onPlayClick = gameHandler::startLocalGame
     )
 }
 

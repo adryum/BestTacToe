@@ -3,16 +3,16 @@ package com.testdevlab.besttactoe.core.networking
 import kotlinx.serialization.Serializable
 
 sealed class SocketRequest {
-    data class GameCreated(val content: RequestString) : SocketRequest() {
+    data class GameCreated(val content: RequestName) : SocketRequest() {
         val request = RequestType.GAME_CREATE
     }
     data class GameJoin(val content: RequestJoin) : SocketRequest() {
         val request = RequestType.GAME_JOIN
     }
-    data class GameLeave(val content: RequestString) : SocketRequest() {
+    data class GameLeave(val content: RequestCode) : SocketRequest() {
         val request = RequestType.GAME_LEAVE
     }
-    data class GameRematch(val content: RequestString) : SocketRequest() {
+    data class GameRematch(val content: RequestCode) : SocketRequest() {
         val request = RequestType.GAME_REMATCH
     }
     data class RoundEnd(val content: RequestEndRound) : SocketRequest() {
@@ -33,7 +33,10 @@ enum class RequestType(val request: String) {
 }
 
 @Serializable
-data class RequestString(val argString: String)
+data class RequestCode(val code: String)
+
+@Serializable
+data class RequestName(val name: String)
 
 @Serializable
 data class RequestMakeMove(

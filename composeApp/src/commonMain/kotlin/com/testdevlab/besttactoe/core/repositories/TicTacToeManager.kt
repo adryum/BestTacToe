@@ -49,7 +49,7 @@ object TicTacToeManager {
                 Segment.None -> null
             }
 
-            GameHandler.endMatch(gameResult = gameResult!!)
+            GameHandler.endRound(gameResult = gameResult!!)
         } else {
             modifiedTable = activateNextSegments(table = modifiedTable, moveModel = moveModel)
             GameHandler.switchTurns()

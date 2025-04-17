@@ -28,13 +28,12 @@ fun MainView(
     val isLoadingView by navigationObject.isViewLoadingIn.collectAsState()
     
     MainViewContent(
-        onGameStart = gameHandler::startGame,
+        onGameStart = gameHandler::startLocalGame,
         goToDelayed = navigationObject::delayedGoTo,
         isLoadingView = isLoadingView,
         isThereSavedGameFor = gameHandler::isThereASavedGame,
         loadGame = gameHandler::loadGame,
         showPopUp = navigationObject::showPopUp,
-        hidePopUp = navigationObject::hidePopUp
     )
 }
 
@@ -45,7 +44,6 @@ fun MainViewContent(
     isLoadingView: Boolean,
     loadGame: (GameMode) -> Unit,
     showPopUp: (PopUpModel) -> Unit,
-    hidePopUp: () -> Unit,
     goToDelayed: (Views, Long, () -> Unit) -> Unit
 ) {
     val loadOutDelay = 500L
@@ -65,13 +63,14 @@ fun MainViewContent(
                 Views.GameView,
                 loadOutDelay
             ) { loadGame(GameMode.VS_AI) }
-        },
-        onCancel = hidePopUp
+        }
     )
 
     MultipleStepDecorationsWithDarkContentAndColumn(2) {
         Button(
-            containerModifier = Modifier.fillMaxWidth(.7f).slideInOutLeft(duration = 300, isShown = isLoadingView),
+            containerModifier = Modifier
+                .fillMaxWidth(.7f)
+                .slideInOutLeft(duration = 300, isShown = isLoadingView),
             text = "VS AI",
             colorGradient = DarkOrangeOrangeList,
             buttonType = ButtonType.LeftSide,
@@ -87,7 +86,9 @@ fun MainViewContent(
             }
         )
         Button(
-            containerModifier = Modifier.fillMaxWidth(.7f).slideInOutLeft(duration = 400, isShown = isLoadingView),
+            containerModifier = Modifier
+                .fillMaxWidth(.7f)
+                .slideInOutLeft(duration = 400, isShown = isLoadingView),
             text = "Multiplayer",
             colorGradient = DarkGreenGreenList,
             buttonType = ButtonType.LeftSide,
@@ -96,7 +97,9 @@ fun MainViewContent(
             }
         )
         Button(
-            containerModifier = Modifier.fillMaxWidth(.7f).slideInOutLeft(duration = 500, isShown = isLoadingView),
+            containerModifier = Modifier
+                .fillMaxWidth(.7f)
+                .slideInOutLeft(duration = 500, isShown = isLoadingView),
             text = "Game history",
             colorGradient = OrangeYellowList,
             buttonType = ButtonType.LeftSide,
@@ -105,7 +108,9 @@ fun MainViewContent(
             }
         )
         Button(
-            containerModifier = Modifier.fillMaxWidth(.7f).slideInOutLeft(duration = 500, isShown = isLoadingView),
+            containerModifier = Modifier
+                .fillMaxWidth(.7f)
+                .slideInOutLeft(duration = 500, isShown = isLoadingView),
             text = "Settings",
             colorGradient = YellowList,
             buttonType = ButtonType.LeftSide,
@@ -126,6 +131,5 @@ private fun MainViewPreview() {
         onGameStart = {},
         isLoadingView = false,
         showPopUp = { },
-        hidePopUp = {},
     )
 }

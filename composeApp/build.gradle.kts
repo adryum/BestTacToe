@@ -19,11 +19,15 @@ fun getVersionCode(): Int {
     return code.toIntOrNull() ?: 0
 }
 
+val appBuildFlavor = System.getenv("BUILD_FLAVOR")?.takeIf { it.isNotBlank() } ?: "x"
+val appVersion = "1.0.${getVersionCode()}-$appBuildFlavor"
+
 buildkonfig {
     packageName = "com.testdevlab.besttactoe"
 
     defaultConfigs {
-        buildConfigField(STRING, "version", "1.0.${getVersionCode()}")
+        buildConfigField(STRING, "version", appVersion)
+        buildConfigField(STRING, "flavor", appBuildFlavor)
         buildConfigField(STRING, "SOCKET_URL", "http://kokamocis.lv:404")
     }
 }
@@ -107,6 +111,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.ui.text.google.fonts)
     implementation(libs.androidx.runtime.android)
+    implementation(libs.androidx.ui.graphics.android)
     debugImplementation(compose.uiTooling)
     implementation(libs.coil.compose)
 
@@ -119,7 +124,22 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "com.testdevlab.besttactoe"
-            packageVersion = "1.0.0"
+            packageVersion = appVersion
+
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            includeAllModules = true
+            vendor = "TDL"
+            description = "Best Tic Tac Toe"
+            copyright = "© 2025 Adryum. All rights reserved."
+            outputBaseDir.set(project.layout.buildDirectory.dir("release"))
+
+            windows {
+                dirChooser = true
+                installationPath = "C:\\Program Files\\BestTacToe"
+                upgradeUuid = "c8b9b4ef-02ea-4e0c-b4a2-0d6ebea83c69"
+                shortcut = true
+                iconFile.set(project.file("./src/commonMain/composeResources/files/app_icon.ico"))
+            }
         }
     }
 }

@@ -31,6 +31,7 @@ val textLarge = text.copy(fontSize = 32.sp, letterSpacing = .1.sp, color = White
 val textMedium = text.copy(fontSize = 24.sp, letterSpacing = .1.sp, color = White, lineHeight = 32.sp)
 val textSmall = text.copy(fontSize = 16.sp, fontWeight = FontWeight(100), letterSpacing = .1.sp)
 
+val textCode = textLarge.copy(fontSize = 48.sp, color = Black )
 val textTitle = text.copy(
     fontSize = 72.sp,
     letterSpacing = .1.sp,
