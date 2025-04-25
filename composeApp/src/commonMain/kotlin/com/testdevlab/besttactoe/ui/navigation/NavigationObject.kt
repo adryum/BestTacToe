@@ -2,6 +2,7 @@ package com.testdevlab.besttactoe.ui.navigation
 
 import com.testdevlab.besttactoe.core.common.launchDefault
 import com.testdevlab.besttactoe.ui.PopUpModel
+import com.testdevlab.besttactoe.ui.theme.log
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,6 +16,8 @@ data object NavigationObject {
     private val _isViewLoadingIn = MutableStateFlow(true)
     private val _isPopUpShown = MutableStateFlow(false)
     private val _popUpContent = MutableStateFlow<PopUpModel?>(null)
+    private val _isLoadingShown = MutableStateFlow(false)
+    val isLoadingShown = _isLoadingShown.asStateFlow()
     val popUpContent = _popUpContent.asStateFlow()
     val isPopUpShown = _isPopUpShown.asStateFlow()
     val isViewLoadingIn = _isViewLoadingIn.asStateFlow()
@@ -28,7 +31,9 @@ data object NavigationObject {
     }
 
     fun goBack() {
-        _path.removeLast()
+        log("goBack")
+
+        _path.removeAt(_path.size - 1)
         updateCurrentView()
     }
 
@@ -39,8 +44,10 @@ data object NavigationObject {
     fun goBackTill(view: Views): Boolean {
         if (!_path.contains(view)) return false
 
+        log("goBackTill: $view")
+
         while (_path.last() != view) {
-            _path.removeLast()
+            _path.removeAt(_path.size - 1)
         }
 
         updateCurrentView()
@@ -50,6 +57,7 @@ data object NavigationObject {
 
     fun delayedGoTo(view: Views, duration: Long = 500, afterDelayAction: () -> Unit = {}) {
         if (!_isViewLoadingIn.value) return
+        log("delayed goTo")
 
         launchDefault {
             _isViewLoadingIn.update { false }
@@ -62,6 +70,7 @@ data object NavigationObject {
 
     fun delayedGoBack(duration: Long = 500) {
         if (!_isViewLoadingIn.value) return
+        log("delayed goBack")
 
         launchDefault {
             _isViewLoadingIn.update { false }
@@ -71,13 +80,15 @@ data object NavigationObject {
         }
     }
 
+    fun setLoading(isLoading: Boolean) { _isLoadingShown.update { isLoading } }
+
     fun showPopUp(content: PopUpModel) {
         _isPopUpShown.update { true }
         _popUpContent.update { content }
     }
 
     fun hidePopUp() {
-        _isPopUpShown.update { false }
+        _isPopUpShown.update {   false }
         _popUpContent.update { null }
     }
 }
@@ -89,5 +100,7 @@ enum class Views {
     JoinLobbyView,
     CreateLobbyView,
     SettingsView,
-    HistoryView
+    HistoryView,
+    CodeView,
+    Customization
 }

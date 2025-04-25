@@ -40,17 +40,18 @@ import com.testdevlab.besttactoe.ui.theme.color
 import com.testdevlab.besttactoe.ui.theme.getLatinFontFamily
 import com.testdevlab.besttactoe.ui.theme.getSportFontFamily
 import com.testdevlab.besttactoe.ui.theme.icon
-import com.testdevlab.besttactoe.ui.theme.isLoss
-import com.testdevlab.besttactoe.ui.theme.isVictory
 import com.testdevlab.besttactoe.ui.theme.ldp
 import com.testdevlab.besttactoe.ui.theme.textLarge
 import com.testdevlab.besttactoe.ui.theme.textMedium
+import com.testdevlab.besttactoe.ui.theme.toResultTypeCountModel
 
 @Composable
 fun HistoryCard(
     modifier: Modifier = Modifier,
     buttonModifier: Modifier = Modifier,
     gameMode: GameMode,
+    playerName: String,
+    opponentName: String,
     gameResults: List<GameResult>,
     colorGradient: List<Color>,
 ) {
@@ -76,12 +77,8 @@ fun HistoryCard(
                 .background(Brush.linearGradient(colorGradient))
                 .onSizeChanged { buttonHeight = it.height },
         ) {
-            Column(
-                modifier = Modifier.padding(16.ldp)
-            ) {
-                Row(
-                    modifier = Modifier.weight(1f)
-                ) {
+            Column(modifier = Modifier.padding(16.ldp)) {
+                Row(modifier = Modifier.weight(1f)) {
                     Text(
                         color = when (gameMode) {
                             GameMode.VS_AI -> Blue
@@ -91,58 +88,22 @@ fun HistoryCard(
                             GameMode.None -> Black
                         },
                         modifier = Modifier.fillMaxWidth(.2f),
-                        text = when (gameMode) {
-                            GameMode.VS_AI -> "VS AI"
-                            GameMode.HotSeat -> "Hot-Seat"
-                            GameMode.Multiplayer -> "Multiplayer"
-                            GameMode.RoboRumble -> "RoboRumble"
-                            GameMode.None -> "NONE"
-                        },
+                        text = gameMode.name,
                         style = textLarge,
                         fontFamily = getSportFontFamily()
                     )
-                    TurnAmountShower(
+                    TurnCountShower(
                         modifier = Modifier.padding(8.ldp),
                         results = gameResults
                     )
                 }
 
-                Row(
-                    modifier = Modifier
-                        .weight(2f)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth(.2f)
-                            .fillMaxHeight(),
-                        verticalArrangement = Arrangement.SpaceAround
-                    ) {
-                        // players
-                        SpacedBetweenTexts(
-                            modifier = Modifier.padding(end = 16.ldp),
-                            leftText = "Adrians",
-                            rightText = "${gameResults.count { gameResult ->
-                                gameResult.isVictory()
-                            }}",
-                            style = textMedium,
-                            fontFamily = getSportFontFamily()
-                        )
-                        Text(
-                            color = Red,
-                            text = "vs",
-                            style = textMedium,
-                            fontFamily = getSportFontFamily()
-                        )
-                        SpacedBetweenTexts(
-                            modifier = Modifier.padding(end = 16.ldp),
-                            leftText = "Nauris",
-                            rightText = "${gameResults.count { gameResult ->
-                                gameResult.isLoss()
-                            }}",
-                            style = textMedium,
-                            fontFamily = getSportFontFamily()
-                        )
-                    }
+                Row(modifier = Modifier.weight(2f)) {
+                    ParticipantVSText(
+                        playerName = playerName,
+                        opponentName = opponentName,
+                        results = gameResults
+                    )
                     TurnResultGrid(
                         modifier = Modifier
                             .fillMaxSize()
@@ -159,7 +120,44 @@ fun HistoryCard(
 }
 
 @Composable
-fun TurnAmountShower(
+fun ParticipantVSText(
+    playerName: String,
+    opponentName: String,
+    results: List<GameResult>
+) {
+    val resultTypes = results.toResultTypeCountModel()
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(.2f)
+            .fillMaxHeight(),
+        verticalArrangement = Arrangement.SpaceAround
+    ) {
+        SpacedBetweenTexts(
+            modifier = Modifier.padding(end = 16.ldp),
+            leftText = playerName,
+            rightText = "${resultTypes.wins}",
+            style = textMedium,
+            fontFamily = getSportFontFamily()
+        )
+        Text(
+            color = Red,
+            text = "vs",
+            style = textMedium,
+            fontFamily = getSportFontFamily()
+        )
+        SpacedBetweenTexts(
+            modifier = Modifier.padding(end = 16.ldp),
+            leftText = opponentName,
+            rightText = "${resultTypes.losses}",
+            style = textMedium,
+            fontFamily = getSportFontFamily()
+        )
+    }
+}
+
+@Composable
+fun TurnCountShower(
     modifier: Modifier = Modifier,
     results: List<GameResult>
 ) {

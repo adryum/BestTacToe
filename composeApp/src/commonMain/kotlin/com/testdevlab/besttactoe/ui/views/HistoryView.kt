@@ -63,6 +63,8 @@ fun HistoryViewContent(
             items(items = gameResults) { result ->
                 HistoryCard(
                     modifier = Modifier.slideInFromLeft(600),
+                    opponentName = result.opponentName,
+                    playerName = result.playerName,
                     gameMode = result.gameMode,
                     gameResults = result.matches,
                     colorGradient = OrangeList

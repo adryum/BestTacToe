@@ -1,6 +1,5 @@
 package com.testdevlab.besttactoe.ui.views
 
-import androidx.compose.animation.core.Spring
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,28 +11,24 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.zIndex
 import com.testdevlab.besttactoe.core.repositories.GameHandler
 import com.testdevlab.besttactoe.core.repositories.GameMode
+import com.testdevlab.besttactoe.core.utils.isAndroid
 import com.testdevlab.besttactoe.ui.GameResult
-import com.testdevlab.besttactoe.ui.GameResultModel
 import com.testdevlab.besttactoe.ui.IconUIModel
 import com.testdevlab.besttactoe.ui.MoveModel
 import com.testdevlab.besttactoe.ui.ParticipantUIModel
 import com.testdevlab.besttactoe.ui.SegmentUIModel
 import com.testdevlab.besttactoe.ui.TableOuterPadding
-import com.testdevlab.besttactoe.ui.components.DarkBackground
+import com.testdevlab.besttactoe.ui.components.AccessibilityRow
 import com.testdevlab.besttactoe.ui.components.GamesTopBar
+import com.testdevlab.besttactoe.ui.components.GamesTopBarPhone
 import com.testdevlab.besttactoe.ui.components.MultipleStepDecorations
 import com.testdevlab.besttactoe.ui.components.TicTacToeTable
-import com.testdevlab.besttactoe.ui.components.VSScreen
-import com.testdevlab.besttactoe.ui.components.VictoryPopUp
 import com.testdevlab.besttactoe.ui.navigation.NavigationObject
 import com.testdevlab.besttactoe.ui.navigation.Views
 import com.testdevlab.besttactoe.ui.theme.ldp
 import com.testdevlab.besttactoe.ui.theme.log
-import com.testdevlab.besttactoe.ui.theme.popped
 import de.drick.compose.hotpreview.HotPreview
 import kotlinx.coroutines.delay
 
@@ -49,10 +44,9 @@ fun GameView(
     val gameMode by gameHandler.gameMode.collectAsState()
     val code by gameHandler.code.collectAsState()
     val hasGameEnded by gameHandler.hasGameEnded.collectAsState()
-    val gameResult by gameHandler.gameResult.collectAsState()
     val isPlayerTurn by gameHandler.isPlayerTurn.collectAsState()
-    val isGamesStart by gameHandler.isGamesStart.collectAsState()
     val roundResults by gameHandler.roundResults.collectAsState()
+    val roundCount by gameHandler.roundCount.collectAsState()
 
     log("isplayer turn : $isPlayerTurn")
 
@@ -60,24 +54,15 @@ fun GameView(
         LaunchedEffect(isRoundTimeout) {
             if (!isRoundTimeout) return@LaunchedEffect
 
-            delay(2000)
+            gameHandler.setAnimation(true)
+            delay(1800)
+            gameHandler.setAnimation(false)
+            delay(200)
             gameHandler.proceedToTheNextRound()
         }
 
-    if (isGamesStart && isRoundTimeout) {
-        DarkBackground(modifier = Modifier.fillMaxSize()) {
-            VSScreen(modifier = Modifier
-                .scale(5f)
-                .popped(
-                    damping = Spring.DampingRatioHighBouncy
-                )
-            )
-        }
-
-        return
-    }
-
     GameViewContent(
+        roundCount = roundCount,
         boardData = boardData,
         playerData = playerData,
         opponentData = opponentData,
@@ -86,19 +71,17 @@ fun GameView(
         gameMode = gameMode,
         roundResults = roundResults,
         code = code,
-        gameResult = gameResult,
-        onGoBack = navigationObject::goBack,
+        goBack = navigationObject::goBack,
+        goBackTill = navigationObject::goBackTill,
         handleGoBack = gameHandler::handleGoingBack,
-        exitGame = gameHandler::saveAndClearGame,
-        onRematchClick = gameHandler::rematch,
         onPieceClick = gameHandler::makeAMove
     )
 }
 
 @Composable
 fun GameViewContent(
+    roundCount: Int,
     boardData: List<SegmentUIModel>,
-    gameResult: GameResultModel?,
     playerData: ParticipantUIModel?,
     opponentData: ParticipantUIModel?,
     roundResults: List<GameResult>,
@@ -106,40 +89,60 @@ fun GameViewContent(
     isPlayerTurn: Boolean,
     gameMode: GameMode?,
     code: String?,
-    onGoBack: () -> Unit,
+    goBack: () -> Unit,
+    goBackTill: (Views) -> Unit,
     handleGoBack: (Views) -> Unit,
-    onRematchClick: () -> Unit,
-    exitGame: () -> Unit,
     onPieceClick: (MoveModel) -> Unit
 ) {
     if (playerData == null || opponentData == null) return  // 1000% fool-proof null data solution
 
+    fun goBackWrapper() {
+        // local -> go back
+        // multi -> To multi view
+        if (gameMode == GameMode.Multiplayer) {
+            goBackTill(Views.MultiplayerView)
+        } else {
+            goBack()
+        }
+        handleGoBack(Views.GameView)
+    }
+
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.spacedBy(8.ldp, Alignment.CenterVertically)
     ) {
-        GamesTopBar(
-            playerName = playerData.name,
-            playerIconData = IconUIModel(res = playerData.icon, tint = playerData.tint),
-            opponentIconData = IconUIModel(res = opponentData.icon, tint = opponentData.tint),
-            opponentName = opponentData.name,
-            code = code,
-            onGoBack = {
-                onGoBack()
-                handleGoBack(Views.GameView)
-            },
-            isPlayerTurn = isPlayerTurn,
-            results = roundResults
-        )
+        if (isAndroid())
+            GamesTopBarPhone(
+                playerName = playerData.name,
+                playerIconData = IconUIModel(res = playerData.icon, tint = playerData.tint),
+                opponentIconData = IconUIModel(res = opponentData.icon, tint = opponentData.tint),
+                opponentName = opponentData.name,
+                isPlayerTurn = isPlayerTurn,
+                results = roundResults,
+                roundCount = roundCount
+            )
+        else
+            GamesTopBar(
+                playerName = playerData.name,
+                playerIconData = IconUIModel(res = playerData.icon, tint = playerData.tint),
+                opponentIconData = IconUIModel(res = opponentData.icon, tint = opponentData.tint),
+                opponentName = opponentData.name,
+                code = code,
+                onGoBack = {
+                    goBackWrapper()
+                },
+                isPlayerTurn = isPlayerTurn,
+                results = roundResults,
+                roundCount = roundCount
+            )
         MultipleStepDecorations(2)
         Box(
             modifier = Modifier.aspectRatio(1f)
         ) {
             TicTacToeTable(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .zIndex(1f),
+                    .fillMaxSize(),
                 segments = boardData,
                 padding = TableOuterPadding(
                     tablePadding = 2.ldp,
@@ -151,21 +154,19 @@ fun GameViewContent(
                 isPlayerTurn = isPlayerTurn,
                 playerIcon = playerData.icon,
                 enemyIcon = opponentData.icon,
+                playerTint = playerData.tint,
+                opponentTint = opponentData.tint,
                 gameMode = gameMode,
             )
-            if (gameResult != null)
-                VictoryPopUp(
-                    modifier = Modifier
-                        .zIndex(2f)
-                        .fillMaxSize(),
-                    gameResult = gameResult,
-                    onPlayAgainClick = onRematchClick,
-                    onGoBackClick = {
-                        onGoBack()
-                        exitGame()
-                    }
-                )
         }
+
+        if (isAndroid())
+            AccessibilityRow(
+                code = code,
+                onGoBack = {
+                    goBackWrapper()
+                },
+            )
     }
 }
 

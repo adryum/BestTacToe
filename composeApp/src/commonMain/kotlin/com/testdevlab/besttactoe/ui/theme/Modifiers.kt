@@ -1,6 +1,8 @@
 package com.testdevlab.besttactoe.ui.theme
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseInOutQuart
+import androidx.compose.animation.core.EaseOutBounce
 import androidx.compose.animation.core.EaseOutQuart
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.LinearEasing
@@ -23,10 +25,18 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.unit.Dp
 import kotlinx.coroutines.delay
 
-fun Modifier.popped(
+fun Modifier.ifThen(bool: Boolean, modifier: Modifier.() -> Modifier): Modifier {
+    // Modifier.() allows to do the same stuff as .apply{}
+    // this.modifier() - appends provided modifiers to extended modifier
+    return if (bool) this.modifier() else this
+}
+
+fun Modifier.popIn(
     delay: Long = 200,
+    fadeInDuration: Int = 200,
     stiffness: Float = Spring.StiffnessLow,
     damping: Float = Spring.DampingRatioMediumBouncy
 ): Modifier = composed {
@@ -44,7 +54,49 @@ fun Modifier.popped(
         isReady = true
     }
 
-    scale(animatedScale).fadeIn(duration = delay.toInt())
+    fadeIn(duration = fadeInDuration).scale(animatedScale)
+}
+
+fun Modifier.popOut(
+    delay: Long = 200,
+    fadeOutDuration: Int = 200,
+    stiffness: Float = Spring.StiffnessLow,
+    damping: Float = Spring.DampingRatioMediumBouncy
+): Modifier = composed {
+    var isReady by remember { mutableStateOf(false) }
+    val animatedScale by animateFloatAsState(
+        targetValue = if (isReady) 0f else 1f,
+        animationSpec = spring(
+            dampingRatio = damping,
+            stiffness = stiffness
+        )
+    )
+
+    LaunchedEffect(Unit) {
+        delay(delay)
+        isReady = true
+    }
+
+    fadeOut(duration = fadeOutDuration).scale(animatedScale)
+}
+
+fun Modifier.popInOut(
+    delay: Long = 0,
+    isShown: Boolean,
+    fadeDuration: Int = 200,
+    delayOnPopOut: Boolean = false
+): Modifier = composed {
+    if (isShown) {
+        popIn(
+            fadeInDuration = fadeDuration,
+            delay = delay
+        )
+    } else {
+        popOut(
+            fadeOutDuration = fadeDuration,
+            delay = if (delayOnPopOut) delay else 0
+        )
+    }
 }
 
 fun Modifier.scale(
@@ -94,11 +146,12 @@ fun Modifier.fadeIn(
 
 fun Modifier.fadeOut(
     duration: Int,
+    to: Float = 0f,
     easing: Easing = LinearEasing
 ): Modifier = composed {
     var isShown by remember { mutableStateOf(true) }
     val alpha by animateFloatAsState(
-        targetValue = if (isShown) 1f else 0f,
+        targetValue = if (isShown) 1f else to,
         animationSpec = tween(
             durationMillis = duration,
             easing = easing,
@@ -132,11 +185,9 @@ fun Modifier.slideInFromLeft(
             width = it.size.width.toFloat()
             isShown = true
         }
-    }.then(
-        Modifier.graphicsLayer {
-            translationX = if (width != null) -width!! * offsetPart else -9999999f
-        }
-    )
+    }.then(graphicsLayer {
+        translationX = if (width != null) -width!! * offsetPart else -9999999f
+    })
 }
 
 fun Modifier.slideOutToLeft(
@@ -158,11 +209,9 @@ fun Modifier.slideOutToLeft(
             width = it.size.width.toFloat()
             isShown = false
         }
-    }.then(
-        Modifier.graphicsLayer {
-            translationX = if (width != null) -width!! * offsetPart else 0f
-        }
-    )
+    }.then(graphicsLayer {
+        translationX = if (width != null) -width!! * offsetPart else 0f
+    })
 }
 
 fun Modifier.slideInOutLeft(
@@ -207,7 +256,7 @@ fun Modifier.idleRotateClamped(
         )
     )
 
-    Modifier.graphicsLayer {
+    graphicsLayer {
         when (axis) {
             RotationAxis.Z -> rotationZ = angle
             RotationAxis.X -> rotationX = angle
@@ -217,7 +266,7 @@ fun Modifier.idleRotateClamped(
 }
 
 fun Modifier.idleBreathing(
-    fromScale: Float,
+    fromScale: Float = 1f,
     toScale: Float,
     breatheInTime: Int,
     easing: Easing = EaseInOutQuart,
@@ -262,7 +311,7 @@ fun Modifier.idleRotate(
         )
     )
 
-    Modifier.graphicsLayer {
+    graphicsLayer {
         when (axis) {
             RotationAxis.Z -> rotationZ = 360 * angleProgress
             RotationAxis.X -> rotationX = 360 * angleProgress
@@ -291,11 +340,9 @@ fun Modifier.slideInFromRight(
             width = it.size.width.toFloat()
             isShown = true
         }
-    }.then(
-        Modifier.graphicsLayer {
-            translationX = if (width != null) width!! * offsetPart else 9999999f
-        }
-    )
+    }.then(graphicsLayer {
+        translationX = if (width != null) width!! * offsetPart else 9999999f
+    })
 }
 
 fun Modifier.slideOutToRight(
@@ -317,11 +364,9 @@ fun Modifier.slideOutToRight(
             width = it.size.width.toFloat()
             isShown = false
         }
-    }.then(
-        Modifier.graphicsLayer {
-            translationX = if (width != null) width!! * offsetPart else 0f
-        }
-    )
+    }.then(graphicsLayer {
+        translationX = if (width != null) width!! * offsetPart else 0f
+    })
 }
 
 fun Modifier.slideInOutRight(
@@ -355,5 +400,27 @@ fun Modifier.slideLeftToRight(
         slideOutToRight(
             duration = if (copyDurations) duration else outDuration,
         )
+    }
+}
+
+fun Modifier.fallDown(
+    duration: Int,
+    distanceToFallFrom: Dp,
+    easing: Easing = EaseOutBounce
+): Modifier = composed {
+    val offset = remember { Animatable(1f) }
+
+    LaunchedEffect(Unit) {
+        offset.animateTo(
+            targetValue = 0f,
+            animationSpec = tween(
+                durationMillis = duration,
+                easing = easing,
+            )
+        )
+    }
+
+    graphicsLayer {
+        translationY = -distanceToFallFrom.toPx() * offset.value
     }
 }

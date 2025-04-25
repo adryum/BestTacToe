@@ -1,78 +1,23 @@
 package com.testdevlab.besttactoe.ui.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.zIndex
-import com.testdevlab.besttactoe.core.cache.Preferences
-import com.testdevlab.besttactoe.core.cache.models.ChosenIconDBModel
-import com.testdevlab.besttactoe.core.cache.toObject
-import com.testdevlab.besttactoe.ui.theme.GrayDark
-import com.testdevlab.besttactoe.ui.theme.buttonStyle
 import com.testdevlab.besttactoe.ui.theme.getSportFontFamily
 import com.testdevlab.besttactoe.ui.theme.gradientBackground
-import com.testdevlab.besttactoe.ui.theme.idleRotate
 import com.testdevlab.besttactoe.ui.theme.ldp
-import com.testdevlab.besttactoe.ui.theme.scale
 import com.testdevlab.besttactoe.ui.theme.textLarge
 import com.testdevlab.besttactoe.ui.theme.textTitle
-import com.testdevlab.besttactoe.ui.theme.toColor
-import org.jetbrains.compose.resources.painterResource
-
-@Composable
-fun VSScreen(
-    modifier: Modifier = Modifier
-) {
-    val icons = Preferences
-        .chosenIcons
-        ?.toObject<ChosenIconDBModel>()!!
-
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Image(
-            modifier = Modifier
-                .size(48.ldp)
-                .idleRotate(oneCycleDurationMills = 5000)
-                .scale(from = .2f, to = 1.2f),
-            painter = painterResource(icons.playerIcon.resource),
-            contentDescription = null,
-            colorFilter = ColorFilter.tint(icons.playerTint.toColor())
-        )
-        Text(
-            modifier = Modifier.scale(1.5f).zIndex(1f),
-            text = "VS",
-            color = GrayDark,
-            style = textLarge,
-            fontFamily = getSportFontFamily()
-        )
-        Image(
-            modifier = Modifier
-                .size(48.ldp)
-                .idleRotate(oneCycleDurationMills = 5000, isClockwise = false)
-                .scale(from = .2f, to = 1.2f),
-            painter = painterResource(icons.opponentIcon.resource),
-            contentDescription = null,
-            colorFilter = ColorFilter.tint(icons.opponentTint.toColor())
-        )
-    }
-}
 
 @Composable
 fun ViewTitle(
@@ -138,7 +83,7 @@ fun CodeShower(
         ) {
             Text(
                 text = "Code:",
-                style = buttonStyle,
+                style = textLarge,
                 textAlign = TextAlign.Center
             )
             Box(
@@ -151,7 +96,7 @@ fun CodeShower(
             ) {
                 Text(
                     text = code,
-                    style = buttonStyle,
+                    style = textLarge,
                     textAlign = TextAlign.Center
                 )
             }

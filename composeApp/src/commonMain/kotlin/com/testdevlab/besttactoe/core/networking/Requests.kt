@@ -3,7 +3,7 @@ package com.testdevlab.besttactoe.core.networking
 import kotlinx.serialization.Serializable
 
 sealed class SocketRequest {
-    data class GameCreated(val content: RequestName) : SocketRequest() {
+    data class GameCreated(val content: RequestGameCreate) : SocketRequest() {
         val request = RequestType.GAME_CREATE
     }
     data class GameJoin(val content: RequestJoin) : SocketRequest() {
@@ -36,7 +36,10 @@ enum class RequestType(val request: String) {
 data class RequestCode(val code: String)
 
 @Serializable
-data class RequestName(val name: String)
+data class RequestGameCreate(
+    val name: String,
+    val firstTo: Int
+)
 
 @Serializable
 data class RequestMakeMove(

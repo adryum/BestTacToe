@@ -5,11 +5,12 @@ import androidx.compose.ui.unit.Dp
 import com.testdevlab.besttactoe.core.repositories.GameMode
 import org.jetbrains.compose.resources.DrawableResource
 
-data class ScoreModel(
-    val playerScore: Int,
-    val opponentScore: Int
+data class SquareSides(
+    val topLeft: Int = 0,
+    val topRight: Int = 0,
+    val bottomLeft: Int = 0,
+    val bottomRight: Int = 0
 )
-
 data class GameResultUIModel(
     val playerName: String,
     val opponentName: String,
@@ -76,6 +77,18 @@ data class PopUpModel(
 data class IconUIModel(
     val res: DrawableResource,
     val tint: Color,
+)
+
+data class ResultTypeCountModel(
+    val wins: Int,
+    val draws: Int,
+    val losses: Int
+)
+
+data class GameEndedAnimationModel(
+    val name: String,
+    val onRematch: () -> Unit,
+    val onLeave: () -> Unit
 )
 
 enum class Segment {

@@ -1,15 +1,18 @@
 package com.testdevlab.besttactoe.ui.theme
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import besttactoe.composeapp.generated.resources.Res
-import besttactoe.composeapp.generated.resources.ic_circle
+import besttactoe.composeapp.generated.resources.ic_circle_dashed
 import besttactoe.composeapp.generated.resources.ic_cross
 import besttactoe.composeapp.generated.resources.ic_robot
 import com.testdevlab.besttactoe.core.cache.models.GameResultDBModel
@@ -20,8 +23,11 @@ import com.testdevlab.besttactoe.ui.GameResult
 import com.testdevlab.besttactoe.ui.GameResultUIModel
 import com.testdevlab.besttactoe.ui.Piece
 import com.testdevlab.besttactoe.ui.PieceUIModel
+import com.testdevlab.besttactoe.ui.ResultTypeCountModel
 import com.testdevlab.besttactoe.ui.Segment
 import com.testdevlab.besttactoe.ui.SegmentUIModel
+import com.testdevlab.besttactoe.ui.SquareSides
+import com.testdevlab.besttactoe.ui.components.ButtonType
 import com.testdevlab.besttactoe.ui.navigation.Views
 import kotlin.math.PI
 import kotlin.math.cos
@@ -46,7 +52,9 @@ fun Views.showTopBar(): Boolean = when (this) {
     Views.JoinLobbyView,
     Views.MultiplayerView,
     Views.SettingsView,
-    Views.HistoryView -> true
+    Views.HistoryView,
+    Views.Customization,
+    Views.CodeView -> true
 
     Views.GameView,
     Views.MainView, -> false
@@ -55,6 +63,8 @@ fun Views.showTopBar(): Boolean = when (this) {
 fun Views.getViewTitle(): String = when (this) {
     Views.MainView -> "Best TacToe"
     Views.CreateLobbyView -> "Create room"
+    Views.CodeView -> ""
+    Views.Customization -> "Customize!"
     Views.GameView -> ""
     Views.JoinLobbyView -> "Join room"
     Views.MultiplayerView -> "Multiplayer"
@@ -122,12 +132,12 @@ fun GameResult.color() = when (this) {
 
 fun GameResult.icon() = when (this) {
     GameResult.Victory -> Res.drawable.ic_cross
-    GameResult.Loss -> Res.drawable.ic_circle
+    GameResult.Loss -> Res.drawable.ic_circle_dashed
     GameResult.Draw -> Res.drawable.ic_robot
 }
 
 fun GameResultDBModel.toGameResultUIModel() = GameResultUIModel(
-    playerName, opponentName, gameMode, matches
+    playerName, opponentName, gameMode, rounds
 )
 fun List<GameResultDBModel>.toGameResultUIModelList() = this.map { it.toGameResultUIModel() }
 
@@ -144,6 +154,10 @@ fun Segment.isNone() = this == Segment.None
 fun Piece.isPlayer() = this == Piece.Player
 fun Piece.isOpponent() = this == Piece.Opponent
 fun Piece.isEmpty() = this == Piece.Empty
+
+fun ButtonType.isLeft() = this == ButtonType.LeftSide
+fun ButtonType.isCenter() = this == ButtonType.Center
+fun ButtonType.isRight() = this == ButtonType.RightSide
 
 fun Int.toColor() = Color(this)
 
@@ -167,4 +181,41 @@ fun String.toColor(): Color {
     val blue = hex.substring(4, 6).toInt(16) / 255f
 
     return Color(red = red, green = green, blue = blue, alpha = 1f)
+}
+
+fun List<GameResult>.toResultTypeCountModel(): ResultTypeCountModel {
+    var wins = 0
+    var losses = 0
+    var draws = 0
+
+    for (round in this) {
+        if (round.isVictory()) wins++
+        else if (round.isLoss()) losses++
+        else draws++
+    }
+
+    return ResultTypeCountModel(
+        wins = wins,
+        losses = losses,
+        draws = draws
+    )
+}
+
+fun SquareSides.toRoundedCornerShape() = RoundedCornerShape(
+    topStartPercent = this.topLeft,
+    topEndPercent = this.topRight,
+    bottomEndPercent = this.bottomRight,
+    bottomStartPercent = this.bottomLeft
+)
+
+fun ButtonType.toAlignment() = when (this) {
+    ButtonType.LeftSide -> Alignment.CenterStart
+    ButtonType.Center -> Alignment.Center
+    ButtonType.RightSide -> Alignment.CenterEnd
+}
+
+fun ButtonType.toTextAlignment() = when (this) {
+    ButtonType.LeftSide -> TextAlign.Start
+    ButtonType.Center -> TextAlign.Center
+    ButtonType.RightSide -> TextAlign.End
 }

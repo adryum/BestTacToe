@@ -2,12 +2,13 @@ package com.testdevlab.besttactoe.core.cache
 
 import androidx.compose.ui.graphics.toArgb
 import com.russhwolf.settings.Settings
-import com.testdevlab.besttactoe.core.cache.models.ChosenIconDBModel
+import com.testdevlab.besttactoe.core.cache.models.ChosenVisualDBModel
 import com.testdevlab.besttactoe.core.cache.models.GameResultDBModel
 import com.testdevlab.besttactoe.core.cache.models.HistoryDBModel
 import com.testdevlab.besttactoe.core.repositories.GameMode
 import com.testdevlab.besttactoe.ui.theme.Blue
-import com.testdevlab.besttactoe.ui.theme.Icon
+import com.testdevlab.besttactoe.ui.theme.CircleType
+import com.testdevlab.besttactoe.ui.theme.CrossType
 import com.testdevlab.besttactoe.ui.theme.Red
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
@@ -18,23 +19,28 @@ object Preferences {
     // delegated (given) delegations (in this situation delegations are properties)
     // so when this property (var) is called it uses delegated functionality.
     var playerName by stringPreference()
-    var chosenIcons by stringPreference() // x or o  icons
+    var chosenVisuals by stringPreference() // x or o  icons
     var hotSeat by stringPreference()
     var vsAI by stringPreference()
     var history by stringPreference()
         private set
+    var isSoundEnabled by stringPreference()
+    var isAnimationEnabled by stringPreference()
+    var resolution by stringPreference()
 
     init {
-        // if null then...
-//        if (playerName.isNullOrEmpty())
-            playerName = "RiepuZaglis32"
-        if (chosenIcons.isNullOrEmpty())
-            chosenIcons = ChosenIconDBModel(
-                opponentIcon = Icon.Circle,
+//        chosenVisuals = null
+        if (chosenVisuals.isNullOrEmpty())
+            chosenVisuals = ChosenVisualDBModel(
+                opponentIcon = CircleType.Circle,
                 opponentTint = Red.toArgb(),
-                playerIcon = Icon.Cross,
+                playerIcon = CrossType.Cross,
                 playerTint = Blue.toArgb()
             ).toJson()
+
+//        history = null
+//        hotSeat = null
+//        vsAI = null
     }
 
     /**(Example) var playerName by stringPreference()

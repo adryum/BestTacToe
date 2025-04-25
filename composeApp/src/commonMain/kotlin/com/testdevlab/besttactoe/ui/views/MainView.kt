@@ -13,6 +13,7 @@ import com.testdevlab.besttactoe.ui.components.ButtonType
 import com.testdevlab.besttactoe.ui.components.MultipleStepDecorationsWithDarkContentAndColumn
 import com.testdevlab.besttactoe.ui.navigation.NavigationObject
 import com.testdevlab.besttactoe.ui.navigation.Views
+import com.testdevlab.besttactoe.ui.theme.DarkBlueBlueList
 import com.testdevlab.besttactoe.ui.theme.DarkGreenGreenList
 import com.testdevlab.besttactoe.ui.theme.DarkOrangeOrangeList
 import com.testdevlab.besttactoe.ui.theme.OrangeYellowList
@@ -68,7 +69,7 @@ fun MainViewContent(
 
     MultipleStepDecorationsWithDarkContentAndColumn(2) {
         Button(
-            containerModifier = Modifier
+            modifier = Modifier
                 .fillMaxWidth(.7f)
                 .slideInOutLeft(duration = 300, isShown = isLoadingView),
             text = "VS AI",
@@ -86,7 +87,7 @@ fun MainViewContent(
             }
         )
         Button(
-            containerModifier = Modifier
+            modifier = Modifier
                 .fillMaxWidth(.7f)
                 .slideInOutLeft(duration = 400, isShown = isLoadingView),
             text = "Multiplayer",
@@ -97,7 +98,7 @@ fun MainViewContent(
             }
         )
         Button(
-            containerModifier = Modifier
+            modifier = Modifier
                 .fillMaxWidth(.7f)
                 .slideInOutLeft(duration = 500, isShown = isLoadingView),
             text = "Game history",
@@ -108,7 +109,18 @@ fun MainViewContent(
             }
         )
         Button(
-            containerModifier = Modifier
+            modifier = Modifier
+                .fillMaxWidth(.7f)
+                .slideInOutLeft(duration = 500, isShown = isLoadingView),
+            text = "Customization",
+            colorGradient = DarkBlueBlueList,
+            buttonType = ButtonType.LeftSide,
+            onClick = {
+                goToDelayed(Views.Customization, loadOutDelay, {})
+            }
+        )
+        Button(
+            modifier = Modifier
                 .fillMaxWidth(.7f)
                 .slideInOutLeft(duration = 500, isShown = isLoadingView),
             text = "Settings",

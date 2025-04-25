@@ -67,7 +67,7 @@ fun MultiplayerViewContent(
 
     MultipleStepDecorationsWithDarkContentAndColumn(2) {
         Button(
-            containerModifier = Modifier
+            modifier = Modifier
                 .fillMaxWidth(.7f)
                 .slideInOutLeft(duration = 300, isShown = isShown),
             text = "Join",
@@ -78,7 +78,7 @@ fun MultiplayerViewContent(
             }
         )
         Button(
-            containerModifier = Modifier
+            modifier = Modifier
                 .fillMaxWidth(.7f)
                 .slideInOutLeft(duration = 400, isShown = isShown),
             text = "Create",
@@ -89,7 +89,7 @@ fun MultiplayerViewContent(
             }
         )
         Button(
-            containerModifier = Modifier
+            modifier = Modifier
                 .fillMaxWidth(.7f)
                 .slideInOutLeft(duration = 500, isShown = isShown),
             text = "Hot-seat",

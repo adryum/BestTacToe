@@ -38,5 +38,6 @@ data class GameStartedEventSocketResponseModel(
     val selfId: Int,
     val selfName: String,
     val opponentId: Int,
-    val opponentName: String
+    val opponentName: String,
+    val firstTo: Int
 )

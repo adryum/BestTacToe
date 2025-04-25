@@ -1,48 +1,54 @@
 package com.testdevlab.besttactoe.ui.views
 
+import CodeInputWrapped
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.TextFieldValue
 import com.testdevlab.besttactoe.core.repositories.GameHandler
-import com.testdevlab.besttactoe.ui.components.CodeShower
-import com.testdevlab.besttactoe.ui.components.DarkBackgroundWithDarkTop
-import com.testdevlab.besttactoe.ui.theme.DarkOrange
-import com.testdevlab.besttactoe.ui.theme.Orange
-import com.testdevlab.besttactoe.ui.theme.Yellow
-import com.testdevlab.besttactoe.ui.theme.ldp
+import com.testdevlab.besttactoe.ui.navigation.NavigationObject
+import com.testdevlab.besttactoe.ui.navigation.Views
 import de.drick.compose.hotpreview.HotPreview
 
 @Composable
 fun CreateLobbyView(
-    gameHandler: GameHandler = GameHandler
+    gameHandler: GameHandler = GameHandler,
 ) {
-    val code by gameHandler.code.collectAsState()
-
-    LaunchedEffect(Unit) {
-        gameHandler.createLobby()
-    }
-
+    val isLoadingView by NavigationObject.isViewLoadingIn.collectAsState()
     CreateLobbyViewContent(
-        codeString = code
+        onGameCreate = gameHandler::createLobby,
+        goToDelayed = NavigationObject::delayedGoTo,
+        isLoadingView = isLoadingView
     )
 }
 
 @Composable
 fun CreateLobbyViewContent(
-    codeString: String?
+    isLoadingView: Boolean,
+    onGameCreate: (Int) -> Unit,
+    goToDelayed: (Views, Long, () -> Unit) -> Unit
 ) {
-    DarkBackgroundWithDarkTop(verticalColumnAlignment = Alignment.Top) {
-        CodeShower(
-            code = codeString ?: "Creating lobby...",
-            leftGradientColor = Orange,
-            rightGradientColor = Yellow,
-            inputLeftGradientColor = DarkOrange,
-            inputRightGradientColor = Orange,
-            height = 80.ldp
-        )
-    }
+    val delay = 200L
+    var bestOf by remember { mutableStateOf(TextFieldValue("")) }
+
+    CodeInputWrapped(
+        modifier = Modifier.fillMaxWidth(),
+        title = "Turn Count",
+        value = bestOf,
+        onValueChanged = { bestOf = it },
+        onClick = {
+            goToDelayed(Views.CodeView, delay) {
+                onGameCreate(bestOf.text.toInt())
+            }
+        },
+        isShown = isLoadingView,
+        allowOnlyNumbers = true
+    )
 }
 
 @HotPreview(name = "Menu", widthDp = 540, heightDp = 1020)

@@ -41,10 +41,11 @@ import com.testdevlab.besttactoe.ui.Piece
 import com.testdevlab.besttactoe.ui.Segment
 import com.testdevlab.besttactoe.ui.SegmentUIModel
 import com.testdevlab.besttactoe.ui.TableOuterPadding
-import com.testdevlab.besttactoe.ui.theme.Blue
 import com.testdevlab.besttactoe.ui.theme.GrayDark
 import com.testdevlab.besttactoe.ui.theme.SelectedSegmentColor
 import com.testdevlab.besttactoe.ui.theme.TransparentDark
+import com.testdevlab.besttactoe.ui.theme.fadeOut
+import com.testdevlab.besttactoe.ui.theme.ifThen
 import com.testdevlab.besttactoe.ui.theme.ldp
 import com.testdevlab.besttactoe.ui.theme.lightGray
 import com.testdevlab.besttactoe.ui.theme.pxToDp
@@ -117,11 +118,13 @@ fun SegmentImage(
     segmentState: Segment,
     opponentIcon: DrawableResource,
     playerIcon: DrawableResource,
+    playerTint: Color,
+    opponentTint: Color,
     imagePadding: Dp,
 ) {
     val color = when (segmentState) {
-        Segment.Player -> Blue
-        Segment.Opponent -> Color.Red
+        Segment.Player -> playerTint
+        Segment.Opponent -> opponentTint
         Segment.Draw -> GrayDark
         else -> white_60
     }
@@ -184,6 +187,8 @@ fun TicTacToeSegment(
     gameMode: GameMode?,
     opponentIcon: DrawableResource,
     playerIcon: DrawableResource,
+    playerTint: Color,
+    opponentTint: Color,
     onPieceClick: (Int) -> Unit
 ) {
     var segmentSize by remember { mutableStateOf(IntSize.Zero) }
@@ -213,10 +218,16 @@ fun TicTacToeSegment(
                 segmentState = segment.state,
                 playerIcon = playerIcon,
                 opponentIcon = opponentIcon,
+                playerTint = playerTint,
+                opponentTint = opponentTint,
                 imagePadding = 10.ldp,
             )
         ThreeByThreeGrid(
-            modifier = Modifier.zIndex(1f),
+            modifier = Modifier
+                .zIndex(1f)
+                .ifThen(segment.isAnythingButNone) {
+                    fadeOut(duration = 700, to = .4f)
+                },
             content = segment.pieces
         ) { piece ->
             key(piece) {
@@ -227,8 +238,8 @@ fun TicTacToeSegment(
                         .background(tileColor),
                     isClickable = isPieceClickable(),
                     tint = when (piece.state) {
-                        Piece.Player -> ColorFilter.tint(Blue)
-                        Piece.Opponent ->  ColorFilter.tint(Color.Red)
+                        Piece.Player -> ColorFilter.tint(playerTint)
+                        Piece.Opponent ->  ColorFilter.tint(opponentTint)
                         else -> null
                     },
                     icon = when (piece.state) {
@@ -254,6 +265,8 @@ fun TicTacToeTable(
     isGameEnded: Boolean,
     playerIcon: DrawableResource,
     enemyIcon: DrawableResource,
+    opponentTint: Color,
+    playerTint: Color,
     gameMode: GameMode?,
     segments: List<SegmentUIModel>,
     padding: TableOuterPadding,
@@ -289,6 +302,8 @@ fun TicTacToeTable(
                     isPlayerTurn = isPlayerTurn,
                     playerIcon = playerIcon,
                     opponentIcon = enemyIcon,
+                    playerTint = playerTint,
+                    opponentTint = opponentTint,
                     onPieceClick = { pieceIndex ->
                         onPieceClick(
                             MoveModel(

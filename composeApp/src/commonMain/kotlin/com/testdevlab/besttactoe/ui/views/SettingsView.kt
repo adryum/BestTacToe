@@ -1,16 +1,21 @@
 package com.testdevlab.besttactoe.ui.views
 
+import CodeInputField
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.TextFieldValue
+import com.testdevlab.besttactoe.core.cache.PreferenceHandler
 import com.testdevlab.besttactoe.core.repositories.GameHandler
 import com.testdevlab.besttactoe.core.repositories.GameMode
 import com.testdevlab.besttactoe.ui.components.Button
@@ -23,7 +28,7 @@ import com.testdevlab.besttactoe.ui.theme.DarkBlueBlueList
 import com.testdevlab.besttactoe.ui.theme.Orange
 import com.testdevlab.besttactoe.ui.theme.Yellow
 import com.testdevlab.besttactoe.ui.theme.ldp
-import com.testdevlab.besttactoe.ui.theme.popped
+import com.testdevlab.besttactoe.ui.theme.popIn
 import de.drick.compose.hotpreview.HotPreview
 
 @Composable
@@ -31,17 +36,31 @@ fun SettingsView(
     gameHandler: GameHandler= GameHandler,
     navigationHandler: NavigationObject = NavigationObject
 ) {
-    SettingsViewContent(
-        onGoClick = navigationHandler::goTo,
-        onPlayClick = gameHandler::startLocalGame
-    )
+    val username by PreferenceHandler.userName.collectAsState()
+
+    LaunchedEffect(username) {
+        PreferenceHandler.refreshVisuals()
+    }
+
+    println(username)
+
+    if (username != null)
+        SettingsViewContent(
+            username = username!!,
+            onGoClick = navigationHandler::goTo,
+            onPlayClick = gameHandler::startLocalGame,
+            saveName = PreferenceHandler::setUserName
+        )
 }
 
 @Composable
 fun SettingsViewContent(
+    username: String,
     onGoClick: (Views) -> Unit,
     onPlayClick: (GameMode) -> Unit,
+    saveName: (String) -> Unit
 ) {
+    var usernameValue by remember { mutableStateOf(TextFieldValue(username)) }
     var isSoundEnabled by remember { mutableStateOf(true) }
     var isAnimationEnabled by remember { mutableStateOf(false) }
 
@@ -51,8 +70,17 @@ fun SettingsViewContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(20.ldp, Alignment.CenterVertically)
         ) {
+            CodeInputField(
+                value = usernameValue,
+                onValueChanged = {
+                    usernameValue = it
+                    saveName(it.text)
+                },
+                limitSymbols = true,
+                limitSymbolsToCount = 16
+            )
             ToggleButton(
-                modifier = Modifier.popped(200),
+                modifier = Modifier.popIn(200),
                 isEnabled = isSoundEnabled,
                 text = "Sound",
                 leftGradientColor = Orange,
@@ -60,7 +88,7 @@ fun SettingsViewContent(
                 onClick = { isSoundEnabled = !isSoundEnabled}
             )
             ToggleButton(
-                modifier = Modifier.popped(300),
+                modifier = Modifier.popIn(300),
                 isEnabled = isAnimationEnabled,
                 text = "Animation",
                 leftGradientColor = Orange,
@@ -68,7 +96,7 @@ fun SettingsViewContent(
                 onClick = { isAnimationEnabled = !isAnimationEnabled}
             )
             Button(
-                containerModifier = Modifier.fillMaxWidth(.7f).popped(400),
+                modifier = Modifier.fillMaxWidth(.7f).popIn(400),
                 text = "RoboRumble",
                 colorGradient = DarkBlueBlueList,
                 buttonType = ButtonType.Center,
@@ -78,7 +106,7 @@ fun SettingsViewContent(
                 }
             )
             Button(
-                containerModifier = Modifier.fillMaxWidth(.7f).popped(500),
+                modifier = Modifier.fillMaxWidth(.7f).popIn(500),
                 text = "Resolution",
                 colorGradient = DarkBlueBlueList,
                 buttonType = ButtonType.Center,
@@ -91,5 +119,5 @@ fun SettingsViewContent(
 @HotPreview(name = "Menu", widthDp = 540, heightDp = 1020)
 @Composable
 private fun SettingsViewPreview() {
-    SettingsViewContent({}, {})
+//    SettingsViewContent({}, {})
 }

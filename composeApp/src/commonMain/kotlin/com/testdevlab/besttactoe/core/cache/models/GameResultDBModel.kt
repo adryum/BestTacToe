@@ -9,5 +9,5 @@ data class GameResultDBModel(
     val playerName: String,
     val opponentName: String,
     val gameMode: GameMode,
-    val matches: List<GameResult>
+    val rounds: List<GameResult>
 )

@@ -6,9 +6,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class GameDBModel(
-    val score: ScoreDBModel,
+    val participants: ParticipantDBModel,
     val table: List<SegmentDBModel>,
     val isPlayerTurn: Boolean,
     val gameMode: GameMode,
-    val matchHistory: List<GameResult>
+    val roundHistory: List<GameResult>,
+    val roundCount: Int
 )

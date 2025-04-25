@@ -3,10 +3,10 @@ package com.testdevlab.besttactoe.core.repositories
 import besttactoe.composeapp.generated.resources.Res
 import besttactoe.composeapp.generated.resources.ic_equals
 import com.testdevlab.besttactoe.core.cache.Preferences
-import com.testdevlab.besttactoe.core.cache.models.ChosenIconDBModel
+import com.testdevlab.besttactoe.core.cache.models.ChosenVisualDBModel
 import com.testdevlab.besttactoe.core.cache.models.GameDBModel
 import com.testdevlab.besttactoe.core.cache.models.GameResultDBModel
-import com.testdevlab.besttactoe.core.cache.models.ScoreDBModel
+import com.testdevlab.besttactoe.core.cache.models.ParticipantDBModel
 import com.testdevlab.besttactoe.core.cache.toJson
 import com.testdevlab.besttactoe.core.cache.toObject
 import com.testdevlab.besttactoe.core.common.launchDefault
@@ -19,19 +19,16 @@ import com.testdevlab.besttactoe.ui.GameResultModel
 import com.testdevlab.besttactoe.ui.MoveModel
 import com.testdevlab.besttactoe.ui.ParticipantUIModel
 import com.testdevlab.besttactoe.ui.Piece
-import com.testdevlab.besttactoe.ui.PopUpModel
-import com.testdevlab.besttactoe.ui.ScoreModel
 import com.testdevlab.besttactoe.ui.Segment
 import com.testdevlab.besttactoe.ui.SegmentUIModel
 import com.testdevlab.besttactoe.ui.navigation.NavigationObject
 import com.testdevlab.besttactoe.ui.navigation.Views
-import com.testdevlab.besttactoe.ui.theme.isLoss
 import com.testdevlab.besttactoe.ui.theme.isMultiplayer
 import com.testdevlab.besttactoe.ui.theme.isRoboRumble
-import com.testdevlab.besttactoe.ui.theme.isVictory
 import com.testdevlab.besttactoe.ui.theme.isVsAI
 import com.testdevlab.besttactoe.ui.theme.log
 import com.testdevlab.besttactoe.ui.theme.toColor
+import com.testdevlab.besttactoe.ui.theme.toResultTypeCountModel
 import com.testdevlab.besttactoe.ui.theme.toSegmentDBModelList
 import com.testdevlab.besttactoe.ui.theme.toSegmentUIModelList
 import kotlinx.coroutines.delay
@@ -40,12 +37,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-enum class GameMode {
-    VS_AI,
-    HotSeat,
-    Multiplayer,
-    RoboRumble,
-    None
+enum class GameMode(name: String) {
+    VS_AI("VS AI"),
+    HotSeat("Hot Seat"),
+    Multiplayer("Multiplayer"),
+    RoboRumble("RoboRumble"),
+    None("None")
 }
 
 object GameHandler {
@@ -54,23 +51,25 @@ object GameHandler {
     private val _opponentData = MutableStateFlow<ParticipantUIModel?>(null)
     private val _tableData = MutableStateFlow<List<SegmentUIModel>>(emptyList())
     private val _gameMode = MutableStateFlow(GameMode.None)
-    private val _score = MutableStateFlow<ScoreModel?>(null)
     private val _gameResult = MutableStateFlow<GameResultModel?>(null)
     private val _roundResults = MutableStateFlow<List<GameResult>>(emptyList())
     private val _hasGameEnded = MutableStateFlow(false)
     private val _isRoundTimeout = MutableStateFlow(true)
     private val _canAIMove = MutableSharedFlow<Unit>(1)
-    private val _roundCount = 5
+    private val _roundCount = MutableStateFlow(5)
     private val _isPlayerTurn = MutableStateFlow(false)
     private val _isGamesStart = MutableStateFlow(false)
     private val _code = MutableStateFlow<String?>(null)
+    private val _doesOpponentWantARematch = MutableStateFlow(false)
+    private val _isAnimationShown = MutableStateFlow(false)
+    val isAnimationShown = _isAnimationShown.asStateFlow()
+    val roundCount = _roundCount.asStateFlow()
     val isGamesStart = _isGamesStart.asStateFlow()
     var isPlayerTurn = _isPlayerTurn.asStateFlow()
     val gameResult = _gameResult.asStateFlow()
     val hasGameEnded = _hasGameEnded.asStateFlow()
     val isRoundTimeout = _isRoundTimeout.asStateFlow()
     val gameMode = _gameMode.asStateFlow()
-    val score = _score.asStateFlow()
     val playerData = _playerData.asStateFlow()
     val opponentData = _opponentData.asStateFlow()
     val tableData = _tableData.asStateFlow()
@@ -78,6 +77,7 @@ object GameHandler {
     val turnHolderSegmentType get() = if (_isPlayerTurn.value) Segment.Player else Segment.Opponent
     val roundResults = _roundResults.asStateFlow()
     val code = _code.asStateFlow()
+    val doesOpponentWantARematch = _doesOpponentWantARematch.asStateFlow()
 
     init {
         // for AI
@@ -121,7 +121,8 @@ object GameHandler {
                 startMultiplayerGame(
                     opponentName = event.response.opponentName,
                     playerId = event.response.selfId,
-                    opponentId = event.response.opponentId
+                    opponentId = event.response.opponentId,
+                    firstOf = event.response.firstTo
                 )
 
                 NavigationObject.goTo(Views.GameView)
@@ -137,26 +138,6 @@ object GameHandler {
                 ))
             }
         }
-        launchDefault { // rematch
-            SocketClient.events.collect { event ->
-                if (event !is SocketEvent.Rematch) return@collect
-
-                NavigationObject.showPopUp(
-                    content = PopUpModel(
-                        title = "Rematch?",
-                        description = "Opponent wants to do a rematch!",
-                        buttonOneText = "Fuk Yea!",
-                        onActionOne = { startMultiplayerGame(
-                            opponentName = _opponentData.value!!.name,
-                            opponentId = _opponentData.value!!.id,
-                            playerId = _playerData.value!!.id
-                        ) },
-                        buttonTwoText = "Hell NAW!!!",
-                        onActionTwo = { MultiplayerHandler.sendRematch(_code.value!!) }
-                    )
-                )
-            }
-        }
         launchDefault { // err
             SocketClient.events.collect { event ->
                 if (event is SocketEvent.Error) {
@@ -168,39 +149,35 @@ object GameHandler {
             SocketClient.events.collect { event ->
                 if (event !is SocketEvent.GameEnded) return@collect
 
-                NavigationObject.goBack()
-                saveAndClearGame()
+                NavigationObject.goBackTill(Views.MultiplayerView)
+                saveGame()
             }
         }
-        launchDefault { // ended round
-            SocketClient.events.collect { event ->
-                if (event is SocketEvent.RoundEnded) {
-                    // don't need to call, it get logically triggered in TTTManager
-//                    _isRoundTimeout.update { true }
-                }
-            }
-        }
+    }
+
+    fun setAnimation(value: Boolean) {
+        _isAnimationShown.update { value }
     }
 
     fun handleGoingBack(previousView: Views) {
         if (previousView == Views.GameView) {
-            saveAndClearGame()
-        } else if (previousView == Views.CreateLobbyView) {
+            saveGame()
+        } else if (previousView == Views.CodeView) {
             MultiplayerHandler.sendGameLeave(_code.value!!)
         }
     }
 
-    private fun runGamePreparations() {
+    private fun runGamePreparations(gameMode: GameMode) {
+        _gameMode.update { gameMode }
         _isGamesStart.update { true }
         _isRoundTimeout.update { true }
         makeNewTable()
-        makeNewScore()
     }
 
-    fun setParticipantData(opponentName: String, playerId: Int, opponentId: Int) {
+    fun setParticipantData(opponentName: String, playerId: Int = 2, opponentId: Int = 2) {
         val chosenIcons = Preferences
-            .chosenIcons
-            ?.toObject<ChosenIconDBModel>()!!
+            .chosenVisuals
+            ?.toObject<ChosenVisualDBModel>()!!
 
         _playerData.update { ParticipantUIModel(
             name = Preferences.playerName!!,
@@ -219,25 +196,40 @@ object GameHandler {
         log("SET")
     }
 
+    fun handleRematch() {
+        if (_gameMode.value.isMultiplayer()) {
+//            if (!_doesOpponentWantARematch.value) {
+//                sendRematchRequest()
+//            }
+//            sendRematchRequest()
+            rematchGameClean()
+            runGamePreparations(_gameMode.value)
+            _doesOpponentWantARematch.update { false }
+        } else {
+            rematch()
+        }
+    }
+
     //region multiplayer
-    fun startMultiplayerGame(opponentName: String, playerId: Int, opponentId: Int) {
+    fun startMultiplayerGame(opponentName: String, playerId: Int, opponentId: Int, firstOf: Int) {
         setParticipantData(
             opponentName = opponentName,
             playerId = playerId,
             opponentId = opponentId
         )
 
-        _gameMode.update { GameMode.Multiplayer }
+        _roundCount.update { firstOf }
 
-        runGamePreparations()
+        runGamePreparations(GameMode.Multiplayer)
     }
 
-    fun multiplayerRematch() {
+    fun sendRematchRequest() {
         MultiplayerHandler.sendRematch(_code.value!!)
     }
 
-    fun createLobby() {
-        sendCreateGame(name = Preferences.playerName!!)
+    fun createLobby(bestOf: Int) {
+        _roundCount.update { bestOf }
+        sendCreateGame(name = Preferences.playerName!!, bestOf = bestOf)
     }
 
     fun joinLobby(code: String) {
@@ -249,6 +241,7 @@ object GameHandler {
         _code.update { code }
     }
     //endregion
+
     fun makeAMove(pieceData: MoveModel) {
         log("made move")
         // locally make move -> send move
@@ -270,11 +263,11 @@ object GameHandler {
     }
 
     fun startLocalGame(gameMode: GameMode) {
-        setParticipantData(opponentName = getRandomName(), opponentId = 1, playerId = 0)
+        setParticipantData(opponentName = getRandomName())
 
-        _gameMode.update { gameMode }
+        _roundCount.update { 3 }
 
-        runGamePreparations()
+        runGamePreparations(gameMode)
 
         if (gameMode.isVsAI() || gameMode.isRoboRumble())
             gameAI = GameAI()
@@ -285,7 +278,7 @@ object GameHandler {
     fun rematch() {
         rematchGameClean()
 
-        runGamePreparations()
+        runGamePreparations(_gameMode.value)
 
         if (_gameMode.value.isVsAI() || _gameMode.value.isRoboRumble()) {
             gameAI = GameAI()
@@ -295,7 +288,8 @@ object GameHandler {
     }
 
     fun endRound(gameResult: GameResult) {
-        log("ended round")
+        log("Ended round")
+
         _roundResults.update {
              _roundResults.value
                 .toMutableList()
@@ -303,14 +297,14 @@ object GameHandler {
                 .toList()
         }
 
-        addScore(
-            player = if (gameResult.isVictory()) 1 else 0,
-            opponent = if (gameResult.isLoss()) 1 else 0
-        )
+        val resultCount = _roundResults.value.toResultTypeCountModel()
 
-        val hasGameEnded = _roundResults.value.size >= _roundCount
+        _hasGameEnded.update {
+            resultCount.draws + resultCount.wins >= _roundCount.value
+                    || resultCount.draws + resultCount.losses >= _roundCount.value
+        }
 
-        if (hasGameEnded) {
+        if (_hasGameEnded.value) {
             endGame()
         } else {
             _isRoundTimeout.update { true }
@@ -318,41 +312,39 @@ object GameHandler {
     }
 
     private fun endGame() {
-        log("ended game")
-        var playerPoints = 0
-        var opponentPoints = 0
+        log("Ended game")
 
-        for (match in _roundResults.value) {
-            if (match.isVictory()) playerPoints++
-            else if (match.isLoss()) opponentPoints++
-        }
+        val resultCount = _roundResults.value.toResultTypeCountModel()
 
         val gameResult =
-            if (playerPoints == opponentPoints) GameResult.Draw
-            else if (playerPoints > opponentPoints) GameResult.Victory
+            if (resultCount.wins == resultCount.losses) GameResult.Draw
+            else if (resultCount.wins > resultCount.losses) GameResult.Victory
             else GameResult.Loss
+
+        val victorName = when (gameResult) {
+            GameResult.Victory -> _playerData.value!!.name
+            GameResult.Draw -> "DRAW"
+            GameResult.Loss -> _opponentData.value!!.name
+        }
+
+        val victorIcon = when (gameResult) {
+                GameResult.Victory -> _playerData.value!!.icon
+                GameResult.Draw -> Res.drawable.ic_equals
+                GameResult.Loss -> _opponentData.value!!.icon
+        }
 
         _gameResult.update {
             GameResultModel(
-                name = when (gameResult) {
-                    GameResult.Victory -> _playerData.value!!.name
-                    GameResult.Draw -> "DRAW"
-                    GameResult.Loss -> _opponentData.value!!.name
-                },
-                icon = when (gameResult) {
-                    GameResult.Victory -> _playerData.value!!.icon
-                    GameResult.Draw -> Res.drawable.ic_equals
-                    GameResult.Loss -> _opponentData.value!!.icon
-                },
+                name = victorName,
+                icon = victorIcon,
                 result = gameResult
             )
         }
-
-        _hasGameEnded.update { true }
     }
 
     fun proceedToTheNextRound() {
-        log("preceeded to nex round")
+        log("Proceeding to next round")
+
         if (_isGamesStart.value) {
             _isGamesStart.update { false }
         } else {
@@ -368,61 +360,40 @@ object GameHandler {
         _isRoundTimeout.update { false }
     }
 
-    private fun saveUnfinishedGame() {
-        val dataJSON = GameDBModel(
-            score = ScoreDBModel(
-                playerScore = _score.value?.playerScore!!,
-                opponentScore = _score.value?.opponentScore!!,
-                opponentName = _opponentData.value!!.name,
-                playerName = _playerData.value!!.name
-            ),
-            table = _tableData.value.toSegmentDBModelList(),
-            isPlayerTurn = _isPlayerTurn.value,
-            gameMode = _gameMode.value,
-            matchHistory = _roundResults.value
-        ).toJson()
-
-        if (_gameMode.value.isVsAI())
-            Preferences.vsAI = dataJSON
-        else
-            Preferences.hotSeat = dataJSON
-    }
-
     fun loadGame(gameMode: GameMode) {
-        println("Game Loaded!")
+        log("Loading game...")
+
         val loadedGame =
             if (gameMode.isVsAI())
                 Preferences.vsAI!!.toObject<GameDBModel>()
             else
                 Preferences.hotSeat!!.toObject<GameDBModel>()
 
-        setParticipantData(
-            opponentName = loadedGame.score.opponentName,
-            playerId = 0,
-            opponentId = 1
-        )
+        setParticipantData(opponentName = loadedGame.participants.opponentName)
+
+        _roundCount.update { loadedGame.roundCount }
 
         _gameMode.update { loadedGame.gameMode }
 
-        _score.update {
-            ScoreModel(
-                playerScore = loadedGame.score.playerScore,
-                opponentScore = loadedGame.score.opponentScore
-            )
-        }
-
         _tableData.update { loadedGame.table.toSegmentUIModelList() }
 
-        _roundResults.update { loadedGame.matchHistory }
+        _roundResults.update { loadedGame.roundHistory }
 
         if (_gameMode.value.isVsAI()) gameAI = GameAI()
 
         setPlayerTurn(loadedGame.isPlayerTurn)
     }
 
-    fun saveAndClearGame() {
+    fun saveGame() {
+        log("Saving game...")
+
         if (_gameMode.value.isMultiplayer()) {
             MultiplayerHandler.sendGameLeave(_code.value!!)
+
+            if (!hasGameEnded.value) {
+                fullGameClean()
+                return
+            }
         }
 
         if (_hasGameEnded.value) {
@@ -430,7 +401,7 @@ object GameHandler {
                 playerName = _playerData.value!!.name,
                 opponentName = _opponentData.value!!.name,
                 gameMode = _gameMode.value,
-                matches = _roundResults.value
+                rounds = _roundResults.value
             ))
         } else {
             saveUnfinishedGame()
@@ -439,11 +410,29 @@ object GameHandler {
         fullGameClean()
     }
 
+    private fun saveUnfinishedGame() {
+        val dataJSON = GameDBModel(
+            participants = ParticipantDBModel(
+                opponentName = _opponentData.value!!.name,
+                playerName = _playerData.value!!.name
+            ),
+            table = _tableData.value.toSegmentDBModelList(),
+            isPlayerTurn = _isPlayerTurn.value,
+            gameMode = _gameMode.value,
+            roundHistory = _roundResults.value,
+            roundCount = _roundCount.value
+        ).toJson()
+
+        if (_gameMode.value.isVsAI())
+            Preferences.vsAI = dataJSON
+        else
+            Preferences.hotSeat = dataJSON
+    }
+
     private fun rematchGameClean() {
         _gameResult.update { null }
         _roundResults.update { emptyList() }
         _hasGameEnded.update { false }
-        _score.update { null }
     }
 
     private fun fullGameClean() {
@@ -454,6 +443,7 @@ object GameHandler {
         _gameMode.update { GameMode.None }
         _playerData.update { null }
         _opponentData.update { null }
+        _roundCount.update { 0 }
     }
 
     //region other
@@ -472,19 +462,7 @@ object GameHandler {
         else -> "Noname"
     }
 
-    fun setCode(code: String) {
-        _code.update { code }
-    }
     fun isThereASavedGame(gameMode: GameMode) = Preferences.isThereASavedGame(gameMode)
-
-    private fun addScore(player: Int = 0, opponent: Int = 0) {
-        _score.update {
-            it?.copy(
-                playerScore = it.playerScore + player,
-                opponentScore = it.opponentScore + opponent
-            )
-        }
-    }
 
     private fun setPlayerTurn(value: Boolean) {
         _isPlayerTurn.update { value }
@@ -496,20 +474,14 @@ object GameHandler {
 
     fun switchTurns() = setPlayerTurn(!_isPlayerTurn.value)
 
-    private fun tossACoin() = setPlayerTurn((0..1).random() == 0)
+    private fun tossACoin() {
+        log("Tossed a coin!")
+        return setPlayerTurn((0..1).random() == 0)
+    }
 
     private fun makeNewTable() {
         _tableData.update {
             TicTacToeManager.createTable(true)
-        }
-    }
-
-    private fun makeNewScore(player: Int = 0, opponent: Int = 0) {
-        _score.update {
-            ScoreModel(
-                opponentScore = opponent,
-                playerScore = player
-            )
         }
     }
     //endregion

@@ -3,16 +3,19 @@ package com.testdevlab.besttactoe.core.repositories
 import com.testdevlab.besttactoe.core.cache.toJson
 import com.testdevlab.besttactoe.core.networking.RequestCode
 import com.testdevlab.besttactoe.core.networking.RequestEndRound
+import com.testdevlab.besttactoe.core.networking.RequestGameCreate
 import com.testdevlab.besttactoe.core.networking.RequestJoin
 import com.testdevlab.besttactoe.core.networking.RequestMakeMove
-import com.testdevlab.besttactoe.core.networking.RequestName
 import com.testdevlab.besttactoe.core.networking.SocketClient
 import com.testdevlab.besttactoe.core.networking.SocketRequest
 
 object MultiplayerHandler {
-    fun sendCreateGame(name: String) {
+    fun sendCreateGame(name: String, bestOf: Int) {
         val content = SocketRequest.GameCreated(
-            content = RequestName(name)
+            content = RequestGameCreate(
+                name = name,
+                firstTo = bestOf
+            )
         )
 
         SocketClient.sendMessage(
@@ -49,20 +52,6 @@ object MultiplayerHandler {
     fun sendRematch(code: String) {
         val request = SocketRequest.GameRematch(
             content = RequestCode(code = code)
-        )
-
-        SocketClient.sendMessage(
-            requestType = request.request,
-            message = request.content.toJson()
-        )
-    }
-
-    fun sendRoundEnd(code: String, id: Int) {
-        val request = SocketRequest.RoundEnd(
-            content = RequestEndRound(
-                id = id,
-                code = code,
-            )
         )
 
         SocketClient.sendMessage(

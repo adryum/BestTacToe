@@ -20,7 +20,7 @@ fun getVersionCode(): Int {
 }
 
 val appBuildFlavor = System.getenv("BUILD_FLAVOR")?.takeIf { it.isNotBlank() } ?: "x"
-val appVersion = "1.0.${getVersionCode()}-$appBuildFlavor"
+val appVersion = "1.0.${getVersionCode()}"
 
 buildkonfig {
     packageName = "com.testdevlab.besttactoe"
@@ -85,6 +85,7 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/versions/9/OSGI-INF/MANIFEST.MF"
         }
     }
     buildTypes {

@@ -1,4 +1,4 @@
-package com.testdevlab.besttactoe.core
+package com.testdevlab.besttactoe.core.utils
 
 import com.testdevlab.besttactoe.BuildKonfig
 
